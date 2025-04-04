@@ -112,15 +112,72 @@
         let key = this.prefix + "/" + (!this.$common.isEmpty(this.$store.state.currentUser.username) ? (this.$store.state.currentUser.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentUser.id) : (this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id)) + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
 
         if (this.storeType === "local") {
-          let fd = new FormData();
-          fd.append("file", options.file);
-          fd.append("originalName", options.file.name);
-          fd.append("key", key);
-          fd.append("relativePath", key);
-          fd.append("type", this.prefix);
-          fd.append("storeType", this.storeType);
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(options.file);
+            reader.onload = () => {
+              const img = new Image();
+              img.src = reader.result;
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                let width = img.width, height = img.height;
+                if (this.prefix === "corporationLogo") {
+                  width = 120;
+                  height = 120;
+                } else if (this.prefix === "corporationCover") {
+                  const ratio = img.width / img.height;
+                  width = 3200;
+                  height = 3200 / ratio;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
 
-          return this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options);
+                const format = 'image/webp';
+                const filename = '.webp';
+                const quality = 0.9; // 可根据需要调整压缩质量
+                canvas.toBlob((blob) => {
+                  let fd = new FormData();
+                  fd.append("file", blob, options.file.name.replace(/\.\w+$/, filename));
+                  fd.append("originalName", options.file.name);
+                  fd.append("key", key.replace(/\.\w+$/, filename));
+                  fd.append("relativePath", key.replace(/\.\w+$/, filename));
+                  fd.append("type", this.prefix);
+                  fd.append("storeType", this.storeType);
+                  console.log(fd.get("file"));
+                  console.log(fd.get("originalName"));
+                  console.log(fd.get("key"));
+                  console.log(fd.get("relativePath"));
+                  console.log(fd.get("type"));
+                  console.log(fd.get("storeType"));
+                  console.log(options);
+
+                  this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options)
+                    .then(response => {
+                      resolve(response);
+                    })
+                    .catch(error => {
+                      reject(error);
+                    });
+                }, format, quality);
+              };
+            };
+            reader.onerror = () => {
+              reject(new Error('读取文件失败'));
+            };
+          });
+
+
+          // let fd = new FormData();
+          // fd.append("file", options.file);
+          // fd.append("originalName", options.file.name);
+          // fd.append("key", key);
+          // fd.append("relativePath", key);
+          // fd.append("type", this.prefix);
+          // fd.append("storeType", this.storeType);
+          //
+          // return this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options);
         } else if (this.storeType === "qiniu") {
           const xhr = new XMLHttpRequest();
           xhr.open('get', this.$constant.baseURL + "/qiniu/getUpToken?key=" + key, false);

@@ -8,7 +8,7 @@
           <el-image class="corporation-image my-el-image"
                     v-once
                     lazy
-                    :src="corporation.corporationCover"
+                    :src="getImageSrc(corporation.corporationCover)"
                     fit="cover"
                     style="margin-left: calc(-50vw + 50%);margin-right: calc(-50vw + 50%);width: 100vw;">
             <div slot="error" class="image-slot">
@@ -289,6 +289,17 @@
     //   },
     // },
     methods: {
+      getImageSrc(originalSrc) {
+        const dpr = window.devicePixelRatio || 1;
+        if (dpr >= 2.75) {
+          // 假设存在 @3x 后缀的高分辨率图片
+          return originalSrc.replace(/\.\w+$/, '_3x$&');
+        } else if (dpr >= 1.75) {
+          // 假设存在 @2x 后缀的高分辨率图片
+          return originalSrc.replace(/\.\w+$/, '_2x$&');
+        }
+        return originalSrc;
+      },
       handleDepartmentSmallMounted() {
         console.log("handleDepartmentSmallMounted");
       },
@@ -322,7 +333,6 @@
         return this.$http.get(this.$constant.baseURL + "/corporation/getCorporationById", {id: this.id, password: password})
           .then((res) => {
             if (!this.$common.isEmpty(res.data)) {
-              console.log(res.data);
               this.corporation = res.data;
               const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
               this.corporationContentHtml = md.render(this.corporation.corporationContent);

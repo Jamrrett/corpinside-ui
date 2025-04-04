@@ -1,8 +1,8 @@
 export default {
   // 测试环境
-  baseURL: "http://10.250.123.162:80",
-  imBaseURL: "http://10.250.123.162:81/im",
-  webURL: "http://10.250.123.162",
+  baseURL: "https://10.250.123.162:443",
+  imBaseURL: "https://10.250.123.162:81/im",
+  webURL: "https://10.250.123.162",
 
   // 生产环境
   // webURL: location.protocol + "//" + location.hostname + (location.port ? ':' + location.port : ''),
