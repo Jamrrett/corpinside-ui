@@ -49,205 +49,205 @@
 </template>
 
 <script>
-  import upload from '../../utils/ajaxUpload';
+import upload from '../../utils/ajaxUpload';
 
-  export default {
-    props: {
-      isAdmin: {
-        type: Boolean,
-        default: false
-      },
-      prefix: {
-        type: String,
-        default: ""
-      },
-      listType: {
-        type: String,
-        default: "picture"
-      },
-      storeType: {
-        type: String,
-        default: localStorage.getItem("defaultStoreType")
-      },
-      accept: {
-        type: String,
-        default: "image/*"
-      },
-      maxSize: {
-        type: Number,
-        default: 5
-      },
-      maxNumber: {
-        type: Number,
-        default: 5
+export default {
+  props: {
+    isAdmin: {
+      type: Boolean,
+      default: false
+    },
+    prefix: {
+      type: String,
+      default: ''
+    },
+    listType: {
+      type: String,
+      default: 'picture'
+    },
+    storeType: {
+      type: String,
+      default: localStorage.getItem('defaultStoreType')
+    },
+    accept: {
+      type: String,
+      default: 'image/*'
+    },
+    maxSize: {
+      type: Number,
+      default: 5
+    },
+    maxNumber: {
+      type: Number,
+      default: 5
+    }
+  },
+
+  data() {
+    return {};
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    submitUpload() {
+      this.$refs.upload.submit();
+    },
+
+    customUpload(options) {
+      let suffix = '';
+      if (options.file.name.lastIndexOf('.') !== -1) {
+        suffix = options.file.name.substring(options.file.name.lastIndexOf('.'));
+      }
+
+      let key = this.prefix + '/' + (!this.$common.isEmpty(this.$store.state.currentUser.username) ? (this.$store.state.currentUser.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentUser.id) : (this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id)) + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
+
+      if (this.storeType === 'local') {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(options.file);
+          reader.onload = () => {
+            const img = new Image();
+            img.src = reader.result;
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              let width = img.width, height = img.height;
+              if (this.prefix === 'corporationLogo' || this.prefix === 'userAvatar') {
+                width = 120;
+                height = 120;
+              } else if (this.prefix === 'corporationCover') {
+                const ratio = img.width / img.height;
+                width = 3200;
+                height = 3200 / ratio;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const format = 'image/webp';
+              const filename = '.webp';
+              const quality = 0.9; // 可根据需要调整压缩质量
+              canvas.toBlob((blob) => {
+                let fd = new FormData();
+                fd.append('file', blob, options.file.name.replace(/\.\w+$/, filename));
+                fd.append('originalName', options.file.name);
+                fd.append('key', key.replace(/\.\w+$/, filename));
+                fd.append('relativePath', key.replace(/\.\w+$/, filename));
+                fd.append('type', this.prefix);
+                fd.append('storeType', this.storeType);
+                console.log(fd.get('file'));
+                console.log(fd.get('originalName'));
+                console.log(fd.get('key'));
+                console.log(fd.get('relativePath'));
+                console.log(fd.get('type'));
+                console.log(fd.get('storeType'));
+                console.log(options);
+
+                this.$http.upload(this.$constant.baseURL + '/resource/upload', fd, this.isAdmin, options)
+                  .then(response => {
+                    resolve(response);
+                  })
+                  .catch(error => {
+                    reject(error);
+                  });
+              }, format, quality);
+            };
+          };
+          reader.onerror = () => {
+            reject(new Error('读取文件失败'));
+          };
+        });
+
+
+        // let fd = new FormData();
+        // fd.append("file", options.file);
+        // fd.append("originalName", options.file.name);
+        // fd.append("key", key);
+        // fd.append("relativePath", key);
+        // fd.append("type", this.prefix);
+        // fd.append("storeType", this.storeType);
+        //
+        // return this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options);
+      } else if (this.storeType === 'qiniu') {
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', this.$constant.baseURL + '/qiniu/getUpToken?key=' + key, false);
+        if (this.isAdmin) {
+          xhr.setRequestHeader('Authorization', localStorage.getItem('adminToken'));
+        } else {
+          xhr.setRequestHeader('Authorization', localStorage.getItem('userToken'));
+        }
+
+        try {
+          xhr.send();
+          const res = JSON.parse(xhr.responseText);
+          if (res !== null && res.hasOwnProperty('code') && res.code === 200) {
+            options.data = {
+              token: res.data,
+              key: key
+            };
+            return upload(options);
+          } else if (res !== null && res.hasOwnProperty('code') && res.code !== 200) {
+            return Promise.reject(res.message);
+          } else {
+            return Promise.reject('服务异常！');
+          }
+        } catch (e) {
+          return Promise.reject(e.message);
+        }
       }
     },
 
-    data() {
-      return {}
+    // 文件上传成功时的钩子
+    handleSuccess(response, file, fileList) {
+      let url;
+      if (this.storeType === 'local') {
+        url = response.data;
+      } else if (this.storeType === 'qiniu') {
+        url = this.$store.state.sysConfig['qiniu.downloadUrl'] + response.key;
+        this.$common.saveResource(this, this.prefix, url, file.size, file.raw.type, file.name, 'qiniu', this.isAdmin);
+      }
+      this.$emit('addPicture', url);
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
+    handleError(err, file, fileList) {
+      this.$message({
+        message: err,
+        type: 'error'
+      });
     },
-
-    mounted() {
-
+    // 上传文件之前的钩子，参数为上传的文件，若返回 false 或者返回 Promise 且被 reject，则停止上传
+    beforeUpload(file) {
     },
+    // 文件列表移除文件时的钩子
+    handleRemove(file, fileList) {
+    },
+    // 添加文件、上传成功和上传失败时都会被调用
+    handleChange(file, fileList) {
+      let flag = false;
 
-    methods: {
-      submitUpload() {
-        this.$refs.upload.submit();
-      },
-
-      customUpload(options) {
-        let suffix = "";
-        if (options.file.name.lastIndexOf('.') !== -1) {
-          suffix = options.file.name.substring(options.file.name.lastIndexOf('.'));
-        }
-
-        let key = this.prefix + "/" + (!this.$common.isEmpty(this.$store.state.currentUser.username) ? (this.$store.state.currentUser.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentUser.id) : (this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id)) + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
-
-        if (this.storeType === "local") {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(options.file);
-            reader.onload = () => {
-              const img = new Image();
-              img.src = reader.result;
-              img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                let width = img.width, height = img.height;
-                if (this.prefix === "corporationLogo") {
-                  width = 120;
-                  height = 120;
-                } else if (this.prefix === "corporationCover") {
-                  const ratio = img.width / img.height;
-                  width = 3200;
-                  height = 3200 / ratio;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const format = 'image/webp';
-                const filename = '.webp';
-                const quality = 0.9; // 可根据需要调整压缩质量
-                canvas.toBlob((blob) => {
-                  let fd = new FormData();
-                  fd.append("file", blob, options.file.name.replace(/\.\w+$/, filename));
-                  fd.append("originalName", options.file.name);
-                  fd.append("key", key.replace(/\.\w+$/, filename));
-                  fd.append("relativePath", key.replace(/\.\w+$/, filename));
-                  fd.append("type", this.prefix);
-                  fd.append("storeType", this.storeType);
-                  console.log(fd.get("file"));
-                  console.log(fd.get("originalName"));
-                  console.log(fd.get("key"));
-                  console.log(fd.get("relativePath"));
-                  console.log(fd.get("type"));
-                  console.log(fd.get("storeType"));
-                  console.log(options);
-
-                  this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options)
-                    .then(response => {
-                      resolve(response);
-                    })
-                    .catch(error => {
-                      reject(error);
-                    });
-                }, format, quality);
-              };
-            };
-            reader.onerror = () => {
-              reject(new Error('读取文件失败'));
-            };
-          });
-
-
-          // let fd = new FormData();
-          // fd.append("file", options.file);
-          // fd.append("originalName", options.file.name);
-          // fd.append("key", key);
-          // fd.append("relativePath", key);
-          // fd.append("type", this.prefix);
-          // fd.append("storeType", this.storeType);
-          //
-          // return this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, this.isAdmin, options);
-        } else if (this.storeType === "qiniu") {
-          const xhr = new XMLHttpRequest();
-          xhr.open('get', this.$constant.baseURL + "/qiniu/getUpToken?key=" + key, false);
-          if (this.isAdmin) {
-            xhr.setRequestHeader("Authorization", localStorage.getItem("adminToken"));
-          } else {
-            xhr.setRequestHeader("Authorization", localStorage.getItem("userToken"));
-          }
-
-          try {
-            xhr.send();
-            const res = JSON.parse(xhr.responseText);
-            if (res !== null && res.hasOwnProperty("code") && res.code === 200) {
-              options.data = {
-                token: res.data,
-                key: key
-              };
-              return upload(options);
-            } else if (res !== null && res.hasOwnProperty("code") && res.code !== 200) {
-              return Promise.reject(res.message);
-            } else {
-              return Promise.reject("服务异常！");
-            }
-          } catch (e) {
-            return Promise.reject(e.message);
-          }
-        }
-      },
-
-      // 文件上传成功时的钩子
-      handleSuccess(response, file, fileList) {
-        let url;
-        if (this.storeType === "local") {
-          url = response.data;
-        } else if (this.storeType === "qiniu") {
-          url = this.$store.state.sysConfig['qiniu.downloadUrl'] + response.key;
-          this.$common.saveResource(this, this.prefix, url, file.size, file.raw.type, file.name, "qiniu", this.isAdmin);
-        }
-        this.$emit("addPicture", url);
-      },
-      handleError(err, file, fileList) {
+      if (file.size > this.maxSize * 1024 * 1024) {
         this.$message({
-          message: err,
-          type: "error"
+          message: '图片最大为' + this.maxSize + 'M！',
+          type: 'warning'
         });
-      },
-      // 上传文件之前的钩子，参数为上传的文件，若返回 false 或者返回 Promise 且被 reject，则停止上传
-      beforeUpload(file) {
-      },
-      // 文件列表移除文件时的钩子
-      handleRemove(file, fileList) {
-      },
-      // 添加文件、上传成功和上传失败时都会被调用
-      handleChange(file, fileList) {
-        let flag = false;
+        flag = true;
+      }
 
-        if (file.size > this.maxSize * 1024 * 1024) {
-          this.$message({
-            message: "图片最大为" + this.maxSize + "M！",
-            type: "warning"
-          });
-          flag = true;
-        }
-
-        if (flag) {
-          fileList.splice(fileList.size - 1, 1);
-        }
+      if (flag) {
+        fileList.splice(fileList.size - 1, 1);
       }
     }
   }
+};
 </script>
 
 <style scoped>

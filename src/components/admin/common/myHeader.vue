@@ -39,40 +39,40 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {}
-    },
+export default {
+  data() {
+    return {};
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
 
-    },
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {
-      logout() {
-        this.$http.get(this.$constant.baseURL + "/user/logout", {}, true)
-          .then((res) => {
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+  methods: {
+    logout() {
+      this.$http.get(this.$constant.baseURL + '/user/logout', {}, true)
+        .then(() => {
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-        this.$store.commit("loadCurrentAdmin", {});
-        localStorage.removeItem("adminToken");
-        this.$router.push({path: '/'});
-      }
+        });
+      this.$store.commit('loadCurrentAdmin', {});
+      localStorage.removeItem('adminToken');
+      this.$router.push({path: '/'});
     }
   }
+};
 </script>
 
 <style scoped>

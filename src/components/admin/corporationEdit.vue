@@ -86,7 +86,7 @@
                     fit="cover"></el-image>
         </div>
         <uploadPicture :isAdmin="true" :prefix="'corporationCover'" style="margin-top: 10px" @addPicture="addCorporationCover"
-                       :maxSize="2"
+                       :maxSize="3"
                        :maxNumber="1"></uploadPicture>
       </el-form-item>
       <el-form-item label="分类" prop="sortId">
@@ -109,261 +109,261 @@
 </template>
 
 <script>
-  const uploadPicture = () => import( "../common/uploadPicture");
+const uploadPicture = () => import( '../common/uploadPicture');
 
-  export default {
-    components: {
-      uploadPicture
-    },
-    data() {
-      return {
-        id: this.$route.query.id,
-        corporation: {
-          corporationTitle: "",
-          corporationContent: "",
-          commentStatus: true,
-          recommendStatus: false,
-          viewStatus: true,
-          password: "",
-          tips: "",
-          corporationLogo: "",
-          corporationCover: "",
-          videoUrl: "",
-          sortId: null
-        },
-        sorts: [],
-        rules: {
-          corporationTitle: [
-            {required: true, message: '请输入名称', trigger: 'change'}
-          ],
-          corporationContent: [
-            {required: true, message: '请输入内容', trigger: 'change'}
-          ],
-          commentStatus: [
-            {required: true, message: '是否启用评论', trigger: 'change'}
-          ],
-          recommendStatus: [
-            {required: true, message: '是否推荐', trigger: 'change'}
-          ],
-          viewStatus: [
-            {required: true, message: '是否可见', trigger: 'change'}
-          ],
-          corporationLogo: [
-            {required: true, message: 'Logo', trigger: 'change'}
-          ],
-          corporationCover: [
-            {required: true, message: '封面', trigger: 'change'}
-          ],
-          sortId: [
-            {required: true, message: '分类', trigger: 'change'}
-          ]
-        }
+export default {
+  components: {
+    uploadPicture
+  },
+  data() {
+    return {
+      id: this.$route.query.id,
+      corporation: {
+        corporationTitle: '',
+        corporationContent: '',
+        commentStatus: true,
+        recommendStatus: false,
+        viewStatus: true,
+        password: '',
+        tips: '',
+        corporationLogo: '',
+        corporationCover: '',
+        videoUrl: '',
+        sortId: null
+      },
+      sorts: [],
+      rules: {
+        corporationTitle: [
+          {required: true, message: '请输入名称', trigger: 'change'}
+        ],
+        corporationContent: [
+          {required: true, message: '请输入内容', trigger: 'change'}
+        ],
+        commentStatus: [
+          {required: true, message: '是否启用评论', trigger: 'change'}
+        ],
+        recommendStatus: [
+          {required: true, message: '是否推荐', trigger: 'change'}
+        ],
+        viewStatus: [
+          {required: true, message: '是否可见', trigger: 'change'}
+        ],
+        corporationLogo: [
+          {required: true, message: 'Logo', trigger: 'change'}
+        ],
+        corporationCover: [
+          {required: true, message: '封面', trigger: 'change'}
+        ],
+        sortId: [
+          {required: true, message: '分类', trigger: 'change'}
+        ]
+      }
+    };
+  },
+
+  created() {
+    this.getSortCorporation();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    imgAdd(pos, file) {
+      let suffix = '';
+      if (file.name.lastIndexOf('.') !== -1) {
+        suffix = file.name.substring(file.name.lastIndexOf('.'));
+      }
+      let key = 'corporationPicture' + '/' + this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
+
+      let storeType = localStorage.getItem('defaultStoreType');
+
+      let fd = new FormData();
+      fd.append('file', file);
+      fd.append('originalName', file.name);
+      fd.append('key', key);
+      fd.append('relativePath', key);
+      fd.append('type', 'corporationPicture');
+      fd.append('storeType', storeType);
+
+      if (storeType === 'local') {
+        this.saveLocal(pos, fd);
+      } else if (storeType === 'qiniu') {
+        this.saveQiniu(pos, fd);
       }
     },
-
-    created() {
-      this.getSortCorporation();
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      imgAdd(pos, file) {
-        let suffix = "";
-        if (file.name.lastIndexOf('.') !== -1) {
-          suffix = file.name.substring(file.name.lastIndexOf('.'));
-        }
-        let key = "corporationPicture" + "/" + this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
-
-        let storeType = localStorage.getItem("defaultStoreType");
-
-        let fd = new FormData();
-        fd.append("file", file);
-        fd.append("originalName", file.name);
-        fd.append("key", key);
-        fd.append("relativePath", key);
-        fd.append("type", "corporationPicture");
-        fd.append("storeType", storeType);
-
-        if (storeType === "local") {
-          this.saveLocal(pos, fd);
-        } else if (storeType === "qiniu") {
-          this.saveQiniu(pos, fd);
-        }
-      },
-      saveLocal(pos, fd) {
-        this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              let url = res.data;
-              this.$refs.md.$img2Url(pos, url);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+    saveLocal(pos, fd) {
+      this.$http.upload(this.$constant.baseURL + '/resource/upload', fd, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            let url = res.data;
+            this.$refs.md.$img2Url(pos, url);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      saveQiniu(pos, fd) {
-        this.$http.get(this.$constant.baseURL + "/qiniu/getUpToken", {key: fd.get("key")}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              fd.append("token", res.data);
+        });
+    },
+    saveQiniu(pos, fd) {
+      this.$http.get(this.$constant.baseURL + '/qiniu/getUpToken', {key: fd.get('key')}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            fd.append('token', res.data);
 
-              this.$http.uploadQiniu(this.$store.state.sysConfig.qiniuUrl, fd)
-                .then((res) => {
-                  if (!this.$common.isEmpty(res.key)) {
-                    let url = this.$store.state.sysConfig['qiniu.downloadUrl'] + res.key;
-                    let file = fd.get("file");
-                    this.$common.saveResource(this, "corporationPicture", url, file.size, file.type, file.name, "qiniu", true);
-                    this.$refs.md.$img2Url(pos, url);
-                  }
-                })
-                .catch((error) => {
-                  this.$message({
-                    message: error.message,
-                    type: "error"
-                  });
+            this.$http.uploadQiniu(this.$store.state.sysConfig.qiniuUrl, fd)
+              .then((res) => {
+                if (!this.$common.isEmpty(res.key)) {
+                  let url = this.$store.state.sysConfig['qiniu.downloadUrl'] + res.key;
+                  let file = fd.get('file');
+                  this.$common.saveResource(this, 'corporationPicture', url, file.size, file.type, file.name, 'qiniu', true);
+                  this.$refs.md.$img2Url(pos, url);
+                }
+              })
+              .catch((error) => {
+                this.$message({
+                  message: error.message,
+                  type: 'error'
                 });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+              });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      addCorporationLogo(res) {
-        this.corporation.corporationLogo = res;
-        console.log(this.corporation.corporationLogo);
-      },
-      addCorporationCover(res) {
-        this.corporation.corporationCover = res;
-      },
-      getSortCorporation() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getSortCorporationInfo")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.sorts = res.data;
-              if (!this.$common.isEmpty(this.id)) {
-                this.getCorporation();
-              }
+        });
+    },
+    addCorporationLogo(res) {
+      this.corporation.corporationLogo = res;
+      console.log(this.corporation.corporationLogo);
+    },
+    addCorporationCover(res) {
+      this.corporation.corporationCover = res;
+    },
+    getSortCorporation() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getSortCorporationInfo')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.sorts = res.data;
+            if (!this.$common.isEmpty(this.id)) {
+              this.getCorporation();
             }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getCorporation() {
-        this.$http.get(this.$constant.baseURL + "/admin/corporation/getCorporationById", {id: this.id}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.corporation = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        });
+    },
+    getCorporation() {
+      this.$http.get(this.$constant.baseURL + '/admin/corporation/getCorporationById', {id: this.id}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.corporation = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            if (this.$common.isEmpty(this.id)) {
-              this.saveCorporation(this.corporation, "/corporation/saveCorporation")
-            } else {
-              this.corporation.id = this.id;
-              this.saveCorporation(this.corporation, "/admin/corporation/updateCorporation")
-            }
+        });
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.$common.isEmpty(this.id)) {
+            this.saveCorporation(this.corporation, '/corporation/saveCorporation');
           } else {
-            console.log(valid);
+            this.corporation.id = this.id;
+            this.saveCorporation(this.corporation, '/admin/corporation/updateCorporation');
+          }
+        } else {
+          console.log(valid);
+          this.$message({
+            message: '请完善必填项！',
+            type: 'error'
+          });
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$confirm('确认重置？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info',
+        center: true
+      }).then(() => {
+        this.$refs[formName].resetFields();
+        if (!this.$common.isEmpty(this.id)) {
+          this.getCorporation();
+        }
+        this.$message({
+          message: '重置成功！',
+          type: 'success'
+        });
+      }).catch(() => {});
+    },
+    deleteForm() {
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/admin/corporation/deleteCorporation', {id: this.id}, true)
+          .then(() => {
             this.$message({
-              message: "请完善必填项！",
-              type: "error"
+              message: '删除成功！',
+              type: 'success'
             });
-          }
-        });
-      },
-      resetForm(formName) {
-        this.$confirm('确认重置？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info',
-          center: true
-        }).then(() => {
-          this.$refs[formName].resetFields();
-          if (!this.$common.isEmpty(this.id)) {
-            this.getCorporation();
-          }
-          this.$message({
-            message: "重置成功！",
-            type: "success"
+            this.$router.push({path: '/corporationList'});
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
           });
-        }).catch(() => {});
-      },
-      deleteForm(formName) {
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'error',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/admin/corporation/deleteCorporation", {id: this.id}, true)
-            .then((res) => {
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-              this.$router.push({path: '/corporationList'});
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
+      }).catch(() => {});
+    },
+    saveCorporation(value, url) {
+      this.$confirm('确认保存？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.post(this.$constant.baseURL + url, value, true)
+          .then(() => {
+            this.$message({
+              message: '保存成功！',
+              type: 'success'
             });
-        }).catch(() => {});
-      },
-      saveCorporation(value, url) {
-        this.$confirm('确认保存？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+            this.$router.push({path: '/corporationList'});
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.post(this.$constant.baseURL + url, value, true)
-            .then((res) => {
-              this.$message({
-                message: "保存成功！",
-                type: "success"
-              });
-              this.$router.push({path: '/corporationList'});
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消保存!'
-          });
+          message: '已取消保存!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

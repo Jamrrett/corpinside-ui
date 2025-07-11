@@ -61,100 +61,100 @@
 
 <script>
 
-  const myFooter = () => import( "./common/myFooter");
-  const photo = () => import( "./common/photo");
-  const proTag = () => import( "./common/proTag");
+const myFooter = () => import( './common/myFooter');
+const photo = () => import( './common/photo');
+const proTag = () => import( './common/proTag');
 
-  export default {
-    components: {
-      photo,
-      proTag,
-      myFooter
+export default {
+  components: {
+    photo,
+    proTag,
+    myFooter
+  },
+
+  data() {
+    return {
+      photoPagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        resourceType: 'lovePhoto',
+        classify: ''
+      },
+      photoTitleList: [],
+      photoList: []
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getPhotoTitles();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    getPhotoTitles() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listAdminLovePhoto')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.photoTitleList = res.data;
+            this.photoPagination = {
+              current: 1,
+              size: 10,
+              total: 0,
+              resourceType: 'lovePhoto',
+              classify: this.photoTitleList[0].classify
+            };
+            this.changePhoto();
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-
-    data() {
-      return {
-        photoPagination: {
+    changePhotoTitle(classify) {
+      if (classify !== this.photoPagination.classify) {
+        this.photoPagination = {
           current: 1,
           size: 10,
           total: 0,
-          resourceType: "lovePhoto",
-          classify: ""
-        },
-        photoTitleList: [],
-        photoList: []
-      }
-    },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getPhotoTitles();
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      getPhotoTitles() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listAdminLovePhoto")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.photoTitleList = res.data;
-              this.photoPagination = {
-                current: 1,
-                size: 10,
-                total: 0,
-                resourceType: "lovePhoto",
-                classify: this.photoTitleList[0].classify
-              };
-              this.changePhoto();
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      changePhotoTitle(classify) {
-        if (classify !== this.photoPagination.classify) {
-          this.photoPagination = {
-            current: 1,
-            size: 10,
-            total: 0,
-            resourceType: "lovePhoto",
-            classify: classify
-          };
-          this.photoList = [];
-          this.changePhoto();
-        }
-      },
-      pagePhotos() {
-        this.photoPagination.current = this.photoPagination.current + 1;
+          resourceType: 'lovePhoto',
+          classify: classify
+        };
+        this.photoList = [];
         this.changePhoto();
-      },
-      changePhoto() {
-        this.$http.post(this.$constant.baseURL + "/webInfo/listResourcePath", this.photoPagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.photoList = this.photoList.concat(res.data.records);
-              this.photoPagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
       }
+    },
+    pagePhotos() {
+      this.photoPagination.current = this.photoPagination.current + 1;
+      this.changePhoto();
+    },
+    changePhoto() {
+      this.$http.post(this.$constant.baseURL + '/webInfo/listResourcePath', this.photoPagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.photoList = this.photoList.concat(res.data.records);
+            this.photoPagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

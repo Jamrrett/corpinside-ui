@@ -25,35 +25,35 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      treeHoleList: {
-        type: Array
-      }
-    },
+export default {
+  props: {
+    treeHoleList: {
+      type: Array
+    }
+  },
 
-    data() {
-      return {}
-    },
+  data() {
+    return {};
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
 
-    },
+  },
 
-    mounted() {
-      this.$common.imgShow(".process-line .pictureReg");
-    },
+  mounted() {
+    this.$common.imgShow('.process-line .pictureReg');
+  },
 
-    methods: {
-      deleteTreeHole(id) {
-        this.$emit("deleteTreeHole", id);
-      }
+  methods: {
+    deleteTreeHole(id) {
+      this.$emit('deleteTreeHole', id);
     }
   }
+};
 </script>
 
 <style scoped>

@@ -41,110 +41,110 @@
 
 <script>
 
-  export default {
-    data() {
-      return {
-        isBoss: this.$store.state.currentAdmin.isBoss,
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          source: null,
-          commentType: ""
-        },
-        comments: []
-      }
-    },
+export default {
+  data() {
+    return {
+      isBoss: this.$store.state.currentAdmin.isBoss,
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        source: null,
+        commentType: ''
+      },
+      comments: []
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
+    this.getComments();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    clearSearch() {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        source: null,
+        commentType: ''
+      };
       this.getComments();
     },
-
-    mounted() {
+    getComments() {
+      let url = '';
+      if (this.isBoss) {
+        url = '/admin/comment/boss/list';
+      } else {
+        url = '/admin/comment/user/list';
+      }
+      this.$http.post(this.$constant.baseURL + url, this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.comments = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-
-    methods: {
-      clearSearch() {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          source: null,
-          commentType: ""
-        }
-        this.getComments();
-      },
-      getComments() {
-        let url = "";
-        if (this.isBoss) {
-          url = "/admin/comment/boss/list";
-        } else {
-          url = "/admin/comment/user/list";
-        }
-        this.$http.post(this.$constant.baseURL + url, this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.comments = res.data.records;
-              this.pagination.total = res.data.total;
-            }
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getComments();
+    },
+    searchComments() {
+      this.pagination.total = 0;
+      this.pagination.current = 1;
+      this.getComments();
+    },
+    handleDelete(item) {
+      let url = '';
+      if (this.isBoss) {
+        url = '/admin/comment/boss/deleteComment';
+      } else {
+        url = '/admin/comment/user/deleteComment';
+      }
+      this.$confirm('删除评论后，所有该评论的回复均不可见。确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + url, {id: item.id}, true)
+          .then(() => {
+            this.pagination.current = 1;
+            this.getComments();
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getComments();
-      },
-      searchComments() {
-        this.pagination.total = 0;
-        this.pagination.current = 1;
-        this.getComments();
-      },
-      handleDelete(item) {
-        let url = "";
-        if (this.isBoss) {
-          url = "/admin/comment/boss/deleteComment";
-        } else {
-          url = "/admin/comment/user/deleteComment";
-        }
-        this.$confirm('删除评论后，所有该评论的回复均不可见。确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + url, {id: item.id}, true)
-            .then((res) => {
-              this.pagination.current = 1;
-              this.getComments();
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
-          });
+          message: '已取消删除!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

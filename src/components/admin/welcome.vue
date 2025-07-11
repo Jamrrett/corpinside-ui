@@ -12,25 +12,25 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {}
-    },
+export default {
+  data() {
+    return {};
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
 
-    },
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {}
-  }
+  methods: {}
+};
 </script>
 
 <style scoped>

@@ -47,105 +47,100 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        isCollapse: true,
-        isBoss: this.$store.state.currentAdmin.isBoss,
-        items: [{
-          icon: "el-icon-s-home",
-          index: "/main",
-          title: "系统首页",
-          isBoss: true
-        }, {
-          icon: "el-icon-s-tools",
-          index: "/webEdit",
-          title: "网站设置",
-          isBoss: true
-        }, {
-          icon: "el-icon-user-solid",
-          index: "/userList",
-          title: "用户管理",
-          isBoss: true
-        }, {
-          icon: "el-icon-postcard",
-          index: "/postList",
-          title: "文章管理",
-          isBoss: false
-        }, {
-          icon: "el-icon-office-building",
-          index: "/corporationList",
-          title: "公司管理",
-          isBoss: false
-        }, {
-          icon: "el-icon-suitcase",
-          index: "/departmentList",
-          title: "部门管理",
-          isBoss: false
-        }, {
-          icon: "el-icon-notebook-2",
-          index: "/sortList",
-          title: "分类管理",
-          isBoss: true
-        }, {
-          icon: "el-icon-notebook-1",
-          index: "/configList",
-          title: "配置管理",
-          isBoss: true
-        }, {
-          icon: "el-icon-edit-outline",
-          index: "/commentList",
-          title: "评论管理",
-          isBoss: false
-        }, {
-          icon: "el-icon-s-comment",
-          index: "/treeHoleList",
-          title: "留言管理",
-          isBoss: true
-        }, {
-          icon: "el-icon-paperclip",
-          index: "/resourceList",
-          title: "资源管理",
-          isBoss: true
-        }, {
-          icon: "el-icon-bank-card",
-          index: "/resourcePathList",
-          title: "资源聚合",
-          isBoss: true
-        }, {
-          icon: "el-icon-sugar",
-          index: "/loveList",
-          title: "表白墙",
-          isBoss: true
-        }]
+export default {
+  data() {
+    return {
+      isCollapse: true,
+      isBoss: this.$store.state.currentAdmin.isBoss,
+      items: [{
+        icon: 'el-icon-s-home',
+        index: '/main',
+        title: '系统首页',
+        isBoss: true
+      }, {
+        icon: 'el-icon-s-tools',
+        index: '/webEdit',
+        title: '网站设置',
+        isBoss: true
+      }, {
+        icon: 'el-icon-user-solid',
+        index: '/userList',
+        title: '用户管理',
+        isBoss: true
+      }, {
+        icon: 'el-icon-postcard',
+        index: '/postList',
+        title: '文章管理',
+        isBoss: false
+      }, {
+        icon: 'el-icon-office-building',
+        index: '/corporationList',
+        title: '公司管理',
+        isBoss: false
+      }, {
+        icon: 'el-icon-suitcase',
+        index: '/departmentList',
+        title: '部门管理',
+        isBoss: false
+      }, {
+        icon: 'el-icon-notebook-2',
+        index: '/sortList',
+        title: '分类管理',
+        isBoss: true
+      }, {
+        icon: 'el-icon-notebook-1',
+        index: '/configList',
+        title: '配置管理',
+        isBoss: true
+      }, {
+        icon: 'el-icon-edit-outline',
+        index: '/commentList',
+        title: '评论管理',
+        isBoss: false
+      }, {
+        icon: 'el-icon-s-comment',
+        index: '/treeHoleList',
+        title: '留言管理',
+        isBoss: true
+      }, {
+        icon: 'el-icon-paperclip',
+        index: '/resourceList',
+        title: '资源管理',
+        isBoss: true
+      }, {
+        icon: 'el-icon-bank-card',
+        index: '/resourcePathList',
+        title: '资源聚合',
+        isBoss: true
+      }]
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    collapse() {
+      if (this.isCollapse) {
+        $('.sidebar').css('width', '43px');
+        $('.content-box').css('left', '43px');
+      } else {
+        $('.sidebar').css('width', '130px');
+        $('.content-box').css('left', '130px');
       }
-    },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      collapse() {
-        if (this.isCollapse) {
-          $(".sidebar").css("width", "43px");
-          $(".content-box").css("left", "43px");
-        } else {
-          $(".sidebar").css("width", "130px");
-          $(".content-box").css("left", "130px");
-        }
-        this.isCollapse = !this.isCollapse;
-      }
+      this.isCollapse = !this.isCollapse;
     }
   }
+};
 </script>
 
 <style scoped>

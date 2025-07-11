@@ -128,86 +128,86 @@
 </template>
 
 <script>
-  const comment = () => import( "./comment/comment");
+const comment = () => import( './comment/comment');
 
-  export default {
-    components: {
-      comment
-    },
-    data() {
-      return {
-        show: false,
-        messageContent: "",
-        // background: {"background": "url(" + this.$store.state.webInfo.backgroundImage + ") center center / cover no-repeat"},
-        barrageList: []
-      };
-    },
-    created() {
-      this.getTreeHole();
-    },
-    methods: {
-      getTreeHole() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listTreeHole")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              res.data.forEach(m => {
-                this.barrageList.push({
-                  id: m.id,
-                  avatar: m.avatar,
-                  msg: m.message,
-                  time: Math.floor(Math.random() * 5 + 10)
-                });
-              });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      submitMessage() {
-        if (this.messageContent.trim() === "") {
-          this.$message({
-            message: "你还没写呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        let treeHole = {
-          message: this.messageContent.trim()
-        };
-
-        if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.avatar)) {
-          treeHole.avatar = this.$store.state.currentUser.avatar;
-        }
-
-
-        this.$http.post(this.$constant.baseURL + "/webInfo/saveTreeHole", treeHole)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
+export default {
+  components: {
+    comment
+  },
+  data() {
+    return {
+      show: false,
+      messageContent: '',
+      // background: {"background": "url(" + this.$store.state.webInfo.backgroundImage + ") center center / cover no-repeat"},
+      barrageList: []
+    };
+  },
+  created() {
+    this.getTreeHole();
+  },
+  methods: {
+    getTreeHole() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listTreeHole')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            res.data.forEach(m => {
               this.barrageList.push({
-                id: res.data.id,
-                avatar: res.data.avatar,
-                msg: res.data.message,
+                id: m.id,
+                avatar: m.avatar,
+                msg: m.message,
                 time: Math.floor(Math.random() * 5 + 10)
               });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
             });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-
-        this.messageContent = "";
-        this.show = false;
+        });
+    },
+    submitMessage() {
+      if (this.messageContent.trim() === '') {
+        this.$message({
+          message: '你还没写呢~',
+          type: 'warning'
+        });
+        return;
       }
+
+      let treeHole = {
+        message: this.messageContent.trim()
+      };
+
+      if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.avatar)) {
+        treeHole.avatar = this.$store.state.currentUser.avatar;
+      }
+
+
+      this.$http.post(this.$constant.baseURL + '/webInfo/saveTreeHole', treeHole)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.barrageList.push({
+              id: res.data.id,
+              avatar: res.data.avatar,
+              msg: res.data.message,
+              time: Math.floor(Math.random() * 5 + 10)
+            });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+
+      this.messageContent = '';
+      this.show = false;
     }
   }
+};
 </script>
 
 <style scoped>

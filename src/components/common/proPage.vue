@@ -39,67 +39,67 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      current: {
-        type: Number,
-        default: 1
-      },
-      size: {
-        type: Number,
-        default: 10
-      },
-      total: {
-        type: Number,
-        default: 0
-      },
-      buttonSize: {
-        type: Number,
-        default: 3
-      },
-      color: {
-        type: String,
-        default: ""
-      }
+export default {
+  props: {
+    current: {
+      type: Number,
+      default: 1
     },
-
-    data() {
-      return {
-        totalSize: 0,
-        realButtonSize: 0
-      }
+    size: {
+      type: Number,
+      default: 10
     },
-
-    computed: {},
-
-    watch: {
-      total(newVal) {
-        this.totalSize = Math.ceil(this.total / this.size);
-        this.realButtonSize = this.buttonSize < this.totalSize ? this.buttonSize : this.totalSize;
-      }
+    total: {
+      type: Number,
+      default: 0
     },
+    buttonSize: {
+      type: Number,
+      default: 3
+    },
+    color: {
+      type: String,
+      default: ''
+    }
+  },
 
-    created() {
+  data() {
+    return {
+      totalSize: 0,
+      realButtonSize: 0
+    };
+  },
+
+  computed: {},
+
+  watch: {
+    total(newVal) {
       this.totalSize = Math.ceil(this.total / this.size);
       this.realButtonSize = this.buttonSize < this.totalSize ? this.buttonSize : this.totalSize;
-    },
+    }
+  },
 
-    mounted() {
+  created() {
+    this.totalSize = Math.ceil(this.total / this.size);
+    this.realButtonSize = this.buttonSize < this.totalSize ? this.buttonSize : this.totalSize;
+  },
 
-    },
+  mounted() {
 
-    methods: {
-      toPage(flag) {
-        if (flag === -1) {
-          this.$emit("toPage", this.current - 1);
-        } else if (flag === -2) {
-          this.$emit("toPage", this.current + 1);
-        } else {
-          this.$emit("toPage", flag);
-        }
+  },
+
+  methods: {
+    toPage(flag) {
+      if (flag === -1) {
+        this.$emit('toPage', this.current - 1);
+      } else if (flag === -2) {
+        this.$emit('toPage', this.current + 1);
+      } else {
+        this.$emit('toPage', flag);
       }
     }
   }
+};
 </script>
 
 <style scoped>

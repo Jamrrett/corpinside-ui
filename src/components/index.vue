@@ -120,161 +120,161 @@
 </template>
 
 <script>
-  const loader = () => import( "./common/loader");
-  const zombie = () => import( "./common/zombie");
-  const corporationList = () => import( "./corporationList");
-  const sortCorporation = () => import( "./common/sortCorporation");
-  const articleAside = () => import( "./articleAside");
+const loader = () => import( './common/loader');
+const zombie = () => import( './common/zombie');
+const corporationList = () => import( './corporationList');
+const sortCorporation = () => import( './common/sortCorporation');
+const articleAside = () => import( './articleAside');
 
-  export default {
-    components: {
-      loader,
-      zombie,
-      corporationList,
-      sortCorporation,
-      articleAside
-    },
+export default {
+  components: {
+    loader,
+    zombie,
+    corporationList,
+    sortCorporation,
+    articleAside
+  },
 
-    data() {
-      return {
-        pushDialogVisible: false,
-        push: {},
-        loading: false,
-        showAside: true,
-        indexType: 1,
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: null,
-          corporationSearch: ""
-        },
-        corporationSearch: "",
-        corporations: [],
-        sortCorporations: {},
-        corporationListNum: 4
-      };
-    },
+  data() {
+    return {
+      pushDialogVisible: false,
+      push: {},
+      loading: false,
+      showAside: true,
+      indexType: 1,
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        sortId: null,
+        corporationSearch: ''
+      },
+      corporationSearch: '',
+      corporations: [],
+      sortCorporations: {},
+      corporationListNum: 4
+    };
+  },
 
-    watch: {
+  watch: {
 
-    },
+  },
 
-    created() {
-      this.getSortCorporations();
-    },
+  created() {
+    this.getSortCorporations();
+  },
 
-    computed: {
-      sortCorporationInfo() {
-        return this.$store.state.sortCorporationInfo;
-      }
-    },
+  computed: {
+    sortCorporationInfo() {
+      return this.$store.state.sortCorporationInfo;
+    }
+  },
 
-    mounted() {
-      setTimeout(() => {
-        this.push = this.$common.pushNotification(this.$store.state.webInfo.notices, false);
-        if(!this.$common.isEmpty(this.push)) {
-          if("0" !== localStorage.getItem("showPushNotification_" + this.push['链接'])) {
-            this.pushDialogVisible = true;
-            localStorage.setItem("showPushNotification_" + this.push['链接'], "0");
-          }
+  mounted() {
+    setTimeout(() => {
+      this.push = this.$common.pushNotification(this.$store.state.webInfo.notices, false);
+      if(!this.$common.isEmpty(this.push)) {
+        if('0' !== localStorage.getItem('showPushNotification_' + this.push['链接'])) {
+          this.pushDialogVisible = true;
+          localStorage.setItem('showPushNotification_' + this.push['链接'], '0');
         }
-      }, 2000);
+      }
+    }, 2000);
+  },
+
+  methods: {
+    // async selectSort(sort) {
+    //   this.pagination = {
+    //     current: 1,
+    //     size: 10,
+    //     total: 0,
+    //     searchKey: "",
+    //     sortId: sort.id,
+    //     corporationSearch: ""
+    //   };
+    //   this.corporations = [];
+    //   await this.getCorporations();
+    //   this.$nextTick(() => {
+    //     this.indexType = 2;
+    //     $(".announcement").css("max-width", "780px");
+    //     document.querySelector('.recent-posts').scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "start",
+    //       inline: "nearest"
+    //     });
+    //   });
+    // },
+    selectCorporation() {
+      this.$emit('selectArticle', this.corporationSearch);
+    },
+    // async selectCorporation(corporationSearch) {
+    //   this.pagination = {
+    //     current: 1,
+    //     size: 10,
+    //     total: 0,
+    //     searchKey: "",
+    //     sortId: null,
+    //     corporationSearch: corporationSearch
+    //   };
+    //   this.corporations = [];
+    //   await this.getCorporations();
+    //   this.$nextTick(() => {
+    //     this.indexType = 2;
+    //     $(".announcement").css("max-width", "780px");
+    //     document.querySelector('.recent-posts').scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "start",
+    //       inline: "nearest"
+    //     });
+    //   });
+    // },
+    pageCorporations() {
+      this.pagination.current = this.pagination.current + 1;
+      this.getCorporations();
     },
 
-    methods: {
-      // async selectSort(sort) {
-      //   this.pagination = {
-      //     current: 1,
-      //     size: 10,
-      //     total: 0,
-      //     searchKey: "",
-      //     sortId: sort.id,
-      //     corporationSearch: ""
-      //   };
-      //   this.corporations = [];
-      //   await this.getCorporations();
-      //   this.$nextTick(() => {
-      //     this.indexType = 2;
-      //     $(".announcement").css("max-width", "780px");
-      //     document.querySelector('.recent-posts').scrollIntoView({
-      //       behavior: "smooth",
-      //       block: "start",
-      //       inline: "nearest"
-      //     });
-      //   });
-      // },
-      selectCorporation() {
-        this.$emit("selectArticle", this.corporationSearch);
-      },
-      // async selectCorporation(corporationSearch) {
-      //   this.pagination = {
-      //     current: 1,
-      //     size: 10,
-      //     total: 0,
-      //     searchKey: "",
-      //     sortId: null,
-      //     corporationSearch: corporationSearch
-      //   };
-      //   this.corporations = [];
-      //   await this.getCorporations();
-      //   this.$nextTick(() => {
-      //     this.indexType = 2;
-      //     $(".announcement").css("max-width", "780px");
-      //     document.querySelector('.recent-posts').scrollIntoView({
-      //       behavior: "smooth",
-      //       block: "start",
-      //       inline: "nearest"
-      //     });
-      //   });
-      // },
-      pageCorporations() {
-        this.pagination.current = this.pagination.current + 1;
-        this.getCorporations();
-      },
-
-      async getCorporations() {
-        await this.$http.post(this.$constant.baseURL + "/corporation/listCorporation", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.corporations = this.corporations.concat(res.data.records);
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+    async getCorporations() {
+      await this.$http.post(this.$constant.baseURL + '/corporation/listCorporation', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.corporations = this.corporations.concat(res.data.records);
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getSortCorporations() {
-        this.$http.get(this.$constant.baseURL + "/corporation/listSortCorporation")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.sortCorporations = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      navigation(selector) {
-        let pageId = document.querySelector(selector);
-        window.scrollTo({
-          top: pageId.offsetTop,
-          behavior: "smooth"
         });
-      },
-      pushUrl(url) {
-        window.open(url);
-      }
+    },
+    getSortCorporations() {
+      this.$http.get(this.$constant.baseURL + '/corporation/listSortCorporation')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.sortCorporations = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    navigation(selector) {
+      let pageId = document.querySelector(selector);
+      window.scrollTo({
+        top: pageId.offsetTop,
+        behavior: 'smooth'
+      });
+    },
+    pushUrl(url) {
+      window.open(url);
     }
   }
+};
 </script>
 
 <style scoped>

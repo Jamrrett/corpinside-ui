@@ -100,58 +100,58 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      corporationList: {
-        type: Array
-      }
-    },
-    data() {
-      return {
-        corporationListNum: 4,
-        showCorporationList: this.corporationList,
-        containerWidth: null
-      };
-    },
-    computed: {
-      corporationListWidth() {
-        if (this.corporationListNum > 0) {
-          return `calc(100% / ${this.corporationListNum} - 20px)`;
-        }
-        return '100%'; // 若 corporationListNum 为 0 或者无效值，默认宽度为 100%
-      },
-      // postMetaMarginRight() {
-      //   // return this.corporationListNum === 4 ? '5px' : '10px';
-      //   return '5px';
-      // }
-    },
-    mounted() {
-      const container = this.$el;
-      const observer = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          this.containerWidth = entry.contentRect.width;
-           if (this.containerWidth < 713) {
-            this.corporationListNum = 2;
-            this.showCorporationList = this.corporationList.slice(0, 4);
-          } else if (this.containerWidth < 930) {
-            this.corporationListNum = 3;
-             this.showCorporationList = this.corporationList.slice(0, 6);
-          } else if (this.containerWidth < 1200) {
-            this.corporationListNum = 4;
-             this.showCorporationList = this.corporationList.slice(0, 8);
-          } else {
-            this.corporationListNum = 5;
-          }
-        }
-      });
-      observer.observe(container);
-    },
-    beforeDestroy() {
-      const container = this.$el;
-      const observer = new ResizeObserver(() => {});
-      observer.unobserve(container);
+export default {
+  props: {
+    corporationList: {
+      type: Array
     }
+  },
+  data() {
+    return {
+      corporationListNum: 4,
+      showCorporationList: this.corporationList,
+      containerWidth: null
+    };
+  },
+  computed: {
+    corporationListWidth() {
+      if (this.corporationListNum > 0) {
+        return `calc(100% / ${this.corporationListNum} - 20px)`;
+      }
+      return '100%'; // 若 corporationListNum 为 0 或者无效值，默认宽度为 100%
+    },
+    // postMetaMarginRight() {
+    //   // return this.corporationListNum === 4 ? '5px' : '10px';
+    //   return '5px';
+    // }
+  },
+  mounted() {
+    const container = this.$el;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        this.containerWidth = entry.contentRect.width;
+        if (this.containerWidth < 713) {
+          this.corporationListNum = 2;
+          this.showCorporationList = this.corporationList.slice(0, 4);
+        } else if (this.containerWidth < 930) {
+          this.corporationListNum = 3;
+          this.showCorporationList = this.corporationList.slice(0, 6);
+        } else if (this.containerWidth < 1200) {
+          this.corporationListNum = 4;
+          this.showCorporationList = this.corporationList.slice(0, 8);
+        } else {
+          this.corporationListNum = 5;
+        }
+      }
+    });
+    observer.observe(container);
+  },
+  beforeDestroy() {
+    const container = this.$el;
+    const observer = new ResizeObserver(() => {});
+    observer.unobserve(container);
   }
+};
 </script>
 
 <style scoped>
@@ -170,7 +170,7 @@
     height: 135px;
     flex-shrink: 0;
     cursor: pointer;
-    animation: zoomIn 0.8s ease-in-out;
+    animation: hideToShow 0.8s ease-in-out;
     text-decoration: none; /* 移除下划线 */
     color: inherit;
     box-shadow: 0 1px 10px -6px var(--borderColor);

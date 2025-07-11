@@ -5,11 +5,11 @@
 </template>
 
 <script>
-import {setRedirectToLogin} from "@/utils/request";
+import {setRedirectToLogin} from '@/utils/request';
 
 export default {
   data() {
-    return {}
+    return {};
   },
 
   computed: {},
@@ -23,15 +23,15 @@ export default {
   },
 
   mounted() {
-    const redirect = sessionStorage.redirect
-    delete sessionStorage.redirect
+    const redirect = sessionStorage.redirect;
+    delete sessionStorage.redirect;
     if (redirect && redirect !== location.pathname) {
-      this.$router.replace(redirect)
+      this.$router.replace(redirect);
     }
   },
 
   methods: {}
-}
+};
 </script>
 
 <style scoped>

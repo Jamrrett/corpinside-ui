@@ -114,201 +114,201 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        sortDialog: false,
-        labelDialog: false,
-        sortInfo: [],
-        sort: {},
-        sortForHttp: {
-          id: null,
-          sortName: "",
-          sortDescription: "",
-          sortType: null,
-          priority: null
-        },
-        labelForHttp: {
-          id: null,
-          sortId: null,
-          labelName: "",
-          labelDescription: ""
-        }
+export default {
+  data() {
+    return {
+      sortDialog: false,
+      labelDialog: false,
+      sortInfo: [],
+      sort: {},
+      sortForHttp: {
+        id: null,
+        sortName: '',
+        sortDescription: '',
+        sortType: null,
+        priority: null
+      },
+      labelForHttp: {
+        id: null,
+        sortId: null,
+        labelName: '',
+        labelDescription: ''
       }
-    },
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
-      this.getSortInfo();
-    },
+  created() {
+    this.getSortInfo();
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {
-      deleteHandle(id, flag) {
-        let url;
-        if (flag === 1) {
-          url = "/webInfo/deleteSort";
-        } else if (flag === 2) {
-          url = "/webInfo/deleteLabel";
-        } else {
-          return;
-        }
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + url, {id: id}, true)
-            .then((res) => {
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-              this.getSortInfo();
-              this.sort = {};
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
-          });
-        });
-      },
-      saveSortEdit() {
-        if (this.$common.isEmpty(this.sortForHttp.sortType) ||
-          this.$common.isEmpty(this.sortForHttp.priority) ||
-          this.$common.isEmpty(this.sortForHttp.sortName) ||
-          this.$common.isEmpty(this.sortForHttp.sortDescription)) {
-          this.$message({
-            message: "请完善所有分类信息！",
-            type: "error"
-          });
-          return;
-        }
-
-        let url;
-        if (this.$common.isEmpty(this.sortForHttp.id)) {
-          url = "/webInfo/saveSort";
-        } else {
-          url = "/webInfo/updateSort";
-        }
-        this.$http.post(this.$constant.baseURL + url, this.sortForHttp, true)
-          .then((res) => {
+  methods: {
+    deleteHandle(id, flag) {
+      let url;
+      if (flag === 1) {
+        url = '/webInfo/deleteSort';
+      } else if (flag === 2) {
+        url = '/webInfo/deleteLabel';
+      } else {
+        return;
+      }
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + url, {id: id}, true)
+          .then(() => {
             this.$message({
-              message: "保存成功！",
-              type: "success"
+              message: '删除成功！',
+              type: 'success'
             });
             this.getSortInfo();
-            this.handleClose();
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      saveLabelEdit() {
-        if (this.$common.isEmpty(this.labelForHttp.labelName) ||
-          this.$common.isEmpty(this.labelForHttp.labelDescription)) {
-          this.$message({
-            message: "请完善所有标签信息！",
-            type: "error"
-          });
-          return;
-        }
-
-        let url;
-        if (this.$common.isEmpty(this.labelForHttp.id)) {
-          url = "/webInfo/saveLabel";
-        } else {
-          url = "/webInfo/updateLabel";
-        }
-        this.$http.post(this.$constant.baseURL + url, this.labelForHttp, true)
-          .then((res) => {
-            this.$message({
-              message: "保存成功！",
-              type: "success"
-            });
-            this.getSortInfo();
-            this.handleClose();
             this.sort = {};
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      editSort(sort) {
-        this.sortDialog = true;
-        this.sortForHttp.id = sort.id;
-        this.sortForHttp.sortName = sort.sortName;
-        this.sortForHttp.sortDescription = sort.sortDescription;
-        this.sortForHttp.sortType = sort.sortType;
-        this.sortForHttp.priority = sort.priority;
-      },
-      editLabel(label) {
-        this.labelDialog = true;
-        this.labelForHttp.id = label.id;
-        this.labelForHttp.sortId = label.sortId;
-        this.labelForHttp.labelName = label.labelName;
-        this.labelForHttp.labelDescription = label.labelDescription;
-      },
-      insertLabel(sort) {
-        this.labelForHttp.sortId = sort.id;
-        this.labelDialog = true;
-      },
-      handleClose() {
-        this.labelForHttp = {
-          id: null,
-          sortId: null,
-          labelName: "",
-          labelDescription: ""
-        };
-        this.sortForHttp = {
-          id: null,
-          sortName: "",
-          sortDescription: "",
-          sortType: null,
-          priority: null
-        };
-        this.sortDialog = false;
-        this.labelDialog = false;
-      },
-      sayLabel(sort) {
-        this.sort = sort;
-      },
-      getSortInfo() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getSortInfo")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.sortInfo = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消删除!'
+        });
+      });
+    },
+    saveSortEdit() {
+      if (this.$common.isEmpty(this.sortForHttp.sortType) ||
+          this.$common.isEmpty(this.sortForHttp.priority) ||
+          this.$common.isEmpty(this.sortForHttp.sortName) ||
+          this.$common.isEmpty(this.sortForHttp.sortDescription)) {
+        this.$message({
+          message: '请完善所有分类信息！',
+          type: 'error'
+        });
+        return;
       }
+
+      let url;
+      if (this.$common.isEmpty(this.sortForHttp.id)) {
+        url = '/webInfo/saveSort';
+      } else {
+        url = '/webInfo/updateSort';
+      }
+      this.$http.post(this.$constant.baseURL + url, this.sortForHttp, true)
+        .then(() => {
+          this.$message({
+            message: '保存成功！',
+            type: 'success'
+          });
+          this.getSortInfo();
+          this.handleClose();
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    saveLabelEdit() {
+      if (this.$common.isEmpty(this.labelForHttp.labelName) ||
+          this.$common.isEmpty(this.labelForHttp.labelDescription)) {
+        this.$message({
+          message: '请完善所有标签信息！',
+          type: 'error'
+        });
+        return;
+      }
+
+      let url;
+      if (this.$common.isEmpty(this.labelForHttp.id)) {
+        url = '/webInfo/saveLabel';
+      } else {
+        url = '/webInfo/updateLabel';
+      }
+      this.$http.post(this.$constant.baseURL + url, this.labelForHttp, true)
+        .then(() => {
+          this.$message({
+            message: '保存成功！',
+            type: 'success'
+          });
+          this.getSortInfo();
+          this.handleClose();
+          this.sort = {};
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    editSort(sort) {
+      this.sortDialog = true;
+      this.sortForHttp.id = sort.id;
+      this.sortForHttp.sortName = sort.sortName;
+      this.sortForHttp.sortDescription = sort.sortDescription;
+      this.sortForHttp.sortType = sort.sortType;
+      this.sortForHttp.priority = sort.priority;
+    },
+    editLabel(label) {
+      this.labelDialog = true;
+      this.labelForHttp.id = label.id;
+      this.labelForHttp.sortId = label.sortId;
+      this.labelForHttp.labelName = label.labelName;
+      this.labelForHttp.labelDescription = label.labelDescription;
+    },
+    insertLabel(sort) {
+      this.labelForHttp.sortId = sort.id;
+      this.labelDialog = true;
+    },
+    handleClose() {
+      this.labelForHttp = {
+        id: null,
+        sortId: null,
+        labelName: '',
+        labelDescription: ''
+      };
+      this.sortForHttp = {
+        id: null,
+        sortName: '',
+        sortDescription: '',
+        sortType: null,
+        priority: null
+      };
+      this.sortDialog = false;
+      this.labelDialog = false;
+    },
+    sayLabel(sort) {
+      this.sort = sort;
+    },
+    getSortInfo() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getSortInfo')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.sortInfo = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

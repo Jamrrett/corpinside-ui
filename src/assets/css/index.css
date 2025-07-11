@@ -4,6 +4,7 @@
 }
 
 body {
+    overflow-y: scroll;
     color: var(--fontColor);
     font-family: var(--globalFont), serif;
     word-break: break-word;

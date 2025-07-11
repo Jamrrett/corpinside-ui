@@ -68,12 +68,12 @@ export default {
       configList: [],
       config: {
         id: null,
-        configName: "",
-        configKey: "",
-        configValue: "",
-        configType: ""
+        configName: '',
+        configKey: '',
+        configValue: '',
+        configType: ''
       }
-    }
+    };
   },
 
   computed: {},
@@ -96,11 +96,11 @@ export default {
         type: 'success',
         center: true
       }).then(() => {
-        this.$http.get(this.$constant.baseURL + "/sysConfig/deleteConfig", {id: id}, true)
-          .then((res) => {
+        this.$http.get(this.$constant.baseURL + '/sysConfig/deleteConfig', {id: id}, true)
+          .then(() => {
             this.$message({
-              message: "删除成功！",
-              type: "success"
+              message: '删除成功！',
+              type: 'success'
             });
             this.getConfigInfo();
             this.handleClose();
@@ -108,7 +108,7 @@ export default {
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
       }).catch(() => {
@@ -123,17 +123,17 @@ export default {
         this.$common.isEmpty(this.config.configKey) ||
         this.$common.isEmpty(this.config.configType)) {
         this.$message({
-          message: "请完善所有配置信息！",
-          type: "error"
+          message: '请完善所有配置信息！',
+          type: 'error'
         });
         return;
       }
 
-      this.$http.post(this.$constant.baseURL + "/sysConfig/saveOrUpdateConfig", this.config, true)
-        .then((res) => {
+      this.$http.post(this.$constant.baseURL + '/sysConfig/saveOrUpdateConfig', this.config, true)
+        .then(() => {
           this.$message({
-            message: "保存成功！",
-            type: "success"
+            message: '保存成功！',
+            type: 'success'
           });
           this.getConfigInfo();
           this.handleClose();
@@ -141,7 +141,7 @@ export default {
         .catch((error) => {
           this.$message({
             message: error.message,
-            type: "error"
+            type: 'error'
           });
         });
     },
@@ -156,15 +156,15 @@ export default {
     handleClose() {
       this.config = {
         id: null,
-        configName: "",
-        configKey: "",
-        configValue: "",
-        configType: ""
+        configName: '',
+        configKey: '',
+        configValue: '',
+        configType: ''
       };
       this.configDialog = false;
     },
     getConfigInfo() {
-      this.$http.get(this.$constant.baseURL + "/sysConfig/listConfig", {}, true)
+      this.$http.get(this.$constant.baseURL + '/sysConfig/listConfig', {}, true)
         .then((res) => {
           if (!this.$common.isEmpty(res.data)) {
             this.configList = res.data;
@@ -173,12 +173,12 @@ export default {
         .catch((error) => {
           this.$message({
             message: error.message,
-            type: "error"
+            type: 'error'
           });
         });
     }
   }
-}
+};
 </script>
 
 <style scoped>

@@ -155,21 +155,21 @@
 </template>
 
 <script>
-  const sortCorporation = () => import( "./common/sortCorporation");
-  export default {
-    components: {
-      sortCorporation
+const sortCorporation = () => import( './common/sortCorporation');
+export default {
+  components: {
+    sortCorporation
+  },
+  props: {
+    corporationList: {
+      type: Array
     },
-    props: {
-      corporationList: {
-        type: Array
-      },
-      sortCorporationName: {
-        type: String
-      }
-    },
-    methods: {}
-  }
+    sortCorporationName: {
+      type: String
+    }
+  },
+  methods: {}
+};
 </script>
 
 <style scoped>

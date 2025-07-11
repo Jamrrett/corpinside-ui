@@ -89,7 +89,8 @@
                       <el-dropdown-item @click.native="logout()" v-if="!$common.isEmpty($store.state.currentUser)">
                         <i class="fa fa-sign-out" aria-hidden="true"></i> <span>退出</span>
                       </el-dropdown-item>
-                      <router-link :to="{ path: `/login`, query: { redirect: this.$route.fullPath } }"
+                      <router-link :to="{ path: `/login` }"
+                           @click.native="setRedirectPath"
                            style="width: 100%;height: 100%;text-decoration: none;color: inherit"
                            v-if="$common.isEmpty($store.state.currentUser)">
                         <el-dropdown-item>
@@ -224,279 +225,286 @@
 </template>
 
 <script>
-  const myFooter = () => import( "./common/myFooter");
+const myFooter = () => import( './common/myFooter');
 
-  export default {
-    components: {
-      myFooter
+export default {
+  components: {
+    myFooter
+  },
+  data() {
+    return {
+      toolButton: false,
+      hoverEnter: false,
+      mouseAnimation: false,
+      isDark: false,
+      scrollTop: 0,
+      toolbarDrawer: false,
+      mobile: false
+    };
+  },
+  mounted() {
+    // window.addEventListener('scroll', this.onScrollPage);
+
+    // window.addEventListener('load', function() {
+    //   const performanceData = window.performance.getEntriesByType('navigation')[0];
+    //   console.log('页面加载时间:', performanceData.loadEventEnd - performanceData.startTime);
+    //   console.log('DOM 解析时间:', performanceData.domComplete - performanceData.domInteractive);
+    //
+    //   // 监控资源加载时间
+    //   const resources = window.performance.getEntriesByType('resource');
+    //   resources.forEach(resource => {
+    //     console.log(`资源 ${resource.name} 加载时间:`, resource.duration);
+    //   });
+    // });
+    // if (this.isDaylight()) {
+    //   this.isDark = true;
+    //   let root = document.querySelector(":root");
+    //   root.style.setProperty("--background", "#272727");
+    //   root.style.setProperty("--fontColor", "white");
+    //   root.style.setProperty("--borderColor", "#4F4F4F");
+    //   root.style.setProperty("--borderHoverColor", "black");
+    //   root.style.setProperty("--articleFontColor", "#E4E4E4");
+    //   root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
+    //   root.style.setProperty("--commentContent", "#D4D4D4");
+    //   root.style.setProperty("--favoriteBg", "#1e1e1e");
+    // }
+  },
+  destroyed() {
+    // window.removeEventListener('scroll', this.onScrollPage);
+  },
+  watch: {
+    // scrollTop(scrollTop, oldScrollTop) {
+    //   //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
+    //   let enter = scrollTop > window.innerHeight / 2;
+    //   const top = scrollTop - oldScrollTop < 0;
+    //   let isShow = scrollTop - window.innerHeight > 30;
+    //   this.toolButton = isShow;
+    //   if (isShow && !this.$common.mobile()) {
+    //     if (window.innerHeight > 950) {
+    //       $('.cd-top').css('top', '0');
+    //     } else {
+    //       $('.cd-top').css('top', window.innerHeight - 950 + 'px');
+    //     }
+    //   } else if (!isShow && !this.$common.mobile()) {
+    //     $('.cd-top').css('top', '-900px');
+    //   }
+    //
+    //   //导航栏显示与颜色
+    //   let toolbarStatus = {
+    //     enter: enter,
+    //     visible: top,
+    //   };
+    //   this.$store.commit('changeToolbarStatus', toolbarStatus);
+    // },
+  },
+  created() {
+    let toolbarStatus = {
+      enter: false,
+      visible: true,
+    };
+    this.$store.commit('changeToolbarStatus', toolbarStatus);
+    this.getWebInfo();
+    this.getSysConfig();
+    this.getSortInfo();
+    this.getSortCorporationInfo();
+
+    this.mobile = document.body.clientWidth < 1100;
+
+    window.addEventListener('resize', () => {
+      let docWidth = document.body.clientWidth;
+      if (docWidth < 810) {
+        this.mobile = true;
+      } else {
+        this.mobile = false;
+      }
+    });
+  },
+  computed: {
+    toolbar() {
+      return this.$store.state.toolbar;
     },
-    data() {
-      return {
-        toolButton: false,
-        hoverEnter: false,
-        mouseAnimation: false,
-        isDark: false,
-        scrollTop: 0,
-        toolbarDrawer: false,
-        mobile: false
+    sortInfo() {
+      return this.$store.state.sortInfo;
+    }
+  },
+  methods: {
+    setRedirectPath() {
+      sessionStorage.setItem('redirectPath', this.$route.fullPath);
+    },
+    smallMenu(data) {
+      if (data.path === '/login') {
+        this.setRedirectPath();
+      }
+      this.$router.push(data);
+      this.toolbarDrawer = false;
+    },
+
+    smallMenuLogout() {
+      this.logout();
+      this.toolbarDrawer = false;
+    },
+
+    logout() {
+      this.$http.get(this.$constant.baseURL + '/user/logout')
+        .then((res) => {
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+      this.$store.commit('loadCurrentUser', {});
+      localStorage.removeItem('userToken');
+      // if (this.$route.path === '/') {
+      //   this.$router.go(0);
+      // } else {
+      //   this.$router.push({ path: '/' });
+      // }
+      if (this.$route.path.includes('articleEdit')) {
+        window.location.assign('/');
+      } else {
+        window.location.assign(this.$route.path);
       }
     },
-    mounted() {
-      window.addEventListener("scroll", this.onScrollPage);
 
-      // window.addEventListener('load', function() {
-      //   const performanceData = window.performance.getEntriesByType('navigation')[0];
-      //   console.log('页面加载时间:', performanceData.loadEventEnd - performanceData.startTime);
-      //   console.log('DOM 解析时间:', performanceData.domComplete - performanceData.domInteractive);
-      //
-      //   // 监控资源加载时间
-      //   const resources = window.performance.getEntriesByType('resource');
-      //   resources.forEach(resource => {
-      //     console.log(`资源 ${resource.name} 加载时间:`, resource.duration);
-      //   });
-      // });
-      // if (this.isDaylight()) {
-      //   this.isDark = true;
-      //   let root = document.querySelector(":root");
-      //   root.style.setProperty("--background", "#272727");
-      //   root.style.setProperty("--fontColor", "white");
-      //   root.style.setProperty("--borderColor", "#4F4F4F");
-      //   root.style.setProperty("--borderHoverColor", "black");
-      //   root.style.setProperty("--articleFontColor", "#E4E4E4");
-      //   root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
-      //   root.style.setProperty("--commentContent", "#D4D4D4");
-      //   root.style.setProperty("--favoriteBg", "#1e1e1e");
-      // }
-    },
-    destroyed() {
-      window.removeEventListener("scroll", this.onScrollPage);
-    },
-    watch: {
-      scrollTop(scrollTop, oldScrollTop) {
-        //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
-        let enter = scrollTop > window.innerHeight / 2;
-        const top = scrollTop - oldScrollTop < 0;
-        let isShow = scrollTop - window.innerHeight > 30;
-        this.toolButton = isShow;
-        if (isShow && !this.$common.mobile()) {
-          if (window.innerHeight > 950) {
-            $(".cd-top").css("top", "0");
-          } else {
-            $(".cd-top").css("top", window.innerHeight - 950 + "px");
+    getWebInfo() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getWebInfo')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadWebInfo', res.data);
+            localStorage.setItem('defaultStoreType', res.data.defaultStoreType);
           }
-        } else if (!isShow && !this.$common.mobile()) {
-          $(".cd-top").css("top", "-900px");
-        }
-
-        //导航栏显示与颜色
-        let toolbarStatus = {
-          enter: enter,
-          visible: top,
-        };
-        this.$store.commit("changeToolbarStatus", toolbarStatus);
-      },
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-    created() {
-      let toolbarStatus = {
-        enter: false,
-        visible: true,
-      };
-      this.$store.commit("changeToolbarStatus", toolbarStatus);
-      this.getWebInfo();
-      this.getSysConfig();
-      this.getSortInfo();
-      this.getSortCorporationInfo();
 
-      this.mobile = document.body.clientWidth < 1100;
+    getSysConfig() {
+      this.$http.get(this.$constant.baseURL + '/sysConfig/listSysConfig')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadSysConfig', res.data);
+            this.buildCssPicture();
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
 
-      window.addEventListener('resize', () => {
-        let docWidth = document.body.clientWidth;
-        if (docWidth < 810) {
-          this.mobile = true;
-        } else {
-          this.mobile = false;
-        }
+    buildCssPicture() {
+      let root = document.querySelector(':root');
+      let webStaticResourcePrefix = this.$store.state.sysConfig['webStaticResourcePrefix'];
+      // console.log(webStaticResourcePrefix);
+      // root.style.setProperty("--commentURL", "url(" + webStaticResourcePrefix + "assets/commentURL.png)");
+      root.style.setProperty('--springBg', 'url(' + webStaticResourcePrefix + 'assets/springBg.jpg)');
+      // root.style.setProperty("--admireImage", "url(" + webStaticResourcePrefix + "assets/admireImage.jpg)");
+      // root.style.setProperty("--toTop", "url(" + webStaticResourcePrefix + "assets/toTop.png)");
+      // root.style.setProperty("--bannerWave1", "url(" + webStaticResourcePrefix + "assets/bannerWave1.png) repeat-x");
+      // root.style.setProperty("--bannerWave2", "url(" + webStaticResourcePrefix + "assets/bannerWave2.png) repeat-x");
+      root.style.setProperty('--backgroundPicture', 'url(' + webStaticResourcePrefix + 'assets/backgroundPicture.jpg)');
+      // root.style.setProperty("--toolbar", "url(" + webStaticResourcePrefix + "assets/toolbar.jpg)");
+      // root.style.setProperty("--love", "url(" + webStaticResourcePrefix + "assets/love.jpg)");
+      // const font = new FontFace("poetize-font", "url(" + webStaticResourcePrefix + "assets/font.woff2)");
+      // font.load();
+      // document.fonts.add(font);
+    },
+
+    getSortInfo() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getSortInfo')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadSortInfo', res.data);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+
+    getSortCorporationInfo() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getSortCorporationInfo')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadSortCorporationInfo', res.data);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+
+    handleAvatarClick() {
+      if (!this.$common.isEmpty(this.$store.state.currentUser)) {
+        // 用户已登录，跳转到个人中心
+        this.$router.push({ path: `/user/${this.$store.state.currentUser.id}` });
+      } else {
+        // 用户未登录，跳转到登录页面
+        sessionStorage.setItem('redirectPath', this.$route.fullPath);
+        this.$router.push({ path: '/login' });
+      }
+    },
+
+    changeColor() {
+      this.isDark = !this.isDark;
+      let root = document.querySelector(':root');
+
+      if (this.isDark) {
+        root.style.setProperty('--background', '#272727');
+        root.style.setProperty('--fontColor', 'white');
+        root.style.setProperty('--borderColor', '#4F4F4F');
+        root.style.setProperty('--borderHoverColor', 'black');
+        root.style.setProperty('--articleFontColor', '#E4E4E4');
+        root.style.setProperty('--articleGreyFontColor', '#D4D4D4');
+        root.style.setProperty('--commentContent', '#D4D4D4');
+        root.style.setProperty('--favoriteBg', '#1e1e1e');
+      } else {
+        root.style.setProperty('--background', '#f1f3f5');
+        root.style.setProperty('--fontColor', 'black');
+        root.style.setProperty('--borderColor', 'rgba(0, 0, 0, 0.5)');
+        root.style.setProperty('--borderHoverColor', 'rgba(110, 110, 110, 0.4)');
+        root.style.setProperty('--articleFontColor', '#1F1F1F');
+        root.style.setProperty('--articleGreyFontColor', '#616161');
+        root.style.setProperty('--commentContent', '#F7F9FE');
+        root.style.setProperty('--favoriteBg', '#f7f9fe');
+      }
+    },
+
+    toTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
       });
     },
-    computed: {
-      toolbar() {
-        return this.$store.state.toolbar;
-      },
-      sortInfo() {
-        return this.$store.state.sortInfo;
+
+    onScrollPage() {
+      this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    },
+
+    isDaylight() {
+      let currDate = new Date();
+      if (currDate.getHours() > 22 || currDate.getHours() < 7) {
+        return true;
+      } else {
+        return false;
       }
     },
-    methods: {
-      smallMenu(data) {
-        this.$router.push(data);
-        this.toolbarDrawer = false;
-      },
-
-      smallMenuLogout() {
-        this.logout();
-        this.toolbarDrawer = false;
-      },
-
-      logout() {
-        this.$http.get(this.$constant.baseURL + "/user/logout")
-          .then((res) => {
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-        this.$store.commit("loadCurrentUser", {});
-        localStorage.removeItem("userToken");
-        // if (this.$route.path === '/') {
-        //   this.$router.go(0);
-        // } else {
-        //   this.$router.push({ path: '/' });
-        // }
-        if (this.$route.path.includes('articleEdit')) {
-          window.location.assign("/");
-        } else {
-          window.location.assign(this.$route.path);
-        }
-      },
-
-      getWebInfo() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getWebInfo")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadWebInfo", res.data);
-              localStorage.setItem("defaultStoreType", res.data.defaultStoreType);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-
-      getSysConfig() {
-        this.$http.get(this.$constant.baseURL + "/sysConfig/listSysConfig")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadSysConfig", res.data);
-              this.buildCssPicture();
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-
-      buildCssPicture() {
-        let root = document.querySelector(":root");
-        let webStaticResourcePrefix = this.$store.state.sysConfig['webStaticResourcePrefix'];
-        // console.log(webStaticResourcePrefix);
-        // root.style.setProperty("--commentURL", "url(" + webStaticResourcePrefix + "assets/commentURL.png)");
-        root.style.setProperty("--springBg", "url(" + webStaticResourcePrefix + "assets/springBg.jpg)");
-        // root.style.setProperty("--admireImage", "url(" + webStaticResourcePrefix + "assets/admireImage.jpg)");
-        // root.style.setProperty("--toTop", "url(" + webStaticResourcePrefix + "assets/toTop.png)");
-        // root.style.setProperty("--bannerWave1", "url(" + webStaticResourcePrefix + "assets/bannerWave1.png) repeat-x");
-        // root.style.setProperty("--bannerWave2", "url(" + webStaticResourcePrefix + "assets/bannerWave2.png) repeat-x");
-        root.style.setProperty("--backgroundPicture", "url(" + webStaticResourcePrefix + "assets/backgroundPicture.jpg)");
-        // root.style.setProperty("--toolbar", "url(" + webStaticResourcePrefix + "assets/toolbar.jpg)");
-        // root.style.setProperty("--love", "url(" + webStaticResourcePrefix + "assets/love.jpg)");
-        // const font = new FontFace("poetize-font", "url(" + webStaticResourcePrefix + "assets/font.woff2)");
-        // font.load();
-        // document.fonts.add(font);
-      },
-
-      getSortInfo() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getSortInfo")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadSortInfo", res.data);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-
-      getSortCorporationInfo() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getSortCorporationInfo")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadSortCorporationInfo", res.data);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-
-      handleAvatarClick() {
-        if (!this.$common.isEmpty(this.$store.state.currentUser)) {
-          // 用户已登录，跳转到个人中心
-          this.$router.push({ path: `/user/${this.$store.state.currentUser.id}` });
-        } else {
-          // 用户未登录，跳转到登录页面
-          this.$router.push({ path: `/login` });
-        }
-      },
-
-      changeColor() {
-        this.isDark = !this.isDark;
-        let root = document.querySelector(":root");
-
-        if (this.isDark) {
-          root.style.setProperty("--background", "#272727");
-          root.style.setProperty("--fontColor", "white");
-          root.style.setProperty("--borderColor", "#4F4F4F");
-          root.style.setProperty("--borderHoverColor", "black");
-          root.style.setProperty("--articleFontColor", "#E4E4E4");
-          root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
-          root.style.setProperty("--commentContent", "#D4D4D4");
-          root.style.setProperty("--favoriteBg", "#1e1e1e");
-        } else {
-          root.style.setProperty("--background", "#f1f3f5");
-          root.style.setProperty("--fontColor", "black");
-          root.style.setProperty("--borderColor", "rgba(0, 0, 0, 0.5)");
-          root.style.setProperty("--borderHoverColor", "rgba(110, 110, 110, 0.4)");
-          root.style.setProperty("--articleFontColor", "#1F1F1F");
-          root.style.setProperty("--articleGreyFontColor", "#616161");
-          root.style.setProperty("--commentContent", "#F7F9FE");
-          root.style.setProperty("--favoriteBg", "#f7f9fe");
-        }
-      },
-
-      toTop() {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      },
-
-      onScrollPage() {
-        this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-      },
-
-      isDaylight() {
-        let currDate = new Date();
-        if (currDate.getHours() > 22 || currDate.getHours() < 7) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-    }
   }
+};
 </script>
 
 <style scoped>

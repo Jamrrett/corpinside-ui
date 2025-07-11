@@ -78,243 +78,243 @@
 
 <script>
 
-  export default {
-    components: {
-    },
-    data() {
-      return {
-        id: this.$route.query.id,
-        department: {
-          departmentTitle: "",
-          departmentContent: "",
-          commentStatus: true,
-          recommendStatus: false,
-          viewStatus: true,
-          password: "",
-          tips: "",
-          corporationId: ""
-        },
-        corporations: [],
-        rules: {
-          departmentTitle: [
-            {required: true, message: '请输入名称', trigger: 'change'}
-          ],
-          departmentContent: [
-            {required: true, message: '请输入内容', trigger: 'change'}
-          ],
-          commentStatus: [
-            {required: true, message: '是否启用评论', trigger: 'change'}
-          ],
-          recommendStatus: [
-            {required: true, message: '是否推荐', trigger: 'change'}
-          ],
-          viewStatus: [
-            {required: true, message: '是否可见', trigger: 'change'}
-          ],
-          corporationId: [
-            {required: true, message: '公司', trigger: 'change'}
-          ]
-        }
+export default {
+  components: {
+  },
+  data() {
+    return {
+      id: this.$route.query.id,
+      department: {
+        departmentTitle: '',
+        departmentContent: '',
+        commentStatus: true,
+        recommendStatus: false,
+        viewStatus: true,
+        password: '',
+        tips: '',
+        corporationId: ''
+      },
+      corporations: [],
+      rules: {
+        departmentTitle: [
+          {required: true, message: '请输入名称', trigger: 'change'}
+        ],
+        departmentContent: [
+          {required: true, message: '请输入内容', trigger: 'change'}
+        ],
+        commentStatus: [
+          {required: true, message: '是否启用评论', trigger: 'change'}
+        ],
+        recommendStatus: [
+          {required: true, message: '是否推荐', trigger: 'change'}
+        ],
+        viewStatus: [
+          {required: true, message: '是否可见', trigger: 'change'}
+        ],
+        corporationId: [
+          {required: true, message: '公司', trigger: 'change'}
+        ]
+      }
+    };
+  },
+
+  created() {
+    this.getCorporations();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    imgAdd(pos, file) {
+      let suffix = '';
+      if (file.name.lastIndexOf('.') !== -1) {
+        suffix = file.name.substring(file.name.lastIndexOf('.'));
+      }
+      let key = 'departmentPicture' + '/' + this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
+
+      let storeType = localStorage.getItem('defaultStoreType');
+
+      let fd = new FormData();
+      fd.append('file', file);
+      fd.append('originalName', file.name);
+      fd.append('key', key);
+      fd.append('relativePath', key);
+      fd.append('type', 'departmentPicture');
+      fd.append('storeType', storeType);
+
+      if (storeType === 'local') {
+        this.saveLocal(pos, fd);
+      } else if (storeType === 'qiniu') {
+        this.saveQiniu(pos, fd);
       }
     },
-
-    created() {
-      this.getCorporations();
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      imgAdd(pos, file) {
-        let suffix = "";
-        if (file.name.lastIndexOf('.') !== -1) {
-          suffix = file.name.substring(file.name.lastIndexOf('.'));
-        }
-        let key = "departmentPicture" + "/" + this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
-
-        let storeType = localStorage.getItem("defaultStoreType");
-
-        let fd = new FormData();
-        fd.append("file", file);
-        fd.append("originalName", file.name);
-        fd.append("key", key);
-        fd.append("relativePath", key);
-        fd.append("type", "departmentPicture");
-        fd.append("storeType", storeType);
-
-        if (storeType === "local") {
-          this.saveLocal(pos, fd);
-        } else if (storeType === "qiniu") {
-          this.saveQiniu(pos, fd);
-        }
-      },
-      saveLocal(pos, fd) {
-        this.$http.upload(this.$constant.baseURL + "/resource/upload", fd, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              let url = res.data;
-              this.$refs.md.$img2Url(pos, url);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+    saveLocal(pos, fd) {
+      this.$http.upload(this.$constant.baseURL + '/resource/upload', fd, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            let url = res.data;
+            this.$refs.md.$img2Url(pos, url);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      saveQiniu(pos, fd) {
-        this.$http.get(this.$constant.baseURL + "/qiniu/getUpToken", {key: fd.get("key")}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              fd.append("token", res.data);
+        });
+    },
+    saveQiniu(pos, fd) {
+      this.$http.get(this.$constant.baseURL + '/qiniu/getUpToken', {key: fd.get('key')}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            fd.append('token', res.data);
 
-              this.$http.uploadQiniu(this.$store.state.sysConfig.qiniuUrl, fd)
-                .then((res) => {
-                  if (!this.$common.isEmpty(res.key)) {
-                    let url = this.$store.state.sysConfig['qiniu.downloadUrl'] + res.key;
-                    let file = fd.get("file");
-                    this.$common.saveResource(this, "departmentPicture", url, file.size, file.type, file.name, "qiniu", true);
-                    this.$refs.md.$img2Url(pos, url);
-                  }
-                })
-                .catch((error) => {
-                  this.$message({
-                    message: error.message,
-                    type: "error"
-                  });
+            this.$http.uploadQiniu(this.$store.state.sysConfig.qiniuUrl, fd)
+              .then((res) => {
+                if (!this.$common.isEmpty(res.key)) {
+                  let url = this.$store.state.sysConfig['qiniu.downloadUrl'] + res.key;
+                  let file = fd.get('file');
+                  this.$common.saveResource(this, 'departmentPicture', url, file.size, file.type, file.name, 'qiniu', true);
+                  this.$refs.md.$img2Url(pos, url);
+                }
+              })
+              .catch((error) => {
+                this.$message({
+                  message: error.message,
+                  type: 'error'
                 });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+              });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getCorporations() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listSortAndCorporations")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.corporations = res.data.corporations;
-              if (!this.$common.isEmpty(this.id)) {
-                this.getDepartment();
-              }
+        });
+    },
+    getCorporations() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listSortAndCorporations')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.corporations = res.data.corporations;
+            if (!this.$common.isEmpty(this.id)) {
+              this.getDepartment();
             }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getDepartment() {
-        this.$http.get(this.$constant.baseURL + "/admin/department/getDepartmentById", {id: this.id}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.department = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        });
+    },
+    getDepartment() {
+      this.$http.get(this.$constant.baseURL + '/admin/department/getDepartmentById', {id: this.id}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.department = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            if (this.$common.isEmpty(this.id)) {
-              this.saveDepartment(this.department, "/department/saveDepartment")
-            } else {
-              this.department.id = this.id;
-              this.saveDepartment(this.department, "/admin/department/updateDepartment")
-            }
+        });
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.$common.isEmpty(this.id)) {
+            this.saveDepartment(this.department, '/department/saveDepartment');
           } else {
-            console.log(valid);
+            this.department.id = this.id;
+            this.saveDepartment(this.department, '/admin/department/updateDepartment');
+          }
+        } else {
+          console.log(valid);
+          this.$message({
+            message: '请完善必填项！',
+            type: 'error'
+          });
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$confirm('确认重置？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'info',
+        center: true
+      }).then(() => {
+        this.$refs[formName].resetFields();
+        if (!this.$common.isEmpty(this.id)) {
+          this.getDepartment();
+        }
+        this.$message({
+          message: '重置成功！',
+          type: 'success'
+        });
+      }).catch(() => {});
+    },
+    deleteForm() {
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'error',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/admin/department/deleteDepartment', {id: this.id}, true)
+          .then(() => {
             this.$message({
-              message: "请完善必填项！",
-              type: "error"
+              message: '删除成功！',
+              type: 'success'
             });
-          }
-        });
-      },
-      resetForm(formName) {
-        this.$confirm('确认重置？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'info',
-          center: true
-        }).then(() => {
-          this.$refs[formName].resetFields();
-          if (!this.$common.isEmpty(this.id)) {
-            this.getDepartment();
-          }
-          this.$message({
-            message: "重置成功！",
-            type: "success"
+            this.$router.push({path: '/departmentList'});
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
           });
-        }).catch(() => {});
-      },
-      deleteForm(formName) {
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'error',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/admin/department/deleteDepartment", {id: this.id}, true)
-            .then((res) => {
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-              this.$router.push({path: '/departmentList'});
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
+      }).catch(() => {});
+    },
+    saveDepartment(value, url) {
+      this.$confirm('确认保存？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        console.log(value);
+        this.$http.post(this.$constant.baseURL + url, value, true)
+          .then(() => {
+            this.$message({
+              message: '保存成功！',
+              type: 'success'
             });
-        }).catch(() => {});
-      },
-      saveDepartment(value, url) {
-        this.$confirm('确认保存？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+            this.$router.push({path: '/departmentList'});
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          console.log(value);
-          this.$http.post(this.$constant.baseURL + url, value, true)
-            .then((res) => {
-              this.$message({
-                message: "保存成功！",
-                type: "success"
-              });
-              this.$router.push({path: '/departmentList'});
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消保存!'
-          });
+          message: '已取消保存!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

@@ -15,36 +15,36 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      showEmoji: {
-        type: Boolean
-      }
+export default {
+  props: {
+    showEmoji: {
+      type: Boolean
+    }
+  },
+  data() {
+    return {
+      emojiList: this.$constant.emojiList
+    };
+  },
+  created() {},
+  methods: {
+    addEmoji(value) {
+      this.$emit('addEmoji', value);
     },
-    data() {
-      return {
-        emojiList: this.$constant.emojiList
-      };
-    },
-    created() {},
-    methods: {
-      addEmoji(value) {
-        this.$emit("addEmoji", value);
-      },
-      getEmojiList(emojiList) {
-        let emojiName;
-        let url;
-        let result = {}
-        for (let i = 0; i < emojiList.length; i++) {
-          emojiName = "[" + emojiList[i] + "]";
-          let j = i + 1;
-          url = this.$store.state.sysConfig['webStaticResourcePrefix'] + "emoji/q" + j + ".gif";
-          result[emojiName] = url;
-        }
-        return result;
+    getEmojiList(emojiList) {
+      let emojiName;
+      let url;
+      let result = {};
+      for (let i = 0; i < emojiList.length; i++) {
+        emojiName = '[' + emojiList[i] + ']';
+        let j = i + 1;
+        url = this.$store.state.sysConfig['webStaticResourcePrefix'] + 'emoji/q' + j + '.gif';
+        result[emojiName] = url;
       }
+      return result;
     }
   }
+};
 </script>
 
 <style scoped>

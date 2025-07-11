@@ -3,7 +3,7 @@
     <div v-if="!$common.isEmpty(article)">
       <!-- 封面 -->
       <div class="article-head">
-        <div class="article-head-background"></div>
+        <div class="article-head-background" :style="{left: '50%', transform: 'translateX(-50%)',width: clientWidth + 'px'}"></div>
         <!-- 文章信息 -->
         <div class="article-info-container">
           <div class="article-title">{{ article.articleTitle }}</div>
@@ -26,7 +26,9 @@
                 fill="#FFFFFF"></path>
               <path d="M625 282.1m-43.7 0a43.7 43.7 0 1 0 87.4 0 43.7 43.7 0 1 0-87.4 0Z" fill="#FFFFFF"></path>
             </svg>
-            <span>&nbsp;{{ article.username }}</span>
+            <router-link :to="{ path: `/user/${article.userId}` }" style="text-decoration: inherit;color: inherit">
+            {{ article.username }}
+            </router-link>
             <span>·</span>
             <svg viewBox="0 0 1024 1024" width="14" height="14" style="vertical-align: -2px;">
               <path d="M512 512m-512 0a512 512 0 1 0 1024 0 512 512 0 1 0-1024 0Z" fill="#409EFF"></path>
@@ -92,7 +94,7 @@
       </div>
       <!-- 文章 -->
       <div style="background: var(--background);">
-        <div class="article-container my-animation-slide-bottom">
+        <div class="article-container my-animation-hideToShow">
           <!-- 文章内容 -->
           <div v-html="articleContentHtml" class="entry-content"></div>
           <!-- 最后更新时间 -->
@@ -110,7 +112,7 @@
           </div>
         </div>
 
-<!--        <div id="toc" class="toc"></div>-->
+        <div id="toc" class="toc"></div>
       </div>
 
 <!--      <div style="background: var(&#45;&#45;background)">-->
@@ -151,353 +153,371 @@
 </template>
 
 <script>
-  const comment = () => import( "./comment/comment");
-  const process = () => import( "./common/process");
-  const commentBox = () => import( "./comment/commentBox");
-  const proButton = () => import( "./common/proButton");
-  const videoPlayer = () => import( "./common/videoPlayer");
-  import MarkdownIt from 'markdown-it';
+const comment = () => import( './comment/comment');
+const proButton = () => import( './common/proButton');
+import MarkdownIt from 'markdown-it';
 
-  export default {
-    components: {
-      comment,
-      commentBox,
-      proButton,
-      process,
-      videoPlayer
-    },
+export default {
+  components: {
+    comment,
+    proButton
+  },
 
-    data() {
-      return {
-        id: this.$route.params.id,
-        subscribe: false,
-        article: {},
-        articleContentHtml: "",
-        treeHoleList: [],
-        weiYanDialogVisible: false,
-        copyrightDialogVisible: false,
-        newsTime: "",
-        showPasswordDialog: false,
-        password: "",
-        tips: "",
-        scrollTop: 0
-      };
-    },
-    created() {
-      if (!this.$common.isEmpty(this.id)) {
-        this.getArticle(localStorage.getItem("article_password_" + this.id));
+  data() {
+    return {
+      id: this.$route.params.id,
+      subscribe: false,
+      article: {},
+      articleContentHtml: '',
+      treeHoleList: [],
+      weiYanDialogVisible: false,
+      copyrightDialogVisible: false,
+      newsTime: '',
+      showPasswordDialog: false,
+      password: '',
+      tips: '',
+      scrollTop: 0,
+      clientWidth: document.documentElement.clientWidth
+    };
+  },
+  created() {
+    if (!this.$common.isEmpty(this.id)) {
+      this.getArticle(localStorage.getItem('article_password_' + this.id));
 
-        // if ("0" !== localStorage.getItem("showSubscribe")) {
-        //   this.$notify({
-        //     title: '文章订阅',
-        //     type: 'success',
-        //     message: '点击文章下方小手 - 订阅/取消订阅专栏（标签）',
-        //     duration: 0,
-        //     onClose: () => localStorage.setItem("showSubscribe", "0")
-        //   });
-        // }
+      // if ("0" !== localStorage.getItem("showSubscribe")) {
+      //   this.$notify({
+      //     title: '文章订阅',
+      //     type: 'success',
+      //     message: '点击文章下方小手 - 订阅/取消订阅专栏（标签）',
+      //     duration: 0,
+      //     onClose: () => localStorage.setItem("showSubscribe", "0")
+      //   });
+      // }
+    }
+  },
+  mounted() {
+    // window.addEventListener('scroll', this.onScrollPage);
+    window.addEventListener('resize', this.handleResize);
+  },
+  destroyed() {
+    // window.removeEventListener('scroll', this.onScrollPage);
+    window.removeEventListener('resize', this.handleResize);
+  },
+  watch: {
+    scrollTop(scrollTop) {
+      let isShow = scrollTop - window.innerHeight > 30;
+      if (isShow) {
+        $('#toc-button').css('bottom', '14.1vh');
+      } else {
+        $('#toc-button').css('bottom', '8vh');
       }
     },
-    mounted() {
-      window.addEventListener("scroll", this.onScrollPage);
+  },
+  methods: {
+    handleResize() {
+      // 更新窗口宽度
+      this.clientWidth = document.documentElement.clientWidth;
     },
-    destroyed() {
-      window.removeEventListener("scroll", this.onScrollPage);
+    clickTocButton() {
+      let display = $('.toc');
+      if ('none' === display.css('display')) {
+        display.css('display', 'unset');
+      } else {
+        display.css('display', 'none');
+      }
     },
-    watch: {
-      scrollTop(scrollTop, oldScrollTop) {
-        let isShow = scrollTop - window.innerHeight > 30;
-        if (isShow) {
-          $("#toc-button").css("bottom", "14.1vh");
-        } else {
-          $("#toc-button").css("bottom", "8vh");
-        }
-      },
-    },
-    methods: {
-      clickTocButton() {
-        let display = $(".toc");
-        if ("none" === display.css("display")) {
-          display.css("display", "unset");
-        } else {
-          display.css("display", "none");
-        }
-      },
-      subscribeLabel() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.$confirm('确认' + (this.subscribe ? '取消订阅' : '订阅') + '专栏【' + this.article.label.labelName + '】？' + (this.subscribe ? "" : "订阅专栏后，该专栏发布新文章将通过邮件通知订阅用户。"), this.subscribe ? "取消订阅" : "文章订阅", {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/user/subscribe", {
-            labelId: this.article.labelId,
-            flag: !this.subscribe
-          })
-            .then((res) => {
-              if (!this.$common.isEmpty(res.data)) {
-                this.$store.commit("loadCurrentUser", res.data);
-              }
-              this.subscribe = !this.subscribe;
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消!'
-          });
+    subscribeLabel() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
         });
-      },
-      submitPassword() {
-        if (this.$common.isEmpty(this.password)) {
-          this.$message({
-            message: "请先输入密码！",
-            type: "error"
-          });
-          return;
-        }
+        return;
+      }
 
-        this.getArticle(this.password);
-      },
-      deleteTreeHole(id) {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/weiYan/deleteWeiYan", {id: id})
-            .then((res) => {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.getNews();
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
-          });
-        });
-      },
-      submitWeiYan(content) {
-        let weiYan = {
-          content: content,
-          createTime: this.newsTime,
-          source: this.article.id
-        };
-
-        this.$http.post(this.$constant.baseURL + "/weiYan/saveNews", weiYan)
+      this.$confirm('确认' + (this.subscribe ? '取消订阅' : '订阅') + '专栏【' + this.article.label.labelName + '】？' + (this.subscribe ? '' : '订阅专栏后，该专栏发布新文章将通过邮件通知订阅用户。'), this.subscribe ? '取消订阅' : '文章订阅', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/user/subscribe', {
+          labelId: this.article.labelId,
+          flag: !this.subscribe
+        })
           .then((res) => {
-            this.weiYanDialogVisible = false;
-            this.newsTime = "";
+            if (!this.$common.isEmpty(res.data)) {
+              this.$store.commit('loadCurrentUser', res.data);
+            }
+            this.subscribe = !this.subscribe;
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消!'
+        });
+      });
+    },
+    submitPassword() {
+      if (this.$common.isEmpty(this.password)) {
+        this.$message({
+          message: '请先输入密码！',
+          type: 'error'
+        });
+        return;
+      }
+
+      this.getArticle(this.password);
+    },
+    deleteTreeHole(id) {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
+
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/weiYan/deleteWeiYan', {id: id})
+          .then(() => {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
             this.getNews();
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      getNews() {
-        this.$http.post(this.$constant.baseURL + "/weiYan/listNews", {
-          current: 1,
-          size: 9999,
-          source: this.article.id
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消删除!'
+        });
+      });
+    },
+    submitWeiYan(content) {
+      let weiYan = {
+        content: content,
+        createTime: this.newsTime,
+        source: this.article.id
+      };
+
+      this.$http.post(this.$constant.baseURL + '/weiYan/saveNews', weiYan)
+        .then(() => {
+          this.weiYanDialogVisible = false;
+          this.newsTime = '';
+          this.getNews();
         })
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              res.data.records.forEach(c => {
-                c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
-                c.content = c.content.replace(/\n/g, '<br/>');
-                c.content = this.$common.faceReg(c.content);
-                c.content = this.$common.pictureReg(c.content);
-              });
-              this.treeHoleList = res.data.records;
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    getNews() {
+      this.$http.post(this.$constant.baseURL + '/weiYan/listNews', {
+        current: 1,
+        size: 9999,
+        source: this.article.id
+      })
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            res.data.records.forEach(c => {
+              c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
+              c.content = c.content.replace(/\n/g, '<br/>');
+              c.content = this.$common.faceReg(c.content);
+              c.content = this.$common.pictureReg(c.content);
+            });
+            this.treeHoleList = res.data.records;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    onScrollPage() {
+      this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      if (this.scrollTop < (window.innerHeight / 4)) {
+        $('.toc').css('top', window.innerHeight / 4);
+      } else {
+        $('.toc').css('top', '100px');
+      }
+    },
+    getTocbot() {
+      let script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = this.$constant.tocbot;
+      document.getElementsByTagName('head')[0].appendChild(script);
+
+      // 引入成功
+      script.onload = function () {
+        tocbot.init({
+          tocSelector: '#toc',
+          contentSelector: '.entry-content',
+          headingSelector: 'h1, h2, h3, h4, h5',
+          scrollSmooth: true,
+          fixedSidebarOffset: 'auto',
+          scrollSmoothOffset: -75,
+          headingsOffset: -150,
+          hasInnerContainers: false
+        });
+      };
+      if (this.$common.mobile()) {
+        $('.toc').css('display', 'none');
+      }
+    },
+    addId() {
+      let headings = $('.entry-content').find('h1, h2, h3, h4, h5, h6');
+      let idMap = {}; // 用于记录每个ID出现的次数
+      headings.each((i, el) => {  // 使用 each() 而不是 attr()
+        let text = $(el).text().trim();
+        let baseId = text.replace(/[^\w\u4e00-\u9fa5]/g, '')
+          .replace(/\s+/g, '_')
+          .toLowerCase() || 'heading';
+
+        if (idMap[baseId] === undefined) {
+          idMap[baseId] = 0;
+        } else {
+          idMap[baseId]++;
+          baseId += '_' + idMap[baseId]; // 添加后缀
+        }
+
+        $(el).attr('id', baseId);  // 单独设置 id
+      });
+      // headings.attr('id', (i, id) => id || 'toc-' + i);
+    },
+    getArticle(password) {
+      this.$http.get(this.$constant.baseURL + '/article/getArticleById', {id: this.id, password: password})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.article = res.data;
+            // this.getNews();
+            const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
+            this.articleContentHtml = md.render(this.article.articleContent);
+            // this.articleContentHtml = this.article.articleContent;
+            this.$nextTick(() => {
+              this.$common.imgShow('.entry-content img');
+              this.highlight();
+              this.addId();
+              this.getTocbot();
+            });
+            if (!this.$common.isEmpty(password)) {
+              localStorage.setItem('article_password_' + this.id, password);
             }
-          })
-          .catch((error) => {
+            this.showPasswordDialog = false;
+            if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.subscribe)) {
+              this.subscribe = JSON.parse(this.$store.state.currentUser.subscribe).includes(this.article.labelId);
+            }
+          }
+        })
+        .catch((error) => {
+          if ('密码错误' === error.message.substr(0, 4)) {
+            if (!this.$common.isEmpty(password)) {
+              localStorage.removeItem('article_password_' + this.id);
+              this.$message({
+                message: '密码错误，请重新输入！',
+                type: 'error',
+                customClass: 'message-index'
+              });
+            }
+            this.tips = error.message.substr(4);
+            this.showPasswordDialog = true;
+          } else {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error',
+              customClass: 'message-index'
             });
-          });
-      },
-      onScrollPage() {
-        this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-        if (this.scrollTop < (window.innerHeight / 4)) {
-          $(".toc").css("top", window.innerHeight / 4);
-        } else {
-          $(".toc").css("top", "90px");
-        }
-      },
-      getTocbot() {
-        let script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = this.$constant.tocbot;
-        document.getElementsByTagName('head')[0].appendChild(script);
-
-        // 引入成功
-        script.onload = function () {
-          tocbot.init({
-            tocSelector: '#toc',
-            contentSelector: '.entry-content',
-            headingSelector: 'h1, h2, h3, h4, h5',
-            scrollSmooth: true,
-            fixedSidebarOffset: 'auto',
-            scrollSmoothOffset: -100,
-            hasInnerContainers: false
-          });
-        }
-        if (this.$common.mobile()) {
-          $(".toc").css("display", "none");
-        }
-      },
-      addId() {
-        let headings = $(".entry-content").find("h1, h2, h3, h4, h5, h6");
-        headings.attr('id', (i, id) => id || 'toc-' + i);
-      },
-      getArticle(password) {
-        this.$http.get(this.$constant.baseURL + "/article/getArticleById", {id: this.id, password: password})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.article = res.data;
-              // this.getNews();
-              const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
-              this.articleContentHtml = md.render(this.article.articleContent);
-              // this.articleContentHtml = this.article.articleContent;
-              this.$nextTick(() => {
-                this.$common.imgShow(".entry-content img");
-                this.highlight();
-                // this.addId();
-                // this.getTocbot();
-              });
-              if (!this.$common.isEmpty(password)) {
-                localStorage.setItem("article_password_" + this.id, password);
-              }
-              this.showPasswordDialog = false;
-              if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.subscribe)) {
-                this.subscribe = JSON.parse(this.$store.state.currentUser.subscribe).includes(this.article.labelId);
-              }
-            }
-          })
-          .catch((error) => {
-            if ("密码错误" === error.message.substr(0, 4)) {
-              if (!this.$common.isEmpty(password)) {
-                localStorage.removeItem("article_password_" + this.id);
-                this.$message({
-                  message: "密码错误，请重新输入！",
-                  type: "error",
-                  customClass: "message-index"
-                });
-              }
-              this.tips = error.message.substr(4);
-              this.showPasswordDialog = true;
-            } else {
-              this.$message({
-                message: error.message,
-                type: "error",
-                customClass: "message-index"
-              });
-              this.tips = error.message;
-            }
-          });
-      },
-      highlight() {
-        let attributes = {
-          autocomplete: "off",
-          autocorrect: "off",
-          autocapitalize: "off",
-          spellcheck: "false",
-          contenteditable: "false"
-        };
-
-        $("pre").each(function (i, item) {
-          let preCode = $(item).children("code");
-          let classNameStr = preCode[0].className;
-          let classNameArr = classNameStr.split(" ");
-
-          let lang = "";
-          classNameArr.some(function (className) {
-            if (className.indexOf("language-") > -1) {
-              lang = className.substring(className.indexOf("-") + 1, className.length);
-              return true;
-            }
-          });
-
-          // 检测语言是否存在，不存在则自动检测
-          let language = hljs.getLanguage(lang.toLowerCase());
-          if (language === undefined) {
-            // 启用自动检测
-            let autoLanguage = hljs.highlightAuto(preCode.text());
-            preCode.removeClass("language-" + lang);
-            lang = autoLanguage.language;
-            if (lang === undefined) {
-              lang = "java";
-            }
-            preCode.addClass("language-" + lang);
-          } else {
-            lang = language.name;
+            this.tips = error.message;
           }
+        });
+    },
+    highlight() {
+      let attributes = {
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        spellcheck: 'false',
+        contenteditable: 'false'
+      };
 
-          $(item).addClass("highlight-wrap");
-          $(item).attr(attributes);
-          preCode.attr("data-rel", lang.toUpperCase()).addClass(lang.toLowerCase());
-          // 启用代码高亮
-          hljs.highlightBlock(preCode[0]);
-          // 启用代码行号
-          hljs.lineNumbersBlock(preCode[0]);
+      $('pre').each(function (i, item) {
+        let preCode = $(item).children('code');
+        let classNameStr = preCode[0].className;
+        let classNameArr = classNameStr.split(' ');
+
+        let lang = '';
+        classNameArr.some(function (className) {
+          if (className.indexOf('language-') > -1) {
+            lang = className.substring(className.indexOf('-') + 1, className.length);
+            return true;
+          }
         });
 
-        $("pre code").each(function (i, block) {
-          $(block).attr({
-            id: "hljs-" + i,
-          });
+        // 检测语言是否存在，不存在则自动检测
+        let language = hljs.getLanguage(lang.toLowerCase());
+        if (language === undefined) {
+          // 启用自动检测
+          let autoLanguage = hljs.highlightAuto(preCode.text());
+          preCode.removeClass('language-' + lang);
+          lang = autoLanguage.language;
+          if (lang === undefined) {
+            lang = 'java';
+          }
+          preCode.addClass('language-' + lang);
+        } else {
+          lang = language.name;
+        }
 
-          $(block).after(
-            '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
+        $(item).addClass('highlight-wrap');
+        $(item).attr(attributes);
+        preCode.attr('data-rel', lang.toUpperCase()).addClass(lang.toLowerCase());
+        // 启用代码高亮
+        hljs.highlightBlock(preCode[0]);
+        // 启用代码行号
+        hljs.lineNumbersBlock(preCode[0]);
+      });
+
+      $('pre code').each(function (i, block) {
+        $(block).attr({
+          id: 'hljs-' + i,
+        });
+
+        $(block).after(
+          '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
             i +
             '"><i class="fa fa-clipboard" aria-hidden="true"></i></a>'
-          );
-          new ClipboardJS(".copy-code");
-        });
+        );
+        new ClipboardJS('.copy-code');
+      });
 
-        if ($(".entry-content").children("table").length > 0) {
-          $(".entry-content")
-            .children("table")
-            .wrap("<div class='table-wrapper'></div>");
-        }
+      if ($('.entry-content').children('table').length > 0) {
+        $('.entry-content')
+          .children('table')
+          .wrap('<div class=\'table-wrapper\'></div>');
       }
     }
   }
+};
 </script>
 
 <style scoped>
@@ -511,9 +531,6 @@
     height: 130px;
     position: relative;
     background: linear-gradient(-45deg, #87CEFA, #eec1ea, #bdbdf0);
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    width: 100vw;
   }
 
   .article-info-container {

@@ -248,260 +248,260 @@
 </template>
 
 <script>
-  const uploadPicture = () => import( "../common/uploadPicture");
+const uploadPicture = () => import( '../common/uploadPicture');
 
-  export default {
-    components: {
-      uploadPicture
-    },
-    data() {
-      return {
-        disabled: true,
-        types: ['', 'success', 'info', 'danger', 'warning'],
-        inputNoticeVisible: false,
-        inputNoticeValue: "",
-        inputRandomNameVisible: false,
-        inputRandomNameValue: "",
-        inputRandomAvatarVisible: false,
-        inputRandomAvatarValue: "",
-        inputRandomCoverVisible: false,
-        inputRandomCoverValue: "",
-        webInfo: {
-          id: null,
-          webName: "",
-          webTitle: "",
-          footer: "",
-          backgroundImage: "",
-          avatar: "",
-          waifuJson: "",
-          status: false
-        },
-        notices: [],
-        randomAvatar: [],
-        randomName: [],
-        randomCover: [],
-        rules: {
-          webName: [
-            {required: true, message: '请输入网站名称', trigger: 'blur'},
-            {min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'change'}
-          ],
-          webTitle: [
-            {required: true, message: '请输入网站标题', trigger: 'blur'}
-          ],
-          footer: [
-            {required: true, message: '请输入页脚', trigger: 'blur'}
-          ],
-          backgroundImage: [
-            {required: true, message: '请输入背景', trigger: 'change'}
-          ],
-          status: [
-            {required: true, message: '请设置网站状态', trigger: 'change'}
-          ],
-          avatar: [
-            {required: true, message: '请上传头像', trigger: 'change'}
-          ]
-        }
+export default {
+  components: {
+    uploadPicture
+  },
+  data() {
+    return {
+      disabled: true,
+      types: ['', 'success', 'info', 'danger', 'warning'],
+      inputNoticeVisible: false,
+      inputNoticeValue: '',
+      inputRandomNameVisible: false,
+      inputRandomNameValue: '',
+      inputRandomAvatarVisible: false,
+      inputRandomAvatarValue: '',
+      inputRandomCoverVisible: false,
+      inputRandomCoverValue: '',
+      webInfo: {
+        id: null,
+        webName: '',
+        webTitle: '',
+        footer: '',
+        backgroundImage: '',
+        avatar: '',
+        waifuJson: '',
+        status: false
+      },
+      notices: [],
+      randomAvatar: [],
+      randomName: [],
+      randomCover: [],
+      rules: {
+        webName: [
+          {required: true, message: '请输入网站名称', trigger: 'blur'},
+          {min: 1, max: 10, message: '长度在 1 到 10 个字符', trigger: 'change'}
+        ],
+        webTitle: [
+          {required: true, message: '请输入网站标题', trigger: 'blur'}
+        ],
+        footer: [
+          {required: true, message: '请输入页脚', trigger: 'blur'}
+        ],
+        backgroundImage: [
+          {required: true, message: '请输入背景', trigger: 'change'}
+        ],
+        status: [
+          {required: true, message: '请设置网站状态', trigger: 'change'}
+        ],
+        avatar: [
+          {required: true, message: '请上传头像', trigger: 'change'}
+        ]
       }
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getWebInfo();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    addBackgroundImage(res) {
+      this.webInfo.backgroundImage = res;
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
+    addAvatar(res) {
+      this.webInfo.avatar = res;
+    },
+    addRandomAvatar(res) {
+      this.randomAvatar.push(res);
+    },
+    addRandomCover(res) {
+      this.randomCover.push(res);
+    },
+    changeWebStatus(webInfo) {
+      this.$http.post(this.$constant.baseURL + '/webInfo/updateWebInfo', {
+        id: webInfo.id,
+        status: webInfo.status
+      }, true)
+        .then(() => {
+          this.getWebInfo();
+          this.$message({
+            message: '保存成功！',
+            type: 'success'
+          });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    getWebInfo() {
+      this.$http.get(this.$constant.baseURL + '/admin/webInfo/getAdminWebInfo', {}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.webInfo.id = res.data.id;
+            this.webInfo.webName = res.data.webName;
+            this.webInfo.webTitle = res.data.webTitle;
+            this.webInfo.footer = res.data.footer;
+            this.webInfo.backgroundImage = res.data.backgroundImage;
+            this.webInfo.avatar = res.data.avatar;
+            this.webInfo.waifuJson = res.data.waifuJson;
+            this.webInfo.status = res.data.status;
+            this.notices = JSON.parse(res.data.notices);
+            this.randomAvatar = JSON.parse(res.data.randomAvatar);
+            this.randomName = JSON.parse(res.data.randomName);
+            this.randomCover = JSON.parse(res.data.randomCover);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.updateWebInfo(this.webInfo);
+        } else {
+          this.$message({
+            message: '请完善必填项！',
+            type: 'error'
+          });
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
       this.getWebInfo();
     },
-
-    mounted() {
-
+    handleClose(array, item) {
+      array.splice(array.indexOf(item), 1);
     },
-
-    methods: {
-      addBackgroundImage(res) {
-        this.webInfo.backgroundImage = res;
-      },
-      addAvatar(res) {
-        this.webInfo.avatar = res;
-      },
-      addRandomAvatar(res) {
-        this.randomAvatar.push(res);
-      },
-      addRandomCover(res) {
-        this.randomCover.push(res);
-      },
-      changeWebStatus(webInfo) {
-        this.$http.post(this.$constant.baseURL + "/webInfo/updateWebInfo", {
-          id: webInfo.id,
-          status: webInfo.status
-        }, true)
-          .then((res) => {
+    handleInputNoticeConfirm() {
+      if (this.inputNoticeValue) {
+        this.notices.push(this.inputNoticeValue);
+      }
+      this.inputNoticeVisible = false;
+      this.inputNoticeValue = '';
+    },
+    showNoticeInput() {
+      this.inputNoticeVisible = true;
+      this.$nextTick(() => {
+        this.$refs.saveNoticeInput.$refs.input.focus();
+      });
+    },
+    saveNotice() {
+      let param = {
+        id: this.webInfo.id,
+        notices: JSON.stringify(this.notices)
+      };
+      this.updateWebInfo(param);
+    },
+    handleInputRandomNameConfirm() {
+      if (this.inputRandomNameValue) {
+        this.randomName.push(this.inputRandomNameValue);
+      }
+      this.inputRandomNameVisible = false;
+      this.inputRandomNameValue = '';
+    },
+    showRandomNameInput() {
+      this.inputRandomNameVisible = true;
+      this.$nextTick(() => {
+        this.$refs.saveRandomNameInput.$refs.input.focus();
+      });
+    },
+    saveRandomName() {
+      let param = {
+        id: this.webInfo.id,
+        randomName: JSON.stringify(this.randomName)
+      };
+      this.updateWebInfo(param);
+    },
+    handleInputRandomAvatarConfirm() {
+      if (this.inputRandomAvatarValue) {
+        this.randomAvatar.push(this.inputRandomAvatarValue);
+      }
+      this.inputRandomAvatarVisible = false;
+      this.inputRandomAvatarValue = '';
+    },
+    showRandomAvatarInput() {
+      this.inputRandomAvatarVisible = true;
+      this.$nextTick(() => {
+        this.$refs.saveRandomAvatarInput.$refs.input.focus();
+      });
+    },
+    saveRandomAvatar() {
+      let param = {
+        id: this.webInfo.id,
+        randomAvatar: JSON.stringify(this.randomAvatar)
+      };
+      this.updateWebInfo(param);
+    },
+    handleInputRandomCoverConfirm() {
+      if (this.inputRandomCoverValue) {
+        this.randomCover.push(this.inputRandomCoverValue);
+      }
+      this.inputRandomCoverVisible = false;
+      this.inputRandomCoverValue = '';
+    },
+    showRandomCoverInput() {
+      this.inputRandomCoverVisible = true;
+      this.$nextTick(() => {
+        this.$refs.saveRandomCoverInput.$refs.input.focus();
+      });
+    },
+    saveRandomCover() {
+      let param = {
+        id: this.webInfo.id,
+        randomCover: JSON.stringify(this.randomCover)
+      };
+      this.updateWebInfo(param);
+    },
+    updateWebInfo(value) {
+      this.$confirm('确认保存？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.post(this.$constant.baseURL + '/webInfo/updateWebInfo', value, true)
+          .then(() => {
             this.getWebInfo();
             this.$message({
-              message: "保存成功！",
-              type: "success"
+              message: '保存成功！',
+              type: 'success'
             });
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      getWebInfo() {
-        this.$http.get(this.$constant.baseURL + "/admin/webInfo/getAdminWebInfo", {}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.webInfo.id = res.data.id;
-              this.webInfo.webName = res.data.webName;
-              this.webInfo.webTitle = res.data.webTitle;
-              this.webInfo.footer = res.data.footer;
-              this.webInfo.backgroundImage = res.data.backgroundImage;
-              this.webInfo.avatar = res.data.avatar;
-              this.webInfo.waifuJson = res.data.waifuJson;
-              this.webInfo.status = res.data.status;
-              this.notices = JSON.parse(res.data.notices);
-              this.randomAvatar = JSON.parse(res.data.randomAvatar);
-              this.randomName = JSON.parse(res.data.randomName);
-              this.randomCover = JSON.parse(res.data.randomCover);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.updateWebInfo(this.webInfo)
-          } else {
-            this.$message({
-              message: "请完善必填项！",
-              type: "error"
-            });
-          }
-        });
-      },
-      resetForm(formName) {
-        this.$refs[formName].resetFields();
-        this.getWebInfo();
-      },
-      handleClose(array, item) {
-        array.splice(array.indexOf(item), 1);
-      },
-      handleInputNoticeConfirm() {
-        if (this.inputNoticeValue) {
-          this.notices.push(this.inputNoticeValue);
-        }
-        this.inputNoticeVisible = false;
-        this.inputNoticeValue = '';
-      },
-      showNoticeInput() {
-        this.inputNoticeVisible = true;
-        this.$nextTick(() => {
-          this.$refs.saveNoticeInput.$refs.input.focus();
-        });
-      },
-      saveNotice() {
-        let param = {
-          id: this.webInfo.id,
-          notices: JSON.stringify(this.notices)
-        }
-        this.updateWebInfo(param);
-      },
-      handleInputRandomNameConfirm() {
-        if (this.inputRandomNameValue) {
-          this.randomName.push(this.inputRandomNameValue);
-        }
-        this.inputRandomNameVisible = false;
-        this.inputRandomNameValue = '';
-      },
-      showRandomNameInput() {
-        this.inputRandomNameVisible = true;
-        this.$nextTick(() => {
-          this.$refs.saveRandomNameInput.$refs.input.focus();
-        });
-      },
-      saveRandomName() {
-        let param = {
-          id: this.webInfo.id,
-          randomName: JSON.stringify(this.randomName)
-        }
-        this.updateWebInfo(param);
-      },
-      handleInputRandomAvatarConfirm() {
-        if (this.inputRandomAvatarValue) {
-          this.randomAvatar.push(this.inputRandomAvatarValue);
-        }
-        this.inputRandomAvatarVisible = false;
-        this.inputRandomAvatarValue = '';
-      },
-      showRandomAvatarInput() {
-        this.inputRandomAvatarVisible = true;
-        this.$nextTick(() => {
-          this.$refs.saveRandomAvatarInput.$refs.input.focus();
-        });
-      },
-      saveRandomAvatar() {
-        let param = {
-          id: this.webInfo.id,
-          randomAvatar: JSON.stringify(this.randomAvatar)
-        }
-        this.updateWebInfo(param);
-      },
-      handleInputRandomCoverConfirm() {
-        if (this.inputRandomCoverValue) {
-          this.randomCover.push(this.inputRandomCoverValue);
-        }
-        this.inputRandomCoverVisible = false;
-        this.inputRandomCoverValue = '';
-      },
-      showRandomCoverInput() {
-        this.inputRandomCoverVisible = true;
-        this.$nextTick(() => {
-          this.$refs.saveRandomCoverInput.$refs.input.focus();
-        });
-      },
-      saveRandomCover() {
-        let param = {
-          id: this.webInfo.id,
-          randomCover: JSON.stringify(this.randomCover)
-        }
-        this.updateWebInfo(param);
-      },
-      updateWebInfo(value) {
-        this.$confirm('确认保存？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.post(this.$constant.baseURL + "/webInfo/updateWebInfo", value, true)
-            .then((res) => {
-              this.getWebInfo();
-              this.$message({
-                message: "保存成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消保存!'
-          });
+          message: '已取消保存!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

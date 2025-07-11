@@ -26,60 +26,60 @@
 </template>
 
 <script>
-  const proButton = () => import( "../common/proButton");
+const proButton = () => import( '../common/proButton');
 
-  export default {
-    components: {
-      proButton
-    },
-    data() {
-      return {
-        redirect: this.$route.query.redirect,
-        account: "",
-        password: ""
+export default {
+  components: {
+    proButton
+  },
+  data() {
+    return {
+      redirect: this.$route.query.redirect,
+      account: '',
+      password: ''
+    };
+  },
+  computed: {},
+  created() {
+
+  },
+  methods: {
+    login() {
+      if (this.$common.isEmpty(this.account) || this.$common.isEmpty(this.password)) {
+        this.$message({
+          message: '请输入账号或密码！',
+          type: 'error'
+        });
+        return;
       }
-    },
-    computed: {},
-    created() {
 
-    },
-    methods: {
-      login() {
-        if (this.$common.isEmpty(this.account) || this.$common.isEmpty(this.password)) {
+      let user = {
+        account: this.account.trim(),
+        password: this.$common.encrypt(this.password.trim()),
+        isAdmin: true
+      };
+
+      this.$http.post(this.$constant.baseURL + '/user/login', user, true, false)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            localStorage.setItem('adminToken', res.data.accessToken);
+            this.$store.commit('loadCurrentAdmin', res.data);
+            this.$store.commit('loadCurrentUser', res.data);
+            localStorage.setItem('userToken', res.data.accessToken);
+            this.account = '';
+            this.password = '';
+            this.$router.push({path: this.redirect});
+          }
+        })
+        .catch((error) => {
           this.$message({
-            message: "请输入账号或密码！",
-            type: "error"
+            message: error.message,
+            type: 'error'
           });
-          return;
-        }
-
-        let user = {
-          account: this.account.trim(),
-          password: this.$common.encrypt(this.password.trim()),
-          isAdmin: true
-        };
-
-        this.$http.post(this.$constant.baseURL + "/user/login", user, true, false)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              localStorage.setItem("adminToken", res.data.accessToken);
-              this.$store.commit("loadCurrentAdmin", res.data);
-              this.$store.commit("loadCurrentUser", res.data);
-              localStorage.setItem("userToken", res.data.accessToken);
-              this.account = "";
-              this.password = "";
-              this.$router.push({path: this.redirect});
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      }
+        });
     }
   }
+};
 </script>
 
 <style scoped>

@@ -65,21 +65,21 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      showFooter: {
-        type: Boolean,
-        default: true
-      }
-    },
-    data() {
-      return {
-        copyrightDialogVisible: false
-      }
-    },
-    created() {
+export default {
+  props: {
+    showFooter: {
+      type: Boolean,
+      default: true
     }
+  },
+  data() {
+    return {
+      copyrightDialogVisible: false
+    };
+  },
+  created() {
   }
+};
 </script>
 
 <style scoped>

@@ -5,22 +5,22 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      info: {
-        type: String,
-        default: "一只小毛驴"
-      },
-      color: {
-        type: String
-      }
+export default {
+  props: {
+    info: {
+      type: String,
+      default: '一只小毛驴'
     },
-    data() {
-      return {
-        bg: {"background": this.color}
-      };
+    color: {
+      type: String
     }
+  },
+  data() {
+    return {
+      bg: {'background': this.color}
+    };
   }
+};
 </script>
 
 <style scoped>

@@ -61,114 +61,114 @@
 </template>
 
 <script>
-  const articleList = () => import( "./articleList");
-  const articleAside = () => import( "./articleAside");
+const articleList = () => import( './articleList');
+const articleAside = () => import( './articleAside');
 
-  export default {
-    components: {
-      articleList,
-      articleAside
-    },
+export default {
+  components: {
+    articleList,
+    articleAside
+  },
 
-    data() {
-      return {
+  data() {
+    return {
+      sortId: this.$route.params.sortId,
+      corporationId: this.$route.query.corporationId,
+      sort: null,
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
         sortId: this.$route.params.sortId,
-        corporationId: this.$route.query.corporationId,
-        sort: null,
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: this.$route.params.sortId,
-          corporationId: this.$route.query.corporationId
-        },
-        articles: [],
-        articleSearch: ""
-      }
-    },
+        corporationId: this.$route.query.corporationId
+      },
+      articles: [],
+      articleSearch: ''
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {
-      $route() {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: this.$route.params.sortId,
-          corporationId: this.$route.query.corporationId
-        };
-        this.articles.splice(0, this.articles.length);
-        this.sortId = this.$route.params.sortId;
-        this.corporationId = this.$route.query.corporationId;
-        this.getSort();
-        this.getArticles();
-      }
-    },
-
-    created() {
+  watch: {
+    $route() {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        sortId: this.$route.params.sortId,
+        corporationId: this.$route.query.corporationId
+      };
+      this.articles.splice(0, this.articles.length);
+      this.sortId = this.$route.params.sortId;
+      this.corporationId = this.$route.query.corporationId;
       this.getSort();
+      this.getArticles();
+    }
+  },
+
+  created() {
+    this.getSort();
+    this.getArticles();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    selectArticle() {
+      this.$emit('selectArticle', this.articleSearch);
+    },
+    pageArticles() {
+      this.pagination.current = this.pagination.current + 1;
       this.getArticles();
     },
 
-    mounted() {
-    },
-
-    methods: {
-      selectArticle() {
-        this.$emit("selectArticle", this.articleSearch);
-      },
-      pageArticles() {
-        this.pagination.current = this.pagination.current + 1;
-        this.getArticles();
-      },
-
-      getSort() {
-        let sortInfo = this.$store.state.sortInfo;
-        if (!this.$common.isEmpty(sortInfo)) {
-          let sortArray = sortInfo.filter(f => {
-            return f.id === parseInt(this.sortId);
-          });
-          if (!this.$common.isEmpty(sortArray)) {
-            this.sort = sortArray[0];
-          }
+    getSort() {
+      let sortInfo = this.$store.state.sortInfo;
+      if (!this.$common.isEmpty(sortInfo)) {
+        let sortArray = sortInfo.filter(f => {
+          return f.id === parseInt(this.sortId);
+        });
+        if (!this.$common.isEmpty(sortArray)) {
+          this.sort = sortArray[0];
         }
-      },
-      // listArticle(label) {
-      //   this.labelId = label.id;
-      //   this.pagination = {
-      //     current: 1,
-      //     size: 10,
-      //     total: 0,
-      //     searchKey: "",
-      //     sortId: this.$route.query.sortId,
-      //     labelId: label.id
-      //   };
-      //   this.articles.splice(0, this.articles.length);
-      //   this.$nextTick(() => {
-      //     this.getArticles();
-      //   });
-      // },
-      getArticles() {
-        this.$http.post(this.$constant.baseURL + "/article/listArticle", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              console.log(res.data);
-              this.articles = this.articles.concat(res.data.records);
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
       }
+    },
+    // listArticle(label) {
+    //   this.labelId = label.id;
+    //   this.pagination = {
+    //     current: 1,
+    //     size: 10,
+    //     total: 0,
+    //     searchKey: "",
+    //     sortId: this.$route.query.sortId,
+    //     labelId: label.id
+    //   };
+    //   this.articles.splice(0, this.articles.length);
+    //   this.$nextTick(() => {
+    //     this.getArticles();
+    //   });
+    // },
+    getArticles() {
+      this.$http.post(this.$constant.baseURL + '/article/listArticle', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            console.log(res.data);
+            this.articles = this.articles.concat(res.data.records);
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

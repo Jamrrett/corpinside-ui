@@ -135,80 +135,80 @@
 
 <script>
 
-  export default {
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 5,
-          recommendStatus: true
-        },
-        recommendArticles: [],
-        admires: [],
-        showAdmireDialog: false,
-        articleSearch: ""
-      }
-    },
-    computed: {
-      webInfo() {
-        return this.$store.state.webInfo;
+export default {
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 5,
+        recommendStatus: true
       },
-      sortInfo() {
-        return this.$store.state.sortInfo;
+      recommendArticles: [],
+      admires: [],
+      showAdmireDialog: false,
+      articleSearch: ''
+    };
+  },
+  computed: {
+    webInfo() {
+      return this.$store.state.webInfo;
+    },
+    sortInfo() {
+      return this.$store.state.sortInfo;
+    }
+  },
+  created() {
+    this.getRecommendArticles();
+    this.getAdmire();
+  },
+  methods: {
+    selectArticle() {
+      this.$emit('selectArticle', this.articleSearch);
+    },
+    showAdmire() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
       }
-    },
-    created() {
-      this.getRecommendArticles();
-      this.getAdmire();
-    },
-    methods: {
-      selectArticle() {
-        this.$emit("selectArticle", this.articleSearch);
-      },
-      showAdmire() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
 
-        this.showAdmireDialog = true;
-      },
-      getAdmire() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getAdmire")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.admires = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+      this.showAdmireDialog = true;
+    },
+    getAdmire() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getAdmire')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.admires = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getRecommendArticles() {
-        this.$http.post(this.$constant.baseURL + "/article/listArticle", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.recommendArticles = res.data.records;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        });
+    },
+    getRecommendArticles() {
+      this.$http.post(this.$constant.baseURL + '/article/listArticle', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.recommendArticles = res.data.records;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      showTip() {
-        this.$router.push({path: '/weiYan'});
-      }
+        });
+    },
+    showTip() {
+      this.$router.push({path: '/weiYan'});
     }
   }
+};
 </script>
 
 <style scoped>
@@ -243,7 +243,7 @@
   }
 
   .aside-post-title {
-    width: 60%;
+    //width: 80%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

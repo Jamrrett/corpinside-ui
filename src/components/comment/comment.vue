@@ -121,210 +121,210 @@
 </template>
 
 <script>
-  // const graffiti = () => import( "./graffiti");
-  const commentBox = () => import( "./commentBox");
-  const proPage = () => import( "../common/proPage");
+// const graffiti = () => import( "./graffiti");
+const commentBox = () => import( './commentBox');
+const proPage = () => import( '../common/proPage');
 
-  export default {
-    components: {
-      // graffiti,
-      commentBox,
-      proPage
+export default {
+  components: {
+    // graffiti,
+    commentBox,
+    proPage
+  },
+  props: {
+    source: {
+      type: Number
     },
-    props: {
-      source: {
-        type: Number
-      },
-      type: {
-        type: String
-      },
-      userId: {
-        type: Number
-      }
+    type: {
+      type: String
     },
-    data() {
-      return {
-        isGraffiti: false,
+    userId: {
+      type: Number
+    }
+  },
+  data() {
+    return {
+      isGraffiti: false,
+      total: 0,
+      replyDialogVisible: false,
+      floorComment: {},
+      replyComment: {},
+      comments: [],
+      pagination: {
+        current: 1,
+        size: 10,
         total: 0,
-        replyDialogVisible: false,
-        floorComment: {},
-        replyComment: {},
-        comments: [],
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          source: this.source,
-          commentType: this.type,
-          floorCommentId: null
-        }
-      };
-    },
-
-    computed: {},
-
-    created() {
-      this.getComments(this.pagination);
-      this.getTotal();
-    },
-    methods: {
-      toPage(page) {
-        this.pagination.current = page;
-        window.scrollTo({
-          top: document.getElementById('comment-content').offsetTop
-        });
-        this.getComments(this.pagination);
-      },
-      getTotal() {
-        this.$http.get(this.$constant.baseURL + "/comment/getCommentCount", {source: this.source, type: this.type})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.total = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      toChildPage(floorComment) {
-        floorComment.childComments.current += 1;
-        let pagination = {
-          current: floorComment.childComments.current,
-          size: 5,
-          total: 0,
-          source: this.source,
-          commentType: this.type,
-          floorCommentId: floorComment.id
-        }
-        this.getComments(pagination, floorComment, true);
-      },
-      emoji(comments, flag) {
-        comments.forEach(c => {
-          c.commentContent = c.commentContent.replace(/\n/g, '<br/>');
-          c.commentContent = this.$common.faceReg(c.commentContent);
-          c.commentContent = this.$common.pictureReg(c.commentContent);
-          if (flag) {
-            if (!this.$common.isEmpty(c.childComments) && !this.$common.isEmpty(c.childComments.records)) {
-              c.childComments.records.forEach(cc => {
-                c.commentContent = c.commentContent.replace(/\n/g, '<br/>');
-                cc.commentContent = this.$common.faceReg(cc.commentContent);
-                cc.commentContent = this.$common.pictureReg(cc.commentContent);
-              });
-            }
-          }
-        });
-      },
-      getComments(pagination, floorComment = {}, isToPage = false) {
-        this.$http.post(this.$constant.baseURL + "/comment/listComment", pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data) && !this.$common.isEmpty(res.data.records)) {
-              if (this.$common.isEmpty(floorComment)) {
-                this.comments = res.data.records;
-                pagination.total = res.data.total;
-                this.emoji(this.comments, true);
-              } else {
-                if (isToPage === false) {
-                  floorComment.childComments = res.data;
-                } else {
-                  floorComment.childComments.total = res.data.total;
-                  floorComment.childComments.records = floorComment.childComments.records.concat(res.data.records);
-                }
-                this.emoji(floorComment.childComments.records, false);
-              }
-              this.$nextTick(() => {
-                this.$common.imgShow("#comment-content .pictureReg");
-              });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      addGraffitiComment(graffitiComment) {
-        this.submitComment(graffitiComment);
-      },
-      submitComment(commentContent) {
-        let comment = {
-          source: this.source,
-          type: this.type,
-          commentContent: commentContent
-        };
-
-        this.$http.post(this.$constant.baseURL + "/comment/saveComment", comment)
-          .then((res) => {
-            this.$message({
-              type: 'success',
-              message: '保存成功！'
-            });
-            this.pagination = {
-              current: 1,
-              size: 10,
-              total: 0,
-              source: this.source,
-              commentType: this.type,
-              floorCommentId: null
-            }
-            this.getComments(this.pagination);
-            this.getTotal();
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      submitReply(commentContent) {
-        let comment = {
-          source: this.source,
-          type: this.type,
-          floorCommentId: this.floorComment.id,
-          commentContent: commentContent,
-          parentCommentId: this.replyComment.id,
-          parentUserId: this.replyComment.userId
-        };
-
-        let floorComment = this.floorComment;
-
-        this.$http.post(this.$constant.baseURL + "/comment/saveComment", comment)
-          .then((res) => {
-            let pagination = {
-              current: 1,
-              size: 5,
-              total: 0,
-              source: this.source,
-              commentType: this.type,
-              floorCommentId: floorComment.id
-            }
-            this.getComments(pagination, floorComment);
-            this.getTotal();
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-        this.handleClose();
-      },
-      replyDialog(comment, floorComment) {
-        this.replyComment = comment;
-        this.floorComment = floorComment;
-        this.replyDialogVisible = true;
-      },
-      handleClose() {
-        this.replyDialogVisible = false;
-        this.floorComment = {};
-        this.replyComment = {};
+        source: this.source,
+        commentType: this.type,
+        floorCommentId: null
       }
+    };
+  },
+
+  computed: {},
+
+  created() {
+    this.getComments(this.pagination);
+    this.getTotal();
+  },
+  methods: {
+    toPage(page) {
+      this.pagination.current = page;
+      window.scrollTo({
+        top: document.getElementById('comment-content').offsetTop
+      });
+      this.getComments(this.pagination);
+    },
+    getTotal() {
+      this.$http.get(this.$constant.baseURL + '/comment/getCommentCount', {source: this.source, type: this.type})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.total = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    toChildPage(floorComment) {
+      floorComment.childComments.current += 1;
+      let pagination = {
+        current: floorComment.childComments.current,
+        size: 5,
+        total: 0,
+        source: this.source,
+        commentType: this.type,
+        floorCommentId: floorComment.id
+      };
+      this.getComments(pagination, floorComment, true);
+    },
+    emoji(comments, flag) {
+      comments.forEach(c => {
+        c.commentContent = c.commentContent.replace(/\n/g, '<br/>');
+        c.commentContent = this.$common.faceReg(c.commentContent);
+        c.commentContent = this.$common.pictureReg(c.commentContent);
+        if (flag) {
+          if (!this.$common.isEmpty(c.childComments) && !this.$common.isEmpty(c.childComments.records)) {
+            c.childComments.records.forEach(cc => {
+              c.commentContent = c.commentContent.replace(/\n/g, '<br/>');
+              cc.commentContent = this.$common.faceReg(cc.commentContent);
+              cc.commentContent = this.$common.pictureReg(cc.commentContent);
+            });
+          }
+        }
+      });
+    },
+    getComments(pagination, floorComment = {}, isToPage = false) {
+      this.$http.post(this.$constant.baseURL + '/comment/listComment', pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data) && !this.$common.isEmpty(res.data.records)) {
+            if (this.$common.isEmpty(floorComment)) {
+              this.comments = res.data.records;
+              pagination.total = res.data.total;
+              this.emoji(this.comments, true);
+            } else {
+              if (isToPage === false) {
+                floorComment.childComments = res.data;
+              } else {
+                floorComment.childComments.total = res.data.total;
+                floorComment.childComments.records = floorComment.childComments.records.concat(res.data.records);
+              }
+              this.emoji(floorComment.childComments.records, false);
+            }
+            // this.$nextTick(() => {
+            //   this.$common.imgShow('#comment-content .pictureReg');
+            // });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    addGraffitiComment(graffitiComment) {
+      this.submitComment(graffitiComment);
+    },
+    submitComment(commentContent) {
+      let comment = {
+        source: this.source,
+        type: this.type,
+        commentContent: commentContent
+      };
+
+      this.$http.post(this.$constant.baseURL + '/comment/saveComment', comment)
+        .then((res) => {
+          this.$message({
+            type: 'success',
+            message: '保存成功！'
+          });
+          this.pagination = {
+            current: 1,
+            size: 10,
+            total: 0,
+            source: this.source,
+            commentType: this.type,
+            floorCommentId: null
+          };
+          this.getComments(this.pagination);
+          this.getTotal();
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    submitReply(commentContent) {
+      let comment = {
+        source: this.source,
+        type: this.type,
+        floorCommentId: this.floorComment.id,
+        commentContent: commentContent,
+        parentCommentId: this.replyComment.id,
+        parentUserId: this.replyComment.userId
+      };
+
+      let floorComment = this.floorComment;
+
+      this.$http.post(this.$constant.baseURL + '/comment/saveComment', comment)
+        .then((res) => {
+          let pagination = {
+            current: 1,
+            size: 5,
+            total: 0,
+            source: this.source,
+            commentType: this.type,
+            floorCommentId: floorComment.id
+          };
+          this.getComments(pagination, floorComment);
+          this.getTotal();
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+      this.handleClose();
+    },
+    replyDialog(comment, floorComment) {
+      this.replyComment = comment;
+      this.floorComment = floorComment;
+      this.replyDialogVisible = true;
+    },
+    handleClose() {
+      this.replyDialogVisible = false;
+      this.floorComment = {};
+      this.replyComment = {};
     }
   }
+};
 </script>
 
 <style scoped>

@@ -1,76 +1,84 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err);
-}
+};
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   {
     path: '/',
     component: () => import('../components/home'),
     children: [{
-      path: "/",
-      name: "index",
+      path: '/',
+      name: 'index',
       component: () => import('../components/index')
     }, {
-      path: "/sort/:sortId",
-      name: "sort",
+      path: '/sort/:sortId',
+      name: 'sort',
       component: () => import('../components/sort')
     }, {
-      path: "/sortCorporation/:sortCorporationId",
-      name: "sortCorporation",
+      path: '/sortCorporation/:sortCorporationId',
+      name: 'sortCorporation',
       component: () => import('../components/sortCorporation')
     }, {
-      path: "/article/:id",
-      name: "article",
+      path: '/article/:id',
+      name: 'article',
       component: () => import('../components/article')
     }, {
-      path: "/corporation/:id",
-      name: "corporation",
+      path: '/corporation/:id',
+      name: 'corporation',
       component: () => import('../components/corporation')
     }, {
-      path: "/department/:id",
-      name: "department",
+      path: '/department/:id',
+      name: 'department',
       component: () => import('../components/department')
     }, {
-      path: "/weiYan",
-      name: "weiYan",
+      path: '/weiYan',
+      name: 'weiYan',
       component: () => import('../components/weiYan')
     }, {
-      path: "/love",
-      name: "love",
+      path: '/love',
+      name: 'love',
       component: () => import('../components/love')
     }, {
-      path: "/favorite",
-      name: "favorite",
+      path: '/favorite',
+      name: 'favorite',
       component: () => import('../components/favorite')
     }, {
-      path: "/travel",
-      name: "travel",
+      path: '/game',
+      name: 'game',
+      component: () => import('../components/game')
+    }, {
+      path: '/HeaRT',
+      name: 'HeaRT',
+      component: () => import('../components/HeaRT')
+    }, {
+      path: '/travel',
+      name: 'travel',
       component: () => import('../components/travel')
     }, {
-      path: "/about",
-      name: "about",
+      path: '/about',
+      name: 'about',
       component: () => import('../components/about')
     }, {
-      path: "/login",
-      name: "login",
+      path: '/login',
+      name: 'login',
       component: () => import('../components/login')
     }, {
-      path: "/user/:userId",
-      name: "user",
+      path: '/user/:userId',
+      name: 'user',
       component: () => import('../components/user')
     }, {
-      path: "/articleEdit",
-      name: "articleEdit",
+      path: '/articleEdit',
+      name: 'articleEdit',
       component: () => import('../components/articleEdit')
     }, {
-      path: "/letter",
-      name: "letter",
+      path: '/letter',
+      name: 'letter',
       component: () => import('../components/letter')
     }]
   },
@@ -140,10 +148,6 @@ const routes = [
       name: 'resourceList',
       component: () => import('../components/admin/resourceList')
     }, {
-      path: '/loveList',
-      name: 'loveList',
-      component: () => import('../components/admin/loveList')
-    }, {
       path: '/resourcePathList',
       name: 'resourcePathList',
       component: () => import('../components/admin/resourcePathList')
@@ -154,22 +158,22 @@ const routes = [
     name: 'verify',
     component: () => import('../components/admin/verify')
   }
-]
+];
 
 const router = new VueRouter({
-  mode: "history",
-  base: process.env.NODE_ENV === 'production'
-    ? '/corpinside-ui/'
-    : '/',
+  mode: 'history',
+  // base: process.env.NODE_ENV === 'production'
+  //   ? '/corpinside-ui/'
+  //   : '/',
   routes: routes,
   scrollBehavior(to, from, savedPosition) {
-    return {x: 0, y: 0}
+    return {x: 0, y: 0};
   }
-})
+});
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!Boolean(localStorage.getItem("adminToken"))) {
+    if (!localStorage.getItem('adminToken')) {
       next({
         path: '/verify',
         query: {redirect: to.fullPath}
@@ -180,6 +184,6 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
-})
+});
 
-export default router
+export default router;

@@ -420,410 +420,410 @@
 
 <script>
 
-  const treeHole = () => import( "./common/treeHole");
-  const comment = () => import( "./comment/comment");
-  const myFooter = () => import( "./common/myFooter");
-  const photo = () => import( "./common/photo");
-  const proTag = () => import( "./common/proTag");
-  const proButton = () => import( "./common/proButton");
-  const uploadPicture = () => import( "./common/uploadPicture");
+const treeHole = () => import( './common/treeHole');
+const comment = () => import( './comment/comment');
+const myFooter = () => import( './common/myFooter');
+const photo = () => import( './common/photo');
+const proTag = () => import( './common/proTag');
+const proButton = () => import( './common/proButton');
+const uploadPicture = () => import( './common/uploadPicture');
 
-  export default {
-    components: {
-      comment,
-      photo,
-      treeHole,
-      myFooter,
-      proTag,
-      proButton,
-      uploadPicture
+export default {
+  components: {
+    comment,
+    photo,
+    treeHole,
+    myFooter,
+    proTag,
+    proButton,
+    uploadPicture
+  },
+
+  data() {
+    return {
+      userLove: {
+        bgCover: '',
+        manCover: '',
+        womanCover: '',
+        manName: '',
+        womanName: '',
+        countdownTitle: '',
+        countdownTime: '',
+        timing: '',
+        familyInfo: ''
+      },
+      loveDialogVisible: false,
+      addPictureDialog: false,
+      pictureType: '',
+      adminLove: {},
+      love: {
+        bgCover: '',
+        manCover: '',
+        womanCover: '',
+        manName: '',
+        womanName: '',
+        countdownTitle: '',
+        countdownTime: '',
+        timing: ''
+      },
+      weiYanPagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        userId: this.$constant.userId
+      },
+      photoPagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        resourceType: 'lovePhoto',
+        classify: ''
+      },
+      treeHoleList: [],
+      photoTitleList: [],
+      photoList: [],
+      randomFamily: [],
+      card: null,
+      countdownChange: '',
+      timing: {
+        year: 0,
+        month: 0,
+        day: 0,
+        hour: 0,
+        minute: 0,
+        second: 0
+      }
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getAdminFamily();
+    this.card = 2;
+    this.getPhotoTitles();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    openPicture(type) {
+      this.pictureType = type;
+      this.addPictureDialog = true;
     },
+    addPicture(res) {
+      if (this.pictureType === 'bgCover') {
+        this.userLove.bgCover = res;
+      } else if (this.pictureType === 'manCover') {
+        this.userLove.manCover = res;
+      } else if (this.pictureType === 'womanCover') {
+        this.userLove.womanCover = res;
+      }
 
-    data() {
-      return {
-        userLove: {
-          bgCover: "",
-          manCover: "",
-          womanCover: "",
-          manName: "",
-          womanName: "",
-          countdownTitle: "",
-          countdownTime: "",
-          timing: "",
-          familyInfo: ""
-        },
-        loveDialogVisible: false,
-        addPictureDialog: false,
-        pictureType: "",
-        adminLove: {},
-        love: {
-          bgCover: "",
-          manCover: "",
-          womanCover: "",
-          manName: "",
-          womanName: "",
-          countdownTitle: "",
-          countdownTime: "",
-          timing: ""
-        },
-        weiYanPagination: {
+      this.pictureType = '';
+      this.addPictureDialog = false;
+    },
+    submitLove() {
+      if (this.userLove.bgCover.trim() === '') {
+        this.$message({
+          message: '你还没设置背景封面呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.userLove.manCover.trim() === '') {
+        this.$message({
+          message: '你还没设置男生头像呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.userLove.womanCover.trim() === '') {
+        this.$message({
+          message: '你还没设置女生头像呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.userLove.manName.trim() === '') {
+        this.$message({
+          message: '你还没写男生昵称呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.userLove.womanName.trim() === '') {
+        this.$message({
+          message: '你还没写女生昵称呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.userLove.timing.trim() === '') {
+        this.$message({
+          message: '你还没设置计时时间呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      this.$http.post(this.$constant.baseURL + '/family/saveFamily', this.userLove)
+        .then((res) => {
+          this.$message({
+            type: 'success',
+            message: '提交成功，待管理员审核！'
+          });
+          this.userLove = {};
+          this.loveDialogVisible = false;
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    addFamily() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
+
+      this.$http.get(this.$constant.baseURL + '/family/getFamily')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.userLove = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+
+      this.loveDialogVisible = true;
+    },
+    changeFamily(family) {
+      this.love = family;
+    },
+    getPhotoTitles() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listAdminLovePhoto')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.photoTitleList = res.data;
+            this.photoPagination = {
+              current: 1,
+              size: 10,
+              total: 0,
+              resourceType: 'lovePhoto',
+              classify: this.photoTitleList[0].classify
+            };
+            this.changePhoto();
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    getAdminFamily() {
+      this.$http.get(this.$constant.baseURL + '/family/getAdminFamily')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.love = res.data;
+            this.adminLove = res.data;
+            this.getLove();
+            this.countdown();
+            setInterval(() => {
+              this.getLove();
+              this.countdown();
+            }, 1000);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    getRandomFamily() {
+      this.$http.get(this.$constant.baseURL + '/family/listRandomFamily')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.randomFamily = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    changePhotoTitle(classify) {
+      if (classify !== this.photoPagination.classify) {
+        this.photoPagination = {
           current: 1,
           size: 10,
           total: 0,
-          userId: this.$constant.userId
-        },
-        photoPagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          resourceType: "lovePhoto",
-          classify: ""
-        },
-        treeHoleList: [],
-        photoTitleList: [],
-        photoList: [],
-        randomFamily: [],
-        card: null,
-        countdownChange: "",
-        timing: {
-          year: 0,
-          month: 0,
-          day: 0,
-          hour: 0,
-          minute: 0,
-          second: 0
+          resourceType: 'lovePhoto',
+          classify: classify
+        };
+        this.photoList = [];
+        this.changePhoto();
+      }
+    },
+    pagePhotos() {
+      this.photoPagination.current = this.photoPagination.current + 1;
+      this.changePhoto();
+    },
+    changePhoto() {
+      this.$http.post(this.$constant.baseURL + '/webInfo/listResourcePath', this.photoPagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.photoList = this.photoList.concat(res.data.records);
+            this.photoPagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    changeCard(card) {
+      if (card !== 4 || this.card !== card) {
+        this.card = card;
+      } else {
+        card = 1;
+        this.card = 1;
+        this.love = this.adminLove;
+      }
+
+      if (card === 1) {
+        if (this.$common.isEmpty(this.treeHoleList)) {
+          this.getWeiYan();
+        }
+      } else if (card === 2) {
+        if (this.$common.isEmpty(this.photoTitleList)) {
+          this.getPhotoTitles();
+        }
+      } else if (card === 4) {
+        if (this.$common.isEmpty(this.randomFamily)) {
+          this.getRandomFamily();
         }
       }
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getAdminFamily();
-      this.card = 2;
-      this.getPhotoTitles();
+    getLove() {
+      if (this.$common.isEmpty(this.love.timing)) {
+        return;
+      }
+      let diff = this.$common.timeDiff(this.love.timing);
+      this.timing.year = diff.diffYear;
+      this.timing.month = diff.diffMonth;
+      this.timing.day = diff.diffDay;
+      this.timing.hour = diff.diffHour;
+      this.timing.minute = diff.diffMinute;
+      this.timing.second = diff.diffSecond;
     },
-
-    mounted() {
-
+    countdown() {
+      if (this.$common.isEmpty(this.love.countdownTime)) {
+        return;
+      }
+      let countdown = this.$common.countdown(this.love.countdownTime);
+      this.countdownChange = countdown.d + '天' + countdown.h + '时' + countdown.m + '分' + countdown.s + '秒';
     },
-
-    methods: {
-      openPicture(type) {
-        this.pictureType = type;
-        this.addPictureDialog = true;
-      },
-      addPicture(res) {
-        if (this.pictureType === "bgCover") {
-          this.userLove.bgCover = res;
-        } else if (this.pictureType === "manCover") {
-          this.userLove.manCover = res;
-        } else if (this.pictureType === "womanCover") {
-          this.userLove.womanCover = res;
-        }
-
-        this.pictureType = "";
-        this.addPictureDialog = false;
-      },
-      submitLove() {
-        if (this.userLove.bgCover.trim() === "") {
-          this.$message({
-            message: "你还没设置背景封面呢~",
-            type: "warning"
+    launch() {
+      if (this.weiYanPagination.total !== this.treeHoleList.length) {
+        this.weiYanPagination.current = this.weiYanPagination.current + 1;
+        this.getWeiYan();
+      } else {
+        this.$message({
+          message: '~~到底啦~~',
+          type: 'warning'
+        });
+      }
+    },
+    getWeiYan() {
+      this.$http.post(this.$constant.baseURL + '/weiYan/listWeiYan', this.weiYanPagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            res.data.records.forEach(c => {
+              c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
+              c.content = c.content.replace(/\n/g, '<br/>');
+              c.content = this.$common.faceReg(c.content);
+              c.content = this.$common.pictureReg(c.content);
+            });
+            this.treeHoleList = this.treeHoleList.concat(res.data.records);
+            this.weiYanPagination.total = res.data.total;
+          }
+          this.$nextTick(() => {
+            this.$common.imgShow('#treeHole .pictureReg');
           });
-          return;
-        }
-
-        if (this.userLove.manCover.trim() === "") {
+        })
+        .catch((error) => {
           this.$message({
-            message: "你还没设置男生头像呢~",
-            type: "warning"
+            message: error.message,
+            type: 'error'
           });
-          return;
-        }
+        });
+    },
+    deleteTreeHole(id) {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
 
-        if (this.userLove.womanCover.trim() === "") {
-          this.$message({
-            message: "你还没设置女生头像呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.userLove.manName.trim() === "") {
-          this.$message({
-            message: "你还没写男生昵称呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.userLove.womanName.trim() === "") {
-          this.$message({
-            message: "你还没写女生昵称呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.userLove.timing.trim() === "") {
-          this.$message({
-            message: "你还没设置计时时间呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        this.$http.post(this.$constant.baseURL + "/family/saveFamily", this.userLove)
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/weiYan/deleteWeiYan', {id: id})
           .then((res) => {
             this.$message({
               type: 'success',
-              message: '提交成功，待管理员审核！'
+              message: '删除成功!'
             });
-            this.userLove = {};
-            this.loveDialogVisible = false;
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      addFamily() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.$http.get(this.$constant.baseURL + "/family/getFamily")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.userLove = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-
-        this.loveDialogVisible = true;
-      },
-      changeFamily(family) {
-        this.love = family;
-      },
-      getPhotoTitles() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listAdminLovePhoto")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.photoTitleList = res.data;
-              this.photoPagination = {
-                current: 1,
-                size: 10,
-                total: 0,
-                resourceType: "lovePhoto",
-                classify: this.photoTitleList[0].classify
-              };
-              this.changePhoto();
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      getAdminFamily() {
-        this.$http.get(this.$constant.baseURL + "/family/getAdminFamily")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.love = res.data;
-              this.adminLove = res.data;
-              this.getLove();
-              this.countdown();
-              setInterval(() => {
-                this.getLove();
-                this.countdown();
-              }, 1000);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      getRandomFamily() {
-        this.$http.get(this.$constant.baseURL + "/family/listRandomFamily")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.randomFamily = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      changePhotoTitle(classify) {
-        if (classify !== this.photoPagination.classify) {
-          this.photoPagination = {
-            current: 1,
-            size: 10,
-            total: 0,
-            resourceType: "lovePhoto",
-            classify: classify
-          };
-          this.photoList = [];
-          this.changePhoto();
-        }
-      },
-      pagePhotos() {
-        this.photoPagination.current = this.photoPagination.current + 1;
-        this.changePhoto();
-      },
-      changePhoto() {
-        this.$http.post(this.$constant.baseURL + "/webInfo/listResourcePath", this.photoPagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.photoList = this.photoList.concat(res.data.records);
-              this.photoPagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      changeCard(card) {
-        if (card !== 4 || this.card !== card) {
-          this.card = card;
-        } else {
-          card = 1;
-          this.card = 1;
-          this.love = this.adminLove;
-        }
-
-        if (card === 1) {
-          if (this.$common.isEmpty(this.treeHoleList)) {
+            this.weiYanPagination.current = 1;
             this.getWeiYan();
-          }
-        } else if (card === 2) {
-          if (this.$common.isEmpty(this.photoTitleList)) {
-            this.getPhotoTitles();
-          }
-        } else if (card === 4) {
-          if (this.$common.isEmpty(this.randomFamily)) {
-            this.getRandomFamily();
-          }
-        }
-      },
-      getLove() {
-        if (this.$common.isEmpty(this.love.timing)) {
-          return;
-        }
-        let diff = this.$common.timeDiff(this.love.timing);
-        this.timing.year = diff.diffYear;
-        this.timing.month = diff.diffMonth;
-        this.timing.day = diff.diffDay;
-        this.timing.hour = diff.diffHour;
-        this.timing.minute = diff.diffMinute;
-        this.timing.second = diff.diffSecond;
-      },
-      countdown() {
-        if (this.$common.isEmpty(this.love.countdownTime)) {
-          return;
-        }
-        let countdown = this.$common.countdown(this.love.countdownTime);
-        this.countdownChange = countdown.d + "天" + countdown.h + "时" + countdown.m + "分" + countdown.s + "秒";
-      },
-      launch() {
-        if (this.weiYanPagination.total !== this.treeHoleList.length) {
-          this.weiYanPagination.current = this.weiYanPagination.current + 1;
-          this.getWeiYan();
-        } else {
-          this.$message({
-            message: "~~到底啦~~",
-            type: "warning"
-          });
-        }
-      },
-      getWeiYan() {
-        this.$http.post(this.$constant.baseURL + "/weiYan/listWeiYan", this.weiYanPagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              res.data.records.forEach(c => {
-                c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
-                c.content = c.content.replace(/\n/g, '<br/>');
-                c.content = this.$common.faceReg(c.content);
-                c.content = this.$common.pictureReg(c.content);
-              });
-              this.treeHoleList = this.treeHoleList.concat(res.data.records);
-              this.weiYanPagination.total = res.data.total;
-            }
-            this.$nextTick(() => {
-              this.$common.imgShow("#treeHole .pictureReg");
-            });
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      deleteTreeHole(id) {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/weiYan/deleteWeiYan", {id: id})
-            .then((res) => {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.weiYanPagination.current = 1;
-              this.getWeiYan();
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
-          });
+          message: '已取消删除!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

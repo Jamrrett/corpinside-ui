@@ -15,28 +15,28 @@
   </div>
 </template>
 <script>
-  export default {
-    props: {
-      loading: {
-        type: Boolean,
-        default: false
-      }
-    },
-    data() {
-      return {
-        loaderVisible: this.loading,
-        bodyVisible: !this.loading
-      };
-    },
-    watch: {
-      loading(loading) {
-        this.loaderVisible = loading;
-        setTimeout(() => {
-          this.bodyVisible = !loading;
-        }, 300);
-      }
+export default {
+  props: {
+    loading: {
+      type: Boolean,
+      default: false
     }
-  };
+  },
+  data() {
+    return {
+      loaderVisible: this.loading,
+      bodyVisible: !this.loading
+    };
+  },
+  watch: {
+    loading(loading) {
+      this.loaderVisible = loading;
+      setTimeout(() => {
+        this.bodyVisible = !loading;
+      }, 300);
+    }
+  }
+};
 </script>
 <style scoped>
   /*

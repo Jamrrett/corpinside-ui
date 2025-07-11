@@ -111,129 +111,126 @@
 
 <script>
 
-  const uploadPicture = () => import( "../common/uploadPicture");
+const uploadPicture = () => import( '../common/uploadPicture');
 
-  export default {
-    components: {
-      uploadPicture
+export default {
+  components: {
+    uploadPicture
+  },
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        resourceType: ''
+      },
+      resources: [],
+      resourceDialog: false,
+      storeTypes: [
+        {label: '服务器', value: 'local'},
+        {label: '七牛云', value: 'qiniu'}
+      ],
+      storeType: localStorage.getItem('defaultStoreType')
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getResources();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    handleDelete(item) {
+      this.$confirm('确认删除资源？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.post(this.$constant.baseURL + '/resource/deleteResource', {path: item.path}, true, false)
+          .then(() => {
+            this.pagination.current = 1;
+            this.getResources();
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消删除!'
+        });
+      });
     },
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          resourceType: ""
-        },
-        resources: [],
-        resourceDialog: false,
-        storeTypes: [
-          {label: "服务器", value: "local"},
-          {label: "七牛云", value: "qiniu"}
-        ],
-        storeType: localStorage.getItem("defaultStoreType")
+
+    addResources() {
+      if (this.$common.isEmpty(this.pagination.resourceType)) {
+        this.$message({
+          message: '请选择资源类型！',
+          type: 'error'
+        });
+        return;
       }
+      this.resourceDialog = true;
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
+    search() {
+      this.pagination.total = 0;
+      this.pagination.current = 1;
       this.getResources();
     },
-
-    mounted() {
-    },
-
-    methods: {
-      handleDelete(item) {
-        this.$confirm('确认删除资源？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.post(this.$constant.baseURL + "/resource/deleteResource", {path: item.path}, true, false)
-            .then((res) => {
-              this.pagination.current = 1;
-              this.getResources();
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
+    getResources() {
+      this.$http.post(this.$constant.baseURL + '/resource/listResource', this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.resources = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
           this.$message({
-            type: 'success',
-            message: '已取消删除!'
+            message: error.message,
+            type: 'error'
           });
         });
-      },
-
-      addFile(res) {
-      },
-
-      addResources() {
-        if (this.$common.isEmpty(this.pagination.resourceType)) {
+    },
+    changeStatus(item) {
+      this.$http.get(this.$constant.baseURL + '/resource/changeResourceStatus', {
+        id: item.id,
+        flag: item.status
+      }, true)
+        .then(() => {
           this.$message({
-            message: "请选择资源类型！",
-            type: "error"
+            message: '修改成功！',
+            type: 'success'
           });
-          return;
-        }
-        this.resourceDialog = true;
-      },
-      search() {
-        this.pagination.total = 0;
-        this.pagination.current = 1;
-        this.getResources();
-      },
-      getResources() {
-        this.$http.post(this.$constant.baseURL + "/resource/listResource", this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.resources = res.data.records;
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      changeStatus(item) {
-        this.$http.get(this.$constant.baseURL + "/resource/changeResourceStatus", {
-          id: item.id,
-          flag: item.status
-        }, true)
-          .then((res) => {
-            this.$message({
-              message: "修改成功！",
-              type: "success"
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getResources();
-      }
+        });
+    },
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getResources();
     }
   }
+};
 </script>
 
 <style scoped>

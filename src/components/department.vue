@@ -9,7 +9,7 @@
                   lazy
                   :src="department.corporationCover"
                   fit="cover"
-                  style="margin-left: calc(-50vw + 50%);margin-right: calc(-50vw + 50%);width: 100vw;">
+                  :style="{left: '50%', transform: 'translateX(-50%)',width: clientWidth + 'px'}">
           <div slot="error" class="image-slot">
             <div class="department-image"></div>
           </div>
@@ -175,202 +175,207 @@
 </template>
 
 <script>
-  const comment = () => import( "./comment/comment");
-  const sortArticleSmall = () => import( "./common/sortArticleSmall");
-  const videoPlayer = () => import( "./common/videoPlayer");
-  import MarkdownIt from 'markdown-it';
+const comment = () => import( './comment/comment');
+const sortArticleSmall = () => import( './common/sortArticleSmall');
+const videoPlayer = () => import( './common/videoPlayer');
+import MarkdownIt from 'markdown-it';
 
-  export default {
-    components: {
-      comment,
-      sortArticleSmall,
-      videoPlayer
-    },
+export default {
+  components: {
+    comment,
+    sortArticleSmall,
+    videoPlayer
+  },
 
-    data() {
-      return {
-        id: this.$route.params.id,
-        subscribe: false,
-        department: {},
-        departmentContentHtml: "",
-        treeHoleList: [],
-        weiYanDialogVisible: false,
-        copyrightDialogVisible: false,
-        newsTime: "",
-        password: "",
-        tips: "",
-        scrollTop: 0,
-        articlesByDepartment: {}
-      };
-    },
-    created() {
-      if (!this.$common.isEmpty(this.id)) {
-        this.getDepartment(localStorage.getItem("department_password_" + this.id));
+  data() {
+    return {
+      id: this.$route.params.id,
+      subscribe: false,
+      department: {},
+      departmentContentHtml: '',
+      treeHoleList: [],
+      weiYanDialogVisible: false,
+      copyrightDialogVisible: false,
+      newsTime: '',
+      password: '',
+      tips: '',
+      scrollTop: 0,
+      articlesByDepartment: {},
+      clientWidth: document.documentElement.clientWidth
+    };
+  },
+  created() {
+    if (!this.$common.isEmpty(this.id)) {
+      this.getDepartment(localStorage.getItem('department_password_' + this.id));
 
-        // if ("0" !== localStorage.getItem("showSubscribe")) {
-        //   this.$notify({
-        //     title: '文章订阅',
-        //     type: 'success',
-        //     message: '点击文章下方小手 - 订阅/取消订阅专栏（标签）',
-        //     duration: 0,
-        //     onClose: () => localStorage.setItem("showSubscribe", "0")
-        //   });
-        // }
+      // if ("0" !== localStorage.getItem("showSubscribe")) {
+      //   this.$notify({
+      //     title: '文章订阅',
+      //     type: 'success',
+      //     message: '点击文章下方小手 - 订阅/取消订阅专栏（标签）',
+      //     duration: 0,
+      //     onClose: () => localStorage.setItem("showSubscribe", "0")
+      //   });
+      // }
 
-        this.getArticlesByDepartment();
-        // console.log("============================");
-        // console.log(this.articlesByDepartment);
-        // console.log(this.sortInfo);
+      this.getArticlesByDepartment();
+      // console.log("============================");
+      // console.log(this.articlesByDepartment);
+      // console.log(this.sortInfo);
+    }
+  },
+  computed: {
+    sortInfo() {
+      return this.$store.state.sortInfo;
+    }
+  },
+  mounted() {
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
+  },
+  watch: {
+    scrollTop(scrollTop, oldScrollTop) {
+      let isShow = scrollTop - window.innerHeight > 30;
+      if (isShow) {
+        $('#toc-button').css('bottom', '14.1vh');
+      } else {
+        $('#toc-button').css('bottom', '8vh');
       }
     },
-    computed: {
-      sortInfo() {
-        return this.$store.state.sortInfo;
+  },
+  methods: {
+    handleResize() {
+      // 更新窗口宽度
+      this.clientWidth = document.documentElement.clientWidth;
+    },
+    getArticlesByDepartment() {
+      this.$http.get(this.$constant.baseURL + '/article/getArticlesByDepartment', {departmentId: this.id})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.articlesByDepartment = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    onScrollPage() {
+      this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      if (this.scrollTop < (window.innerHeight / 4)) {
+        $('.toc').css('top', window.innerHeight / 4);
+      } else {
+        $('.toc').css('top', '90px');
       }
     },
-    mounted() {
-      window.addEventListener("scroll", this.onScrollPage);
-    },
-    destroyed() {
-      window.removeEventListener("scroll", this.onScrollPage);
-    },
-    watch: {
-      scrollTop(scrollTop, oldScrollTop) {
-        let isShow = scrollTop - window.innerHeight > 30;
-        if (isShow) {
-          $("#toc-button").css("bottom", "14.1vh");
-        } else {
-          $("#toc-button").css("bottom", "8vh");
-        }
-      },
-    },
-    methods: {
-      getArticlesByDepartment() {
-        this.$http.get(this.$constant.baseURL + "/article/getArticlesByDepartment", {departmentId: this.id})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.articlesByDepartment = res.data;
+    getDepartment(password) {
+      this.$http.get(this.$constant.baseURL + '/department/getDepartmentById', {id: this.id, password: password})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.department = res.data;
+            const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
+            this.departmentContentHtml = md.render(this.department.departmentContent);
+            this.$nextTick(() => {
+              this.$common.imgShow('.entry-content img');
+              this.highlight();
+            });
+            if (!this.$common.isEmpty(password)) {
+              localStorage.setItem('department_password_' + this.id, password);
             }
-          })
-          .catch((error) => {
+          }
+        })
+        .catch((error) => {
+          if ('密码错误' === error.message.substr(0, 4)) {
+            if (!this.$common.isEmpty(password)) {
+              localStorage.removeItem('department_password_' + this.id);
+              this.$message({
+                message: '密码错误，请重新输入！',
+                type: 'error',
+                customClass: 'message-index'
+              });
+            }
+            this.tips = error.message.substr(4);
+          } else {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error',
+              customClass: 'message-index'
             });
-          });
-      },
-      onScrollPage() {
-        this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-        if (this.scrollTop < (window.innerHeight / 4)) {
-          $(".toc").css("top", window.innerHeight / 4);
-        } else {
-          $(".toc").css("top", "90px");
-        }
-      },
-      getDepartment(password) {
-        this.$http.get(this.$constant.baseURL + "/department/getDepartmentById", {id: this.id, password: password})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.department = res.data;
-              const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
-              this.departmentContentHtml = md.render(this.department.departmentContent);
-              this.$nextTick(() => {
-                this.$common.imgShow(".entry-content img");
-                this.highlight();
-              });
-              if (!this.$common.isEmpty(password)) {
-                localStorage.setItem("department_password_" + this.id, password);
-              }
-            }
-          })
-          .catch((error) => {
-            if ("密码错误" === error.message.substr(0, 4)) {
-              if (!this.$common.isEmpty(password)) {
-                localStorage.removeItem("department_password_" + this.id);
-                this.$message({
-                  message: "密码错误，请重新输入！",
-                  type: "error",
-                  customClass: "message-index"
-                });
-              }
-              this.tips = error.message.substr(4);
-            } else {
-              this.$message({
-                message: error.message,
-                type: "error",
-                customClass: "message-index"
-              });
-              this.tips = error.message;
-            }
-          });
-      },
-      highlight() {
-        let attributes = {
-          autocomplete: "off",
-          autocorrect: "off",
-          autocapitalize: "off",
-          spellcheck: "false",
-          contenteditable: "false"
-        };
-
-        $("pre").each(function (i, item) {
-          let preCode = $(item).children("code");
-          let classNameStr = preCode[0].className;
-          let classNameArr = classNameStr.split(" ");
-
-          let lang = "";
-          classNameArr.some(function (className) {
-            if (className.indexOf("language-") > -1) {
-              lang = className.substring(className.indexOf("-") + 1, className.length);
-              return true;
-            }
-          });
-
-          // 检测语言是否存在，不存在则自动检测
-          let language = hljs.getLanguage(lang.toLowerCase());
-          if (language === undefined) {
-            // 启用自动检测
-            let autoLanguage = hljs.highlightAuto(preCode.text());
-            preCode.removeClass("language-" + lang);
-            lang = autoLanguage.language;
-            if (lang === undefined) {
-              lang = "java";
-            }
-            preCode.addClass("language-" + lang);
-          } else {
-            lang = language.name;
+            this.tips = error.message;
           }
+        });
+    },
+    highlight() {
+      let attributes = {
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        spellcheck: 'false',
+        contenteditable: 'false'
+      };
 
-          $(item).addClass("highlight-wrap");
-          $(item).attr(attributes);
-          preCode.attr("data-rel", lang.toUpperCase()).addClass(lang.toLowerCase());
-          // 启用代码高亮
-          hljs.highlightBlock(preCode[0]);
-          // 启用代码行号
-          hljs.lineNumbersBlock(preCode[0]);
+      $('pre').each(function (i, item) {
+        let preCode = $(item).children('code');
+        let classNameStr = preCode[0].className;
+        let classNameArr = classNameStr.split(' ');
+
+        let lang = '';
+        classNameArr.some(function (className) {
+          if (className.indexOf('language-') > -1) {
+            lang = className.substring(className.indexOf('-') + 1, className.length);
+            return true;
+          }
         });
 
-        $("pre code").each(function (i, block) {
-          $(block).attr({
-            id: "hljs-" + i,
-          });
+        // 检测语言是否存在，不存在则自动检测
+        let language = hljs.getLanguage(lang.toLowerCase());
+        if (language === undefined) {
+          // 启用自动检测
+          let autoLanguage = hljs.highlightAuto(preCode.text());
+          preCode.removeClass('language-' + lang);
+          lang = autoLanguage.language;
+          if (lang === undefined) {
+            lang = 'java';
+          }
+          preCode.addClass('language-' + lang);
+        } else {
+          lang = language.name;
+        }
 
-          $(block).after(
-            '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
+        $(item).addClass('highlight-wrap');
+        $(item).attr(attributes);
+        preCode.attr('data-rel', lang.toUpperCase()).addClass(lang.toLowerCase());
+        // 启用代码高亮
+        hljs.highlightBlock(preCode[0]);
+        // 启用代码行号
+        hljs.lineNumbersBlock(preCode[0]);
+      });
+
+      $('pre code').each(function (i, block) {
+        $(block).attr({
+          id: 'hljs-' + i,
+        });
+
+        $(block).after(
+          '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
             i +
             '"><i class="fa fa-clipboard" aria-hidden="true"></i></a>'
-          );
-          new ClipboardJS(".copy-code");
-        });
+        );
+        new ClipboardJS('.copy-code');
+      });
 
-        if ($(".entry-content").children("table").length > 0) {
-          $(".entry-content")
-            .children("table")
-            .wrap("<div class='table-wrapper'></div>");
-        }
+      if ($('.entry-content').children('table').length > 0) {
+        $('.entry-content')
+          .children('table')
+          .wrap('<div class=\'table-wrapper\'></div>');
       }
     }
   }
+};
 </script>
 
 <style scoped>

@@ -109,64 +109,64 @@
 
 <script>
 
-  const myFooter = () => import( "./common/myFooter");
-  const funny = () => import( "./funny");
-  const friend = () => import( "./friend");
+const myFooter = () => import( './common/myFooter');
+const funny = () => import( './funny');
+const friend = () => import( './friend');
 
-  export default {
-    components: {
-      myFooter,
-      funny,
-      friend
+export default {
+  components: {
+    myFooter,
+    funny,
+    friend
+  },
+
+  data() {
+    return {
+      card: null,
+      collects: {}
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.card = 3;
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    toUrl(url) {
+      window.open(url);
     },
-
-    data() {
-      return {
-        card: null,
-        collects: {}
-      }
-    },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.card = 3;
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      toUrl(url) {
-        window.open(url);
-      },
-      changeFavorite(card) {
-        if (card === 1) {
-          if (this.$common.isEmpty(this.collects)) {
-            this.getCollect(card);
-          }
+    changeFavorite(card) {
+      if (card === 1) {
+        if (this.$common.isEmpty(this.collects)) {
+          this.getCollect(card);
         }
-        this.card = card;
-      },
-      getCollect() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listCollect")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.collects = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
       }
+      this.card = card;
+    },
+    getCollect() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listCollect')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.collects = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

@@ -40,80 +40,80 @@
 
 <script>
 
-  export default {
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0
-        },
-        treeHoles: []
-      }
+export default {
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0
+      },
+      treeHoles: []
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getTreeHoles();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    getTreeHoles() {
+      this.$http.post(this.$constant.baseURL + '/admin/treeHole/boss/list', this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.treeHoles = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getTreeHoles()
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getTreeHoles();
     },
-
-    mounted() {
-    },
-
-    methods: {
-      getTreeHoles() {
-        this.$http.post(this.$constant.baseURL + "/admin/treeHole/boss/list", this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.treeHoles = res.data.records;
-              this.pagination.total = res.data.total;
-            }
+    handleDelete(item) {
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/webInfo/deleteTreeHole', {id: item.id}, true)
+          .then(() => {
+            this.pagination.current = 1;
+            this.getTreeHoles();
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getTreeHoles();
-      },
-      handleDelete(item) {
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/webInfo/deleteTreeHole", {id: item.id}, true)
-            .then((res) => {
-              this.pagination.current = 1;
-              this.getTreeHoles();
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
-          });
+          message: '已取消删除!'
         });
-      }
+      });
     }
   }
+};
 </script>
 
 <style scoped>

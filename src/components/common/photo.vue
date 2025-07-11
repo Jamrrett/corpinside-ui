@@ -29,31 +29,31 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      resourcePathList: {
-        type: Array
-      }
-    },
+export default {
+  props: {
+    resourcePathList: {
+      type: Array
+    }
+  },
 
-    data() {
-      return {}
-    },
+  data() {
+    return {};
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
 
-    },
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {}
-  }
+  methods: {}
+};
 </script>
 
 <style scoped>

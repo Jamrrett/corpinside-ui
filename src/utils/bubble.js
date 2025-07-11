@@ -1,13 +1,13 @@
-if (document.querySelector(".author-content.author-content-item.single")) {
-  const canvas = document.createElement("canvas");
-  canvas.id = "header_canvas";
-  canvas.style.position = "absolute";
-  canvas.style.bottom = "0";
+if (document.querySelector('.author-content.author-content-item.single')) {
+  const canvas = document.createElement('canvas');
+  canvas.id = 'header_canvas';
+  canvas.style.position = 'absolute';
+  canvas.style.bottom = '0';
   canvas.width = 844;
   canvas.height = 346;
-  document.querySelector(".author-content.author-content-item.single").appendChild(canvas);
-  const parent = document.querySelector(".author-content.author-content-item.single").parentNode;
-  parent.className = "thumbnail_canvas";
+  document.querySelector('.author-content.author-content-item.single').appendChild(canvas);
+  const parent = document.querySelector('.author-content.author-content-item.single').parentNode;
+  parent.className = 'thumbnail_canvas';
   (function () {
     var canvas,
       ctx,
@@ -18,10 +18,10 @@ if (document.querySelector(".author-content.author-content-item.single")) {
     initHeader();
 
     function initHeader() {
-      canvas = document.getElementById("header_canvas");
+      canvas = document.getElementById('header_canvas');
       window_resize();
       if (canvas) {
-        ctx = canvas.getContext("2d");
+        ctx = canvas.getContext('2d');
         //建立泡泡
         bubbles = [];
         var num = width * 0.04; //气泡数量
@@ -49,7 +49,7 @@ if (document.querySelector(".author-content.author-content-item.single")) {
       //height = window.innerHeight;
 
       //如果需要铺满内容可以换下面这个
-      const panel = document.querySelector(".thumbnail_canvas");
+      const panel = document.querySelector('.thumbnail_canvas');
       if (panel) {
         width = panel.offsetWidth;
         height = panel.offsetHeight;
@@ -90,7 +90,7 @@ if (document.querySelector(".author-content.author-content-item.single")) {
         _this.scale += _this.scale_change;
         ctx.beginPath();
         ctx.arc(_this.pos.x, _this.pos.y, _this.scale * 10, 0, 2 * Math.PI, false);
-        ctx.fillStyle = "rgba(255,255,255," + _this.alpha + ")";
+        ctx.fillStyle = 'rgba(255,255,255,' + _this.alpha + ')';
         ctx.fill();
       };
     }

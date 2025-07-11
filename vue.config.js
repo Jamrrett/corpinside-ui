@@ -1,9 +1,9 @@
-const CompressionPlugin = require('compression-webpack-plugin')
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production'
-    ? '/corpinside-ui/'  // 确保与仓库名一致
-    : '/',
+  // publicPath: process.env.NODE_ENV === 'production'
+  //   ? '/corpinside-ui/'  // 确保与仓库名一致
+  //   : '/',
   devServer: {
     port: 80,
     https: false,
@@ -24,4 +24,4 @@ module.exports = {
       })
     ]
   }
-}
+};

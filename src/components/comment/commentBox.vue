@@ -52,92 +52,92 @@
 </template>
 
 <script>
-  const emoji = () => import( "../common/emoji");
-  const proButton = () => import( "../common/proButton");
-  const uploadPicture = () => import( "../common/uploadPicture");
+const emoji = () => import( '../common/emoji');
+const proButton = () => import( '../common/proButton');
+const uploadPicture = () => import( '../common/uploadPicture');
 
-  export default {
-    components: {
-      emoji,
-      proButton,
-      uploadPicture
-    },
-    props: {
-      disableGraffiti: {
-        type: Boolean,
-        default: false
+export default {
+  components: {
+    emoji,
+    proButton,
+    uploadPicture
+  },
+  props: {
+    disableGraffiti: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      commentContent: '',
+      showEmoji: false,
+      showPicture: false,
+      picture: {
+        name: this.$store.state.currentUser.username,
+        url: ''
       }
-    },
-    data() {
-      return {
-        commentContent: "",
-        showEmoji: false,
-        showPicture: false,
-        picture: {
-          name: this.$store.state.currentUser.username,
-          url: ""
-        }
-      };
-    },
-    methods: {
-      openPicture() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.showPicture = true;
-      },
-
-      addPicture(res) {
-        this.picture.url = res;
-        this.savePicture();
-      },
-      savePicture() {
-        let img = "[" + this.picture.name + "," + this.picture.url + "]";
-        this.commentContent += img;
-        this.picture.url = "";
-        this.showPicture = false;
-      },
-      addEmoji(value) {
-        this.commentContent += value;
-      },
-      showGraffiti() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.commentContent = "";
-        this.$emit("showGraffiti");
-      },
-      submitComment() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        if (this.commentContent.trim() === "") {
-          this.$message({
-            message: "评论不能为空",
-            type: "warning"
-          });
-          return;
-        }
-        this.$emit("submitComment", this.commentContent.trim());
-        this.commentContent = "";
+    };
+  },
+  methods: {
+    openPicture() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
       }
+
+      this.showPicture = true;
+    },
+
+    addPicture(res) {
+      this.picture.url = res;
+      this.savePicture();
+    },
+    savePicture() {
+      let img = '[' + this.picture.name + ',' + this.picture.url + ']';
+      this.commentContent += img;
+      this.picture.url = '';
+      this.showPicture = false;
+    },
+    addEmoji(value) {
+      this.commentContent += value;
+    },
+    showGraffiti() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
+
+      this.commentContent = '';
+      this.$emit('showGraffiti');
+    },
+    submitComment() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
+
+      if (this.commentContent.trim() === '') {
+        this.$message({
+          message: '评论不能为空',
+          type: 'warning'
+        });
+        return;
+      }
+      this.$emit('submitComment', this.commentContent.trim());
+      this.commentContent = '';
     }
   }
+};
 </script>
 
 <style scoped>

@@ -1,9 +1,9 @@
-import axios from "axios";
-import constant from "./constant";
+import axios from 'axios';
+import constant from './constant';
 //处理url参数
-import qs from "qs";
+import qs from 'qs';
 
-import store from "../store";
+import store from '../store';
 
 
 axios.defaults.baseURL = constant.baseURL;
@@ -25,12 +25,12 @@ axios.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 axios.interceptors.response.use(function (response) {
-  if (response.data !== null && response.data.hasOwnProperty("code") && response.data.code !== 200) {
+  if (response.data !== null && response.data.hasOwnProperty('code') && response.data.code !== 200) {
     if (response.data.code === 300) {
-      store.commit("loadCurrentUser", {});
-      localStorage.removeItem("userToken");
-      store.commit("loadCurrentAdmin", {});
-      localStorage.removeItem("adminToken");
+      store.commit('loadCurrentUser', {});
+      localStorage.removeItem('userToken');
+      store.commit('loadCurrentAdmin', {});
+      localStorage.removeItem('adminToken');
       // window.location.href = constant.webURL + "/login";
       if (typeof redirectToLogin === 'function') {
         redirectToLogin();
@@ -57,11 +57,11 @@ export default {
     let config;
     if (isAdmin) {
       config = {
-        headers: {"Authorization": localStorage.getItem("adminToken")}
+        headers: {'Authorization': localStorage.getItem('adminToken')}
       };
     } else {
       config = {
-        headers: {"Authorization": localStorage.getItem("userToken")}
+        headers: {'Authorization': localStorage.getItem('userToken')}
       };
     }
 
@@ -80,9 +80,9 @@ export default {
   get(url, params = {}, isAdmin = false) {
     let headers;
     if (isAdmin) {
-      headers = {"Authorization": localStorage.getItem("adminToken")};
+      headers = {'Authorization': localStorage.getItem('adminToken')};
     } else {
-      headers = {"Authorization": localStorage.getItem("userToken")};
+      headers = {'Authorization': localStorage.getItem('userToken')};
     }
 
     return new Promise((resolve, reject) => {
@@ -92,8 +92,8 @@ export default {
       }).then(res => {
         resolve(res.data);
       }).catch(err => {
-        reject(err)
-      })
+        reject(err);
+      });
     });
   },
 
@@ -101,16 +101,16 @@ export default {
     let config;
     if (isAdmin) {
       config = {
-        headers: {"Authorization": localStorage.getItem("adminToken"), "Content-Type": "multipart/form-data"},
+        headers: {'Authorization': localStorage.getItem('adminToken'), 'Content-Type': 'multipart/form-data'},
         timeout: 60000
       };
     } else {
       config = {
-        headers: {"Authorization": localStorage.getItem("userToken"), "Content-Type": "multipart/form-data"},
+        headers: {'Authorization': localStorage.getItem('userToken'), 'Content-Type': 'multipart/form-data'},
         timeout: 60000
       };
     }
-    if (typeof option !== "undefined") {
+    if (typeof option !== 'undefined') {
       config.onUploadProgress = progressEvent => {
         if (progressEvent.total > 0) {
           progressEvent.percent = progressEvent.loaded / progressEvent.total * 100;
@@ -133,7 +133,7 @@ export default {
 
   uploadQiniu(url, param) {
     let config = {
-      headers: {"Content-Type": "multipart/form-data"},
+      headers: {'Content-Type': 'multipart/form-data'},
       timeout: 60000
     };
 
@@ -148,4 +148,4 @@ export default {
         });
     });
   }
-}
+};

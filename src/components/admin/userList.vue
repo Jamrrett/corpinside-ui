@@ -120,157 +120,157 @@
 
 <script>
 
-  export default {
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          userStatus: null,
-          userType: null
-        },
-        users: [],
-        changeUser: {
-          id: null,
-          userType: null
-        },
-        editVisible: false
-      }
-    },
+export default {
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        userStatus: null,
+        userType: null
+      },
+      users: [],
+      changeUser: {
+        id: null,
+        userType: null
+      },
+      editVisible: false
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
+    this.getUsers();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    clearSearch() {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        userStatus: null,
+        userType: null
+      };
       this.getUsers();
     },
-
-    mounted() {
+    getUsers() {
+      this.$http.post(this.$constant.baseURL + '/admin/user/list', this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.users = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-
-    methods: {
-      clearSearch() {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          userStatus: null,
-          userType: null
-        }
-        this.getUsers();
-      },
-      getUsers() {
-        this.$http.post(this.$constant.baseURL + "/admin/user/list", this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.users = res.data.records;
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+    changeUserStatus(user) {
+      this.$http.get(this.$constant.baseURL + '/admin/user/changeUserStatus', {
+        userId: user.id,
+        flag: user.userStatus
+      }, true)
+        .then(() => {
+          this.$message({
+            message: '修改成功！',
+            type: 'success'
           });
-      },
-      changeUserStatus(user) {
-        this.$http.get(this.$constant.baseURL + "/admin/user/changeUserStatus", {
-          userId: user.id,
-          flag: user.userStatus
-        }, true)
-          .then((res) => {
-            this.$message({
-              message: "修改成功！",
-              type: "success"
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      changeUserAdmire(user) {
-        if (!this.$common.isEmpty(user.admire)) {
-          this.$confirm('确认保存？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'success',
-            center: true
-          }).then(() => {
-            this.$http.get(this.$constant.baseURL + "/admin/user/changeUserAdmire", {
-              userId: user.id,
-              admire: user.admire
-            }, true)
-              .then((res) => {
-                this.$message({
-                  message: "修改成功！",
-                  type: "success"
-                });
-              })
-              .catch((error) => {
-                this.$message({
-                  message: error.message,
-                  type: "error"
-                });
+        });
+    },
+    changeUserAdmire(user) {
+      if (!this.$common.isEmpty(user.admire)) {
+        this.$confirm('确认保存？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'success',
+          center: true
+        }).then(() => {
+          this.$http.get(this.$constant.baseURL + '/admin/user/changeUserAdmire', {
+            userId: user.id,
+            admire: user.admire
+          }, true)
+            .then(() => {
+              this.$message({
+                message: '修改成功！',
+                type: 'success'
               });
-          }).catch(() => {
-            this.$message({
-              type: 'success',
-              message: '已取消保存!'
+            })
+            .catch((error) => {
+              this.$message({
+                message: error.message,
+                type: 'error'
+              });
             });
+        }).catch(() => {
+          this.$message({
+            type: 'success',
+            message: '已取消保存!'
           });
-        }
-      },
-      editUser(user) {
-        this.changeUser.id = user.id;
-        this.changeUser.userType = user.userType;
-        this.editVisible = true;
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getUsers();
-      },
-      searchUser() {
-        this.pagination.total = 0;
-        this.pagination.current = 1;
-        this.getUsers();
-      },
-      handleClose() {
-        this.changeUser = {
-          id: null,
-          userType: null
-        };
-        this.editVisible = false;
-      },
-      saveEdit() {
-        this.$http.get(this.$constant.baseURL + "/admin/user/changeUserType", {
-          userId: this.changeUser.id,
-          userType: this.changeUser.userType
-        }, true)
-          .then((res) => {
-            this.handleClose();
-            this.getUsers();
-            this.$message({
-              message: "修改成功！",
-              type: "success"
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
+        });
       }
+    },
+    editUser(user) {
+      this.changeUser.id = user.id;
+      this.changeUser.userType = user.userType;
+      this.editVisible = true;
+    },
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getUsers();
+    },
+    searchUser() {
+      this.pagination.total = 0;
+      this.pagination.current = 1;
+      this.getUsers();
+    },
+    handleClose() {
+      this.changeUser = {
+        id: null,
+        userType: null
+      };
+      this.editVisible = false;
+    },
+    saveEdit() {
+      this.$http.get(this.$constant.baseURL + '/admin/user/changeUserType', {
+        userId: this.changeUser.id,
+        userType: this.changeUser.userType
+      }, true)
+        .then(() => {
+          this.handleClose();
+          this.getUsers();
+          this.$message({
+            message: '修改成功！',
+            type: 'success'
+          });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

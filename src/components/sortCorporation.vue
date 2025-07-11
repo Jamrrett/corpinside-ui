@@ -68,7 +68,7 @@
 </template>
 
 <script>
-const sortCorporation = () => import( "./common/sortCorporation");
+const sortCorporation = () => import( './common/sortCorporation');
 
 export default {
   components: {
@@ -83,12 +83,12 @@ export default {
         current: 1,
         size: 10,
         total: 0,
-        searchKey: "",
+        searchKey: '',
         sortId: this.$route.params.sortCorporationId
       },
       corporations: [],
-      articleSearch: ""
-    }
+      articleSearch: ''
+    };
   },
 
   computed: {},
@@ -99,7 +99,7 @@ export default {
         current: 1,
         size: 10,
         total: 0,
-        searchKey: "",
+        searchKey: '',
         sortId: this.$route.params.sortCorporationId
       };
       this.corporations.splice(0, this.corporations.length);
@@ -119,7 +119,7 @@ export default {
 
   methods: {
     selectArticle() {
-      this.$emit("selectArticle", this.articleSearch);
+      this.$emit('selectArticle', this.articleSearch);
     },
     pageArticles() {
       this.pagination.current = this.pagination.current + 1;
@@ -143,7 +143,7 @@ export default {
         current: 1,
         size: 10,
         total: 0,
-        searchKey: "",
+        searchKey: '',
         sortId: this.$route.query.sortId,
         labelId: label.id
       };
@@ -153,7 +153,7 @@ export default {
       });
     },
     getCorporations() {
-      this.$http.post(this.$constant.baseURL + "/corporation/listCorporation", this.pagination)
+      this.$http.post(this.$constant.baseURL + '/corporation/listCorporation', this.pagination)
         .then((res) => {
           if (!this.$common.isEmpty(res.data)) {
             this.corporations = this.corporations.concat(res.data.records);
@@ -163,12 +163,12 @@ export default {
         .catch((error) => {
           this.$message({
             message: error.message,
-            type: "error"
+            type: 'error'
           });
         });
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -258,7 +258,7 @@ export default {
 
   .recent-post-container {
     width: 100%;
-    max-width: 1280px;
+    //max-width: 1280px;
   }
 
   .corporation-first {

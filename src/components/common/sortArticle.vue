@@ -142,14 +142,14 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      articleList: {
-        type: Array
-      }
-    },
-    methods: {}
-  }
+export default {
+  props: {
+    articleList: {
+      type: Array
+    }
+  },
+  methods: {}
+};
 </script>
 
 <style scoped>

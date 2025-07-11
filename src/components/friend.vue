@@ -87,122 +87,122 @@
 </template>
 
 <script>
-  const card = () => import( "./common/card");
-  const proButton = () => import( "./common/proButton");
+const card = () => import( './common/card');
+const proButton = () => import( './common/proButton');
 
-  export default {
-    components: {
-      card,
-      proButton
-    },
+export default {
+  components: {
+    card,
+    proButton
+  },
 
-    data() {
-      return {
-        friendList: {},
-        friend: {
-          title: "",
-          introduction: "",
-          cover: "",
-          url: ""
-        }
+  data() {
+    return {
+      friendList: {},
+      friend: {
+        title: '',
+        introduction: '',
+        cover: '',
+        url: ''
+      }
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getFriends();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    clickLetter() {
+      if (document.body.clientWidth < 700) {
+        $('.form-wrap').css({'height': '1000px', 'top': '-200px'});
+      } else {
+        $('.form-wrap').css({'height': '1150px', 'top': '-200px'});
       }
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getFriends();
-    },
-
-    mounted() {
-
-    },
-
-    methods: {
-      clickLetter() {
-        if (document.body.clientWidth < 700) {
-          $(".form-wrap").css({"height": "1000px", "top": "-200px"});
-        } else {
-          $(".form-wrap").css({"height": "1150px", "top": "-200px"});
-        }
-      },
-      submitFriend() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        if (this.friend.title.trim() === "") {
-          this.$message({
-            message: "你还没写名称呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.friend.introduction.trim() === "") {
-          this.$message({
-            message: "你还没写简介呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.friend.cover.trim() === "") {
-          this.$message({
-            message: "你还没设置封面呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        if (this.friend.url.trim() === "") {
-          this.$message({
-            message: "你还没写网址呢~",
-            type: "warning"
-          });
-          return;
-        }
-
-        this.$http.post(this.$constant.baseURL + "/webInfo/saveFriend", this.friend)
-          .then((res) => {
-            $(".form-wrap").css({"height": "447px", "top": "0"});
-            this.$message({
-              type: 'success',
-              message: '提交成功，待管理员审核！'
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      clickFriend(path) {
-        window.open(path);
-      },
-      getFriends() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listFriend")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.friendList = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
+    submitFriend() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
       }
+
+      if (this.friend.title.trim() === '') {
+        this.$message({
+          message: '你还没写名称呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.friend.introduction.trim() === '') {
+        this.$message({
+          message: '你还没写简介呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.friend.cover.trim() === '') {
+        this.$message({
+          message: '你还没设置封面呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      if (this.friend.url.trim() === '') {
+        this.$message({
+          message: '你还没写网址呢~',
+          type: 'warning'
+        });
+        return;
+      }
+
+      this.$http.post(this.$constant.baseURL + '/webInfo/saveFriend', this.friend)
+        .then((res) => {
+          $('.form-wrap').css({'height': '447px', 'top': '0'});
+          this.$message({
+            type: 'success',
+            message: '提交成功，待管理员审核！'
+          });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    clickFriend(path) {
+      window.open(path);
+    },
+    getFriends() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listFriend')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.friendList = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     }
   }
+};
 </script>
 
 <style scoped>

@@ -63,137 +63,137 @@
 
 <script>
 
-  export default {
-    components: {},
+export default {
+  components: {},
 
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 9999,
-          order: "title",
-          desc: false,
-          resourceType: "funny",
-          classify: ""
-        },
-        activeName: 0,
-        audio: null,
-        playList: null,
-        index: null,
-        funnys: [{
-          classify: "",
-          count: null,
-          data: [{
-            classify: "",
-            cover: "",
-            url: "",
-            title: ""
-          }]
-        }],
-        funny: {
-          classify: "",
-          title: "",
-          cover: "",
-          url: ""
-        }
-      }
-    },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getFunny();
-    },
-
-    mounted() {
-
-    },
-
-    beforeDestroy() {
-      if (this.audio != null && !this.audio.paused) {
-        this.audio.pause();
-      }
-    },
-
-    methods: {
-      getFunny() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listFunny")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.funnys = res.data;
-              this.changeFunny(this.funnys[0].classify);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 9999,
+        order: 'title',
+        desc: false,
+        resourceType: 'funny',
+        classify: ''
       },
-      listFunny() {
-        this.$http.post(this.$constant.baseURL + "/webInfo/listResourcePath", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data) && !this.$common.isEmpty(res.data.records)) {
-              this.funnys.forEach(funny => {
-                if (funny.classify === this.pagination.classify) {
-                  funny.data = res.data.records;
-                  this.$forceUpdate();
-                }
-              });
-            }
-            this.pagination.classify = "";
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      changeFunny(classify) {
-        this.funnys.forEach(funny => {
-          if (funny.classify === classify && this.$common.isEmpty(funny.data)) {
-            this.pagination.classify = classify;
-            this.listFunny();
+      activeName: 0,
+      audio: null,
+      playList: null,
+      index: null,
+      funnys: [{
+        classify: '',
+        count: null,
+        data: [{
+          classify: '',
+          cover: '',
+          url: '',
+          title: ''
+        }]
+      }],
+      funny: {
+        classify: '',
+        title: '',
+        cover: '',
+        url: ''
+      }
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getFunny();
+  },
+
+  mounted() {
+
+  },
+
+  beforeDestroy() {
+    if (this.audio != null && !this.audio.paused) {
+      this.audio.pause();
+    }
+  },
+
+  methods: {
+    getFunny() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listFunny')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.funnys = res.data;
+            this.changeFunny(this.funnys[0].classify);
           }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
         });
-      },
-      playSound(src, playList, index) {
-        this.playList = playList;
-        this.index = index;
-        if (this.audio != null) {
-          if (this.audio.src === src) {
-            if (this.audio.paused) {
-              this.audio.play();
-            } else {
-              this.audio.pause();
-            }
+    },
+    listFunny() {
+      this.$http.post(this.$constant.baseURL + '/webInfo/listResourcePath', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data) && !this.$common.isEmpty(res.data.records)) {
+            this.funnys.forEach(funny => {
+              if (funny.classify === this.pagination.classify) {
+                funny.data = res.data.records;
+                this.$forceUpdate();
+              }
+            });
+          }
+          this.pagination.classify = '';
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    changeFunny(classify) {
+      this.funnys.forEach(funny => {
+        if (funny.classify === classify && this.$common.isEmpty(funny.data)) {
+          this.pagination.classify = classify;
+          this.listFunny();
+        }
+      });
+    },
+    playSound(src, playList, index) {
+      this.playList = playList;
+      this.index = index;
+      if (this.audio != null) {
+        if (this.audio.src === src) {
+          if (this.audio.paused) {
+            this.audio.play();
           } else {
             this.audio.pause();
-            this.audio.src = src;
-            this.audio.load();
-            this.audio.play();
           }
         } else {
-          this.audio = new Audio(src);
+          this.audio.pause();
+          this.audio.src = src;
+          this.audio.load();
           this.audio.play();
-          this.audio.onended = () => {
-            this.index = this.index + 1;
-            if (this.index < this.playList.length) {
-              this.audio.src = this.playList[this.index].url;
-              this.audio.load();
-              setTimeout(() => {
-                this.audio.play();
-              }, 3000);
-            }
-          };
         }
+      } else {
+        this.audio = new Audio(src);
+        this.audio.play();
+        this.audio.onended = () => {
+          this.index = this.index + 1;
+          if (this.index < this.playList.length) {
+            this.audio.src = this.playList[this.index].url;
+            this.audio.load();
+            setTimeout(() => {
+              this.audio.play();
+            }, 3000);
+          }
+        };
       }
     }
   }
+};
 </script>
 
 <style scoped>

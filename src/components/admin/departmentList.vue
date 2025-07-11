@@ -87,162 +87,162 @@
 
 <script>
 
-  export default {
-    data() {
-      return {
-        isBoss: this.$store.state.currentAdmin.isBoss,
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          recommendStatus: null,
-          corporationId: null
-        },
-        departments: [],
-        corporations: []
-      }
-    },
+export default {
+  data() {
+    return {
+      isBoss: this.$store.state.currentAdmin.isBoss,
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        recommendStatus: null,
+        corporationId: null
+      },
+      departments: [],
+      corporations: []
+    };
+  },
 
-    created() {
-      this.getDepartments();
-      this.getCorporations();
-    },
+  created() {
+    this.getDepartments();
+    this.getCorporations();
+  },
 
-    mounted() {
-    },
+  mounted() {
+  },
 
-    methods: {
-      getCorporations() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/listSortAndCorporations")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.corporations = res.data.corporations;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      clearSearch() {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          recommendStatus: null,
-          sortId: null
-        }
-        this.getDepartments();
-      },
-      getDepartments() {
-        let url = "";
-        if (this.isBoss) {
-          url = "/admin/department/boss/list";
-        } else {
-          url = "/admin/department/user/list";
-        }
-        this.$http.post(this.$constant.baseURL + url, this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.departments = res.data.records;
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getDepartments();
-      },
-      searchDepartments() {
-        this.pagination.total = 0;
-        this.pagination.current = 1;
-        this.getDepartments();
-      },
-      changeStatus(article, flag) {
-        let param;
-        if (flag === 1) {
-          param = {
-            articleId: article.id,
-            viewStatus: article.viewStatus
+  methods: {
+    getCorporations() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/listSortAndCorporations')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.corporations = res.data.corporations;
           }
-        } else if (flag === 2) {
-          param = {
-            articleId: article.id,
-            commentStatus: article.commentStatus
-          }
-        } else if (flag === 3) {
-          param = {
-            articleId: article.id,
-            recommendStatus: article.recommendStatus
-          }
-        }
-        this.$http.get(this.$constant.baseURL + "/admin/article/changeArticleStatus", param, true)
-          .then((res) => {
-            if (flag === 1) {
-              this.$message({
-                duration: 0,
-                showClose: true,
-                message: "修改成功！注意，文章不可见时必须设置密码才能访问！",
-                type: "warning"
-              });
-            } else {
-              this.$message({
-                message: "修改成功！",
-                type: "success"
-              });
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      handleDelete(item) {
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/article/deleteArticle", {id: item.id}, true)
-            .then((res) => {
-              this.pagination.current = 1;
-              this.getDepartments();
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
+        })
+        .catch((error) => {
           this.$message({
-            type: 'success',
-            message: '已取消删除!'
+            message: error.message,
+            type: 'error'
           });
         });
-      },
-      handleEdit(item) {
-        this.$router.push({path: '/departmentEdit', query: {id: item.id}});
+    },
+    clearSearch() {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        recommendStatus: null,
+        sortId: null
+      };
+      this.getDepartments();
+    },
+    getDepartments() {
+      let url = '';
+      if (this.isBoss) {
+        url = '/admin/department/boss/list';
+      } else {
+        url = '/admin/department/user/list';
       }
+      this.$http.post(this.$constant.baseURL + url, this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.departments = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getDepartments();
+    },
+    searchDepartments() {
+      this.pagination.total = 0;
+      this.pagination.current = 1;
+      this.getDepartments();
+    },
+    changeStatus(article, flag) {
+      let param;
+      if (flag === 1) {
+        param = {
+          articleId: article.id,
+          viewStatus: article.viewStatus
+        };
+      } else if (flag === 2) {
+        param = {
+          articleId: article.id,
+          commentStatus: article.commentStatus
+        };
+      } else if (flag === 3) {
+        param = {
+          articleId: article.id,
+          recommendStatus: article.recommendStatus
+        };
+      }
+      this.$http.get(this.$constant.baseURL + '/admin/article/changeArticleStatus', param, true)
+        .then(() => {
+          if (flag === 1) {
+            this.$message({
+              duration: 0,
+              showClose: true,
+              message: '修改成功！注意，文章不可见时必须设置密码才能访问！',
+              type: 'warning'
+            });
+          } else {
+            this.$message({
+              message: '修改成功！',
+              type: 'success'
+            });
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    handleDelete(item) {
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/article/deleteArticle', {id: item.id}, true)
+          .then(() => {
+            this.pagination.current = 1;
+            this.getDepartments();
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消删除!'
+        });
+      });
+    },
+    handleEdit(item) {
+      this.$router.push({path: '/departmentEdit', query: {id: item.id}});
     }
   }
+};
 </script>
 
 <style scoped>

@@ -1,4 +1,4 @@
-import constant from "./constant";
+import constant from './constant';
 import CryptoJS from 'crypto-js';
 import store from '../store';
 
@@ -8,18 +8,18 @@ export default {
       if (this.isEmpty(notices)) {
         return [];
       } else {
-        return notices.filter(f => "推送标题：" !== f.substr(0, 5) &&
-          "推送封面：" !== f.substr(0, 5) &&
-          "推送链接：" !== f.substr(0, 5));
+        return notices.filter(f => '推送标题：' !== f.substr(0, 5) &&
+          '推送封面：' !== f.substr(0, 5) &&
+          '推送链接：' !== f.substr(0, 5));
       }
     } else {
       let push = {};
       notices.forEach(notice => {
-        if ("推送标题：" === notice.substr(0, 5)) {
+        if ('推送标题：' === notice.substr(0, 5)) {
           push['标题'] = notice.substr(5);
-        } else if ("推送封面：" === notice.substr(0, 5)) {
+        } else if ('推送封面：' === notice.substr(0, 5)) {
           push['封面'] = notice.substr(5);
-        } else if ("推送链接：" === notice.substr(0, 5)) {
+        } else if ('推送链接：' === notice.substr(0, 5)) {
           push['链接'] = notice.substr(5);
         }
       });
@@ -36,7 +36,7 @@ export default {
    * 判断是否为空
    */
   isEmpty(value) {
-    if (typeof value === "undefined" || value === null || (typeof value === "string" && value.trim() === "") || (Array.prototype.isPrototypeOf(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0)) {
+    if (typeof value === 'undefined' || value === null || (typeof value === 'string' && value.trim() === '') || (Array.prototype.isPrototypeOf(value) && value.length === 0) || (Object.prototype.isPrototypeOf(value) && Object.keys(value).length === 0)) {
       return true;
     } else {
       return false;
@@ -53,7 +53,7 @@ export default {
     };
     let key = CryptoJS.enc.Utf8.parse(constant.cryptojs_key);
     let encryptedData = CryptoJS.AES.encrypt(plaintText, key, options);
-    return encryptedData.toString().replace(/\//g, "_").replace(/\+/g, "-");
+    return encryptedData.toString().replace(/\//g, '_').replace(/\+/g, '-');
   },
 
   /**
@@ -75,9 +75,9 @@ export default {
    */
   faceReg(content) {
     content = content.replace(/\[[^\[^\]]+\]/g, (word) => {
-      let index = constant.emojiList.indexOf(word.replace("[", "").replace("]", ""));
+      let index = constant.emojiList.indexOf(word.replace('[', '').replace(']', ''));
       if (index > -1) {
-        let url = store.state.sysConfig['webStaticResourcePrefix'] + "emoji/q" + (index + 1) + ".gif";
+        let url = store.state.sysConfig['webStaticResourcePrefix'] + 'emoji/q' + (index + 1) + '.gif';
         return '<img loading="lazy" style="vertical-align: middle;width: 32px;height: 32px" src="' + url + '" title="' + word + '"/>';
       } else {
         return word;
@@ -91,9 +91,9 @@ export default {
    */
   pictureReg(content) {
     content = content.replace(/\[[^\[^\]]+\]/g, (word) => {
-      let index = word.indexOf(",");
+      let index = word.indexOf(',');
       if (index > -1) {
-        let arr = word.replace("[", "").replace("]", "").split(",");
+        let arr = word.replace('[', '').replace(']', '').split(',');
         return '<img loading="lazy" class="pictureReg" style="border-radius: 5px;width: 100%;max-width: 250px;display: block" src="' + arr[1] + '" title="' + arr[0] + '"/>';
       } else {
         return word;
@@ -104,11 +104,11 @@ export default {
 
   imgShow(select) {
     $(select).click(function () {
-      let src = $(this).attr("src");
-      $("#bigImg").attr("src", src);
+      let src = $(this).attr('src');
+      $('#bigImg').attr('src', src);
 
       /** 获取当前点击图片的真实大小，并显示弹出层及大图 */
-      $("<img/>").attr("src", src).load(function () {
+      $('<img/>').attr('src', src).load(function () {
         let windowW = $(window).width();//获取当前窗口宽度
         let windowH = $(window).height();//获取当前窗口高度
         let realWidth = this.width;//获取图片真实宽度
@@ -129,16 +129,16 @@ export default {
           imgWidth = realWidth;
           imgHeight = realHeight;
         }
-        $("#bigImg").css("width", imgWidth);//以最终的宽度对图片缩放
+        $('#bigImg').css('width', imgWidth);//以最终的宽度对图片缩放
 
         let w = (windowW - imgWidth) / 2;//计算图片与窗口左边距
         let h = (windowH - imgHeight) / 2;//计算图片与窗口上边距
-        $("#innerImg").css({"top": h, "left": w});//设置top和left属性
-        $("#outerImg").fadeIn("fast");//淡入显示
+        $('#innerImg').css({'top': h, 'left': w});//设置top和left属性
+        $('#outerImg').fadeIn('fast');//淡入显示
       });
 
-      $("#outerImg").click(function () {//再次点击淡出消失弹出层
-        $(this).fadeOut("fast");
+      $('#outerImg').click(function () {//再次点击淡出消失弹出层
+        $(this).fadeOut('fast');
       });
     });
   },
@@ -147,11 +147,11 @@ export default {
    * 字符串转换为时间戳
    */
   getDateTimeStamp(dateStr) {
-    return Date.parse(dateStr.replace(/-/gi, "/"));
+    return Date.parse(dateStr.replace(/-/gi, '/'));
   },
 
   getDateDiff(dateStr) {
-    let publishTime = isNaN(Date.parse(dateStr.replace(/-/gi, "/")) / 1000) ? Date.parse(dateStr) / 1000 : Date.parse(dateStr.replace(/-/gi, "/")) / 1000;
+    let publishTime = isNaN(Date.parse(dateStr.replace(/-/gi, '/')) / 1000) ? Date.parse(dateStr) / 1000 : Date.parse(dateStr.replace(/-/gi, '/')) / 1000;
     let d_seconds,
       d_minutes,
       d_hours,
@@ -216,11 +216,11 @@ export default {
       originalName: originalName
     };
 
-    that.$http.post(that.$constant.baseURL + "/resource/saveResource", resource, isAdmin)
+    that.$http.post(that.$constant.baseURL + '/resource/saveResource', resource, isAdmin)
       .catch((error) => {
         that.$message({
           message: error.message,
-          type: "error"
+          type: 'error'
         });
       });
   },
@@ -231,9 +231,9 @@ export default {
    * https://juejin.cn/post/7153816601156911118
    */
   timeDiff(oldTime, newTime) {
-    oldTime = oldTime.replace(new RegExp("-", "gm"), "/");
+    oldTime = oldTime.replace(new RegExp('-', 'gm'), '/');
     if (newTime) {
-      newTime = newTime.replace(new RegExp("-", "gm"), "/");
+      newTime = newTime.replace(new RegExp('-', 'gm'), '/');
     } else {
       newTime = new Date();
     }
@@ -254,8 +254,8 @@ export default {
         minTime,
         maxTime,
         maxMinTong
-      }
-    }
+      };
+    };
 
     // 相差年份
     const getYear = (time, twoTime) => {
@@ -267,7 +267,7 @@ export default {
         chaYear--;
       }
       return chaYear;
-    }
+    };
 
     // 相差月份
     const getMonth = (time, twoTime, value) => {
@@ -283,7 +283,7 @@ export default {
       } else {
         return chaMonth;
       }
-    }
+    };
 
     // 相差天数
     const getDay = (time, twoTime, value) => {
@@ -293,7 +293,7 @@ export default {
       } else {
         return parseInt(chaTime / 86400000);
       }
-    }
+    };
 
     // 相差小时
     const getHour = (time, twoTime, value) => {
@@ -303,7 +303,7 @@ export default {
       } else {
         return parseInt(chaTime / 3600000);
       }
-    }
+    };
 
     // 相差分钟
     const getMinute = (time, twoTime, value) => {
@@ -313,7 +313,7 @@ export default {
       } else {
         return parseInt(chaTime / 60000);
       }
-    }
+    };
 
     // 相差秒
     const getSecond = (time, twoTime, value) => {
@@ -323,7 +323,7 @@ export default {
       } else {
         return parseInt(chaTime / 1000);
       }
-    }
+    };
 
     // 相差年月日时分秒
     const getDiffYMDHMS = (time, twoTime) => {
@@ -347,14 +347,14 @@ export default {
         diffHour,
         diffMinute,
         diffSecond
-      }
-    }
+      };
+    };
 
     return getDiffYMDHMS(oldTime, newTime);
   },
 
   countdown(time) {
-    time = new Date(time.replace(new RegExp("-", "gm"), "/"));
+    time = new Date(time.replace(new RegExp('-', 'gm'), '/'));
     let nowTime = new Date();
     //两个时间点的时间差(秒)
     let seconds = parseInt((time.getTime() - nowTime.getTime()) / 1000);
@@ -367,6 +367,6 @@ export default {
       h,
       m,
       s
-    }
+    };
   }
-}
+};

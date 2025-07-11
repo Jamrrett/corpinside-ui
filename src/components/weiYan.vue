@@ -49,153 +49,153 @@
 </template>
 
 <script>
-  const twoPoem = () => import( "./common/twoPoem");
-  const myFooter = () => import( "./common/myFooter");
-  const treeHole = () => import( "./common/treeHole");
-  const proPage = () => import( "./common/proPage");
-  const commentBox = () => import( "./comment/commentBox");
+const twoPoem = () => import( './common/twoPoem');
+const myFooter = () => import( './common/myFooter');
+const treeHole = () => import( './common/treeHole');
+const proPage = () => import( './common/proPage');
+const commentBox = () => import( './comment/commentBox');
 
-  export default {
-    components: {
-      twoPoem,
-      myFooter,
-      treeHole,
-      proPage,
-      commentBox
-    },
+export default {
+  components: {
+    twoPoem,
+    myFooter,
+    treeHole,
+    proPage,
+    commentBox
+  },
 
-    data() {
-      return {
-        treeHoleList: [],
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0
-        },
-        weiYanDialogVisible: false,
-        isPublic: true,
-        showFooter: false
-      }
-    },
+  data() {
+    return {
+      treeHoleList: [],
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0
+      },
+      weiYanDialogVisible: false,
+      isPublic: true,
+      showFooter: false
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
+  created() {
+    this.getWeiYan();
+  },
+
+  mounted() {
+
+  },
+
+  methods: {
+    toPage(page) {
+      this.pagination.current = page;
+      window.scrollTo({
+        top: 240,
+        behavior: 'smooth'
+      });
       this.getWeiYan();
     },
-
-    mounted() {
-
-    },
-
-    methods: {
-      toPage(page) {
-        this.pagination.current = page;
-        window.scrollTo({
-          top: 240,
-          behavior: "smooth"
+    launch() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
         });
-        this.getWeiYan();
-      },
-      launch() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        return;
+      }
+
+      this.weiYanDialogVisible = true;
+    },
+    handleClose() {
+      this.weiYanDialogVisible = false;
+    },
+    submitWeiYan(content) {
+      let weiYan = {
+        content: content,
+        isPublic: this.isPublic
+      };
+
+      this.$http.post(this.$constant.baseURL + '/weiYan/saveWeiYan', weiYan)
+        .then((res) => {
+          this.getWeiYan();
+        })
+        .catch((error) => {
           this.$message({
-            message: "请先登录！",
-            type: "error"
+            message: error.message,
+            type: 'error'
           });
-          return;
-        }
+        });
+      this.handleClose();
+    },
+    deleteTreeHole(id) {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
+      }
 
-        this.weiYanDialogVisible = true;
-      },
-      handleClose() {
-        this.weiYanDialogVisible = false;
-      },
-      submitWeiYan(content) {
-        let weiYan = {
-          content: content,
-          isPublic: this.isPublic
-        };
-
-        this.$http.post(this.$constant.baseURL + "/weiYan/saveWeiYan", weiYan)
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/weiYan/deleteWeiYan', {id: id})
           .then((res) => {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            this.pagination.current = 1;
             this.getWeiYan();
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-        this.handleClose();
-      },
-      deleteTreeHole(id) {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
-          this.$message({
-            message: "请先登录！",
-            type: "error"
-          });
-          return;
-        }
-
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+      }).catch(() => {
+        this.$message({
           type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/weiYan/deleteWeiYan", {id: id})
-            .then((res) => {
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              });
-              this.pagination.current = 1;
-              this.getWeiYan();
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
+          message: '已取消删除!'
+        });
+      });
+    },
+    getWeiYan() {
+      this.$http.post(this.$constant.baseURL + '/weiYan/listWeiYan', this.pagination)
+        .then((res) => {
+          this.showFooter = false;
+          if (!this.$common.isEmpty(res.data)) {
+            res.data.records.forEach(c => {
+              c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
+              c.content = c.content.replace(/\n/g, '<br/>');
+              c.content = this.$common.faceReg(c.content);
+              c.content = this.$common.pictureReg(c.content);
             });
-        }).catch(() => {
+            this.treeHoleList = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+          this.$nextTick(() => {
+            this.showFooter = true;
+            this.$common.imgShow('.tree-hole-box .pictureReg');
+          });
+        })
+        .catch((error) => {
           this.$message({
-            type: 'success',
-            message: '已取消删除!'
+            message: error.message,
+            type: 'error'
           });
         });
-      },
-      getWeiYan() {
-        this.$http.post(this.$constant.baseURL + "/weiYan/listWeiYan", this.pagination)
-          .then((res) => {
-            this.showFooter = false;
-            if (!this.$common.isEmpty(res.data)) {
-              res.data.records.forEach(c => {
-                c.content = c.content.replace(/\n{2,}/g, '<div style="height: 12px"></div>');
-                c.content = c.content.replace(/\n/g, '<br/>');
-                c.content = this.$common.faceReg(c.content);
-                c.content = this.$common.pictureReg(c.content);
-              });
-              this.treeHoleList = res.data.records;
-              this.pagination.total = res.data.total;
-            }
-            this.$nextTick(() => {
-              this.showFooter = true;
-              this.$common.imgShow(".tree-hole-box .pictureReg");
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      }
     }
   }
+};
 </script>
 
 <style scoped>

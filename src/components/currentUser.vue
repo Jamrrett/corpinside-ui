@@ -286,464 +286,464 @@
 </template>
 
 <script>
-  const proButton = () => import( "./common/proButton");
-  const uploadPicture = () => import( "./common/uploadPicture");
+const proButton = () => import( './common/proButton');
+const uploadPicture = () => import( './common/uploadPicture');
 
-  export default {
-    components: {
-      proButton,
-      uploadPicture
+export default {
+  components: {
+    proButton,
+    uploadPicture
+  },
+  data() {
+    return {
+      currentUser: this.$store.state.currentUser,
+      username: '',
+      account: '',
+      password: '',
+      phoneNumber: '',
+      email: '',
+      avatar: '',
+      showDialog: false,
+      code: '',
+      dialogTitle: '',
+      codeString: '验证码',
+      passwordFlag: null,
+      intervalCode: null,
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        userId: this.$store.state.currentUser.id
+      },
+      articleList: []
+    };
+  },
+  computed: {},
+  watch: {
+    $route() {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        userId: this.$store.state.currentUser.id
+      };
+      this.articleList.splice(0, this.articleList.length);
+      this.getArticles();
+    }
+  },
+  created() {
+    if (this.$common.isEmpty(this.$store.state.currentUser)) {
+      window.location.replace('/');
+    }
+    else {
+      this.getArticles();
+    }
+  },
+  methods: {
+    getArticles() {
+      this.$http.post(this.$constant.baseURL + '/article/listArticle', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.articleList = this.articleList.concat(res.data.records);
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
     },
-    data() {
-      return {
-        currentUser: this.$store.state.currentUser,
-        username: "",
-        account: "",
-        password: "",
-        phoneNumber: "",
-        email: "",
-        avatar: "",
-        showDialog: false,
-        code: "",
-        dialogTitle: "",
-        codeString: "验证码",
-        passwordFlag: null,
-        intervalCode: null,
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          userId: this.$store.state.currentUser.id
-        },
-        articleList: []
-      }
+    addPicture(res) {
+      this.avatar = res;
+      this.submitDialog();
     },
-    computed: {},
-    watch: {
-      $route() {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          userId: this.$store.state.currentUser.id
-        };
-        this.articleList.splice(0, this.articleList.length);
-        this.getArticles();
-      }
+    signUp() {
+      document.querySelector('#loginAndRegist').classList.add('right-panel-active');
     },
-    created() {
-      if (this.$common.isEmpty(this.$store.state.currentUser)) {
-        window.location.replace('/');
-      }
-      else {
-        this.getArticles();
-      }
+    signIn() {
+      document.querySelector('#loginAndRegist').classList.remove('right-panel-active');
     },
-    methods: {
-      getArticles() {
-        this.$http.post(this.$constant.baseURL + "/article/listArticle", this.pagination)
+    login() {
+      if (this.$common.isEmpty(this.account) || this.$common.isEmpty(this.password)) {
+        this.$message({
+          message: '请输入账号或密码！',
+          type: 'error'
+        });
+        return;
+      }
+
+      let user = {
+        account: this.account.trim(),
+        password: this.$common.encrypt(this.password.trim())
+      };
+
+      this.$http.post(this.$constant.baseURL + '/user/login', user, false, false)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadCurrentUser', res.data);
+            localStorage.setItem('userToken', res.data.accessToken);
+            this.account = '';
+            this.password = '';
+            this.$router.push({path: '/'});
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    regist() {
+      if (this.$common.isEmpty(this.username) || this.$common.isEmpty(this.password)) {
+        this.$message({
+          message: '请输入用户名或密码！',
+          type: 'error'
+        });
+        return;
+      }
+
+      if (this.dialogTitle === '邮箱验证码' && this.$common.isEmpty(this.email)) {
+        this.$message({
+          message: '请输入邮箱！',
+          type: 'error'
+        });
+        return false;
+      }
+
+      if (this.$common.isEmpty(this.code)) {
+        this.$message({
+          message: '请输入验证码！',
+          type: 'error'
+        });
+        return;
+      }
+
+      if (this.username.indexOf(' ') !== -1 || this.password.indexOf(' ') !== -1) {
+        this.$message({
+          message: '用户名或密码不能包含空格！',
+          type: 'error'
+        });
+        return;
+      }
+
+      let user = {
+        username: this.username.trim(),
+        code: this.code.trim(),
+        password: this.$common.encrypt(this.password.trim())
+      };
+
+      if (this.dialogTitle === '邮箱验证码') {
+        user.email = this.email;
+      }
+
+      this.$http.post(this.$constant.baseURL + '/user/regist', user)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.$store.commit('loadCurrentUser', res.data);
+            localStorage.setItem('userToken', res.data.accessToken);
+            this.username = '';
+            this.password = '';
+            this.$router.push({path: '/'});
+            let userToken = this.$common.encrypt(localStorage.getItem('userToken'));
+            window.open(this.$constant.imBaseURL + '?userToken=' + userToken);
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    submitUserInfo() {
+      if (!this.checkParameters()) {
+        return;
+      }
+
+      let user = {
+        username: this.currentUser.username,
+        gender: this.currentUser.gender
+      };
+
+      if (!this.$common.isEmpty(this.currentUser.introduction)) {
+        user.introduction = this.currentUser.introduction.trim();
+      }
+
+      this.$confirm('确认保存？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.post(this.$constant.baseURL + '/user/updateUserInfo', user)
           .then((res) => {
             if (!this.$common.isEmpty(res.data)) {
-              this.articleList = this.articleList.concat(res.data.records);
-              this.pagination.total = res.data.total;
+              this.$store.commit('loadCurrentUser', res.data);
+              this.currentUser = this.$store.state.currentUser;
+              this.$message({
+                message: '修改成功！',
+                type: 'success'
+              });
             }
           })
           .catch((error) => {
             this.$message({
               message: error.message,
-              type: "error"
+              type: 'error'
             });
           });
-      },
-      addPicture(res) {
-        this.avatar = res;
-        this.submitDialog()
-      },
-      signUp() {
-        document.querySelector("#loginAndRegist").classList.add('right-panel-active');
-      },
-      signIn() {
-        document.querySelector("#loginAndRegist").classList.remove('right-panel-active');
-      },
-      login() {
-        if (this.$common.isEmpty(this.account) || this.$common.isEmpty(this.password)) {
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消保存!'
+        });
+      });
+    },
+    checkParams(params) {
+      if (this.dialogTitle === '修改手机号' || this.dialogTitle === '绑定手机号' || (this.dialogTitle === '找回密码' && this.passwordFlag === 1)) {
+        params.flag = 1;
+        if (this.$common.isEmpty(this.phoneNumber)) {
           this.$message({
-            message: "请输入账号或密码！",
-            type: "error"
-          });
-          return;
-        }
-
-        let user = {
-          account: this.account.trim(),
-          password: this.$common.encrypt(this.password.trim())
-        };
-
-        this.$http.post(this.$constant.baseURL + "/user/login", user, false, false)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadCurrentUser", res.data);
-              localStorage.setItem("userToken", res.data.accessToken);
-              this.account = "";
-              this.password = "";
-              this.$router.push({path: '/'});
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      regist() {
-        if (this.$common.isEmpty(this.username) || this.$common.isEmpty(this.password)) {
-          this.$message({
-            message: "请输入用户名或密码！",
-            type: "error"
-          });
-          return;
-        }
-
-        if (this.dialogTitle === "邮箱验证码" && this.$common.isEmpty(this.email)) {
-          this.$message({
-            message: "请输入邮箱！",
-            type: "error"
+            message: '请输入手机号！',
+            type: 'error'
           });
           return false;
         }
-
-        if (this.$common.isEmpty(this.code)) {
+        if (!(/^1[345789]\d{9}$/.test(this.phoneNumber))) {
           this.$message({
-            message: "请输入验证码！",
-            type: "error"
+            message: '手机号格式有误！',
+            type: 'error'
           });
-          return;
+          return false;
         }
-
-        if (this.username.indexOf(" ") !== -1 || this.password.indexOf(" ") !== -1) {
+        params.place = this.phoneNumber;
+        return true;
+      } else if (this.dialogTitle === '修改邮箱' || this.dialogTitle === '绑定邮箱' || this.dialogTitle === '邮箱验证码' || (this.dialogTitle === '找回密码' && this.passwordFlag === 2)) {
+        params.flag = 2;
+        if (this.$common.isEmpty(this.email)) {
           this.$message({
-            message: "用户名或密码不能包含空格！",
-            type: "error"
+            message: '请输入邮箱！',
+            type: 'error'
           });
-          return;
+          return false;
         }
-
-        let user = {
-          username: this.username.trim(),
-          code: this.code.trim(),
-          password: this.$common.encrypt(this.password.trim())
-        };
-
-        if (this.dialogTitle === "邮箱验证码") {
-          user.email = this.email;
-        }
-
-        this.$http.post(this.$constant.baseURL + "/user/regist", user)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.$store.commit("loadCurrentUser", res.data);
-              localStorage.setItem("userToken", res.data.accessToken);
-              this.username = "";
-              this.password = "";
-              this.$router.push({path: '/'});
-              let userToken = this.$common.encrypt(localStorage.getItem("userToken"));
-              window.open(this.$constant.imBaseURL + "?userToken=" + userToken);
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        if (!(/^\w+@[a-zA-Z0-9]{2,10}(?:\.[a-z]{2,4}){1,3}$/.test(this.email))) {
+          this.$message({
+            message: '邮箱格式有误！',
+            type: 'error'
           });
-      },
-      submitUserInfo() {
-        if (!this.checkParameters()) {
-          return;
+          return false;
         }
+        params.place = this.email;
+        return true;
+      }
+      return false;
+    },
+    checkParameters() {
+      if (this.$common.isEmpty(this.currentUser.username)) {
+        this.$message({
+          message: '请输入用户名！',
+          type: 'error'
+        });
+        return false;
+      }
 
-        let user = {
-          username: this.currentUser.username,
-          gender: this.currentUser.gender
-        };
-
-        if (!this.$common.isEmpty(this.currentUser.introduction)) {
-          user.introduction = this.currentUser.introduction.trim();
+      if (this.currentUser.username.indexOf(' ') !== -1) {
+        this.$message({
+          message: '用户名不能包含空格！',
+          type: 'error'
+        });
+        return false;
+      }
+      return true;
+    },
+    changeDialog(value) {
+      if (value === '邮箱验证码') {
+        if (this.$common.isEmpty(this.email)) {
+          this.$message({
+            message: '请输入邮箱！',
+            type: 'error'
+          });
+          return false;
         }
+        if (!(/^\w+@[a-zA-Z0-9]{2,10}(?:\.[a-z]{2,4}){1,3}$/.test(this.email))) {
+          this.$message({
+            message: '邮箱格式有误！',
+            type: 'error'
+          });
+          return false;
+        }
+      }
 
-        this.$confirm('确认保存？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.post(this.$constant.baseURL + "/user/updateUserInfo", user)
+      this.dialogTitle = value;
+      this.showDialog = true;
+    },
+    submitDialog() {
+      if (this.dialogTitle === '修改头像') {
+        if (this.$common.isEmpty(this.avatar)) {
+          this.$message({
+            message: '请上传头像！',
+            type: 'error'
+          });
+        } else {
+          let user = {
+            avatar: this.avatar.trim()
+          };
+
+          this.$http.post(this.$constant.baseURL + '/user/updateUserInfo', user)
             .then((res) => {
               if (!this.$common.isEmpty(res.data)) {
-                this.$store.commit("loadCurrentUser", res.data);
+                this.$store.commit('loadCurrentUser', res.data);
                 this.currentUser = this.$store.state.currentUser;
+                this.clearDialog();
                 this.$message({
-                  message: "修改成功！",
-                  type: "success"
+                  message: '修改成功！',
+                  type: 'success'
                 });
               }
             })
             .catch((error) => {
               this.$message({
                 message: error.message,
-                type: "error"
+                type: 'error'
               });
             });
-        }).catch(() => {
+        }
+      } else if (this.dialogTitle === '修改手机号' || this.dialogTitle === '绑定手机号' || this.dialogTitle === '修改邮箱' || this.dialogTitle === '绑定邮箱') {
+        this.updateSecretInfo();
+      } else if (this.dialogTitle === '找回密码') {
+        if (this.passwordFlag !== 1 && this.passwordFlag !== 2) {
           this.$message({
-            type: 'success',
-            message: '已取消保存!'
+            message: '请选择找回方式！',
+            type: 'error'
           });
-        });
-      },
-      checkParams(params) {
-        if (this.dialogTitle === "修改手机号" || this.dialogTitle === "绑定手机号" || (this.dialogTitle === "找回密码" && this.passwordFlag === 1)) {
-          params.flag = 1;
-          if (this.$common.isEmpty(this.phoneNumber)) {
-            this.$message({
-              message: "请输入手机号！",
-              type: "error"
-            });
-            return false;
-          }
-          if (!(/^1[345789]\d{9}$/.test(this.phoneNumber))) {
-            this.$message({
-              message: "手机号格式有误！",
-              type: "error"
-            });
-            return false;
-          }
-          params.place = this.phoneNumber;
-          return true;
-        } else if (this.dialogTitle === "修改邮箱" || this.dialogTitle === "绑定邮箱" || this.dialogTitle === "邮箱验证码" || (this.dialogTitle === "找回密码" && this.passwordFlag === 2)) {
-          params.flag = 2;
-          if (this.$common.isEmpty(this.email)) {
-            this.$message({
-              message: "请输入邮箱！",
-              type: "error"
-            });
-            return false;
-          }
-          if (!(/^\w+@[a-zA-Z0-9]{2,10}(?:\.[a-z]{2,4}){1,3}$/.test(this.email))) {
-            this.$message({
-              message: "邮箱格式有误！",
-              type: "error"
-            });
-            return false;
-          }
-          params.place = this.email;
-          return true;
-        }
-        return false;
-      },
-      checkParameters() {
-        if (this.$common.isEmpty(this.currentUser.username)) {
-          this.$message({
-            message: "请输入用户名！",
-            type: "error"
-          });
-          return false;
-        }
-
-        if (this.currentUser.username.indexOf(" ") !== -1) {
-          this.$message({
-            message: "用户名不能包含空格！",
-            type: "error"
-          });
-          return false;
-        }
-        return true;
-      },
-      changeDialog(value) {
-        if (value === "邮箱验证码") {
-          if (this.$common.isEmpty(this.email)) {
-            this.$message({
-              message: "请输入邮箱！",
-              type: "error"
-            });
-            return false;
-          }
-          if (!(/^\w+@[a-zA-Z0-9]{2,10}(?:\.[a-z]{2,4}){1,3}$/.test(this.email))) {
-            this.$message({
-              message: "邮箱格式有误！",
-              type: "error"
-            });
-            return false;
-          }
-        }
-
-        this.dialogTitle = value;
-        this.showDialog = true;
-      },
-      submitDialog() {
-        if (this.dialogTitle === "修改头像") {
-          if (this.$common.isEmpty(this.avatar)) {
-            this.$message({
-              message: "请上传头像！",
-              type: "error"
-            });
-          } else {
-            let user = {
-              avatar: this.avatar.trim()
-            };
-
-            this.$http.post(this.$constant.baseURL + "/user/updateUserInfo", user)
-              .then((res) => {
-                if (!this.$common.isEmpty(res.data)) {
-                  this.$store.commit("loadCurrentUser", res.data);
-                  this.currentUser = this.$store.state.currentUser;
-                  this.clearDialog();
-                  this.$message({
-                    message: "修改成功！",
-                    type: "success"
-                  });
-                }
-              })
-              .catch((error) => {
-                this.$message({
-                  message: error.message,
-                  type: "error"
-                });
-              });
-          }
-        } else if (this.dialogTitle === "修改手机号" || this.dialogTitle === "绑定手机号" || this.dialogTitle === "修改邮箱" || this.dialogTitle === "绑定邮箱") {
+        } else {
           this.updateSecretInfo();
-        } else if (this.dialogTitle === "找回密码") {
-          if (this.passwordFlag !== 1 && this.passwordFlag !== 2) {
+        }
+      } else if (this.dialogTitle === '邮箱验证码') {
+        this.showDialog = false;
+      }
+    },
+    updateSecretInfo() {
+      if (this.$common.isEmpty(this.code)) {
+        this.$message({
+          message: '请输入验证码！',
+          type: 'error'
+        });
+        return;
+      }
+      if (this.$common.isEmpty(this.password)) {
+        this.$message({
+          message: '请输入密码！',
+          type: 'error'
+        });
+        return;
+      }
+      let params = {
+        code: this.code.trim(),
+        password: this.$common.encrypt(this.password.trim())
+      };
+      if (!this.checkParams(params)) {
+        return;
+      }
+
+      if (this.dialogTitle === '找回密码') {
+        this.$http.post(this.$constant.baseURL + '/user/updateForForgetPassword', params, false, false)
+          .then((res) => {
+            this.clearDialog();
             this.$message({
-              message: "请选择找回方式！",
-              type: "error"
+              message: '修改成功，请重新登陆！',
+              type: 'success'
             });
-          } else {
-            this.updateSecretInfo();
-          }
-        } else if (this.dialogTitle === "邮箱验证码") {
-          this.showDialog = false;
-        }
-      },
-      updateSecretInfo() {
-        if (this.$common.isEmpty(this.code)) {
-          this.$message({
-            message: "请输入验证码！",
-            type: "error"
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
           });
-          return;
-        }
-        if (this.$common.isEmpty(this.password)) {
-          this.$message({
-            message: "请输入密码！",
-            type: "error"
+      } else {
+        this.$http.post(this.$constant.baseURL + '/user/updateSecretInfo', params, false, false)
+          .then((res) => {
+            if (!this.$common.isEmpty(res.data)) {
+              this.$store.commit('loadCurrentUser', res.data);
+              this.currentUser = this.$store.state.currentUser;
+              this.clearDialog();
+              this.$message({
+                message: '修改成功！',
+                type: 'success'
+              });
+            }
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
           });
-          return;
-        }
-        let params = {
-          code: this.code.trim(),
-          password: this.$common.encrypt(this.password.trim())
-        };
+      }
+    },
+    getCode() {
+      if (this.codeString === '验证码') {
+        // 获取验证码
+        let params = {};
         if (!this.checkParams(params)) {
           return;
         }
 
-        if (this.dialogTitle === "找回密码") {
-          this.$http.post(this.$constant.baseURL + "/user/updateForForgetPassword", params, false, false)
-            .then((res) => {
-              this.clearDialog();
-              this.$message({
-                message: "修改成功，请重新登陆！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
+        let url;
+        if (this.dialogTitle === '找回密码' || this.dialogTitle === '邮箱验证码') {
+          url = '/user/getCodeForForgetPassword';
         } else {
-          this.$http.post(this.$constant.baseURL + "/user/updateSecretInfo", params, false, false)
-            .then((res) => {
-              if (!this.$common.isEmpty(res.data)) {
-                this.$store.commit("loadCurrentUser", res.data);
-                this.currentUser = this.$store.state.currentUser;
-                this.clearDialog();
-                this.$message({
-                  message: "修改成功！",
-                  type: "success"
-                });
-              }
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
+          url = '/user/getCodeForBind';
         }
-      },
-      getCode() {
-        if (this.codeString === "验证码") {
-          // 获取验证码
-          let params = {};
-          if (!this.checkParams(params)) {
-            return;
-          }
 
-          let url;
-          if (this.dialogTitle === "找回密码" || this.dialogTitle === "邮箱验证码") {
-            url = "/user/getCodeForForgetPassword";
-          } else {
-            url = "/user/getCodeForBind";
-          }
-
-          this.$http.get(this.$constant.baseURL + url, params)
-            .then((res) => {
-              this.$message({
-                message: "验证码已发送，请注意查收！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
+        this.$http.get(this.$constant.baseURL + url, params)
+          .then((res) => {
+            this.$message({
+              message: '验证码已发送，请注意查收！',
+              type: 'success'
             });
-          this.codeString = "30";
-          this.intervalCode = setInterval(() => {
-            if (this.codeString === "0") {
-              clearInterval(this.intervalCode)
-              this.codeString = "验证码";
-            } else {
-              this.codeString = (parseInt(this.codeString) - 1) + "";
-            }
-          }, 1000);
-        } else {
-          this.$message({
-            message: "请稍后再试！",
-            type: "warning"
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
           });
-        }
-      },
-      clearDialog() {
-        this.password = "";
-        this.phoneNumber = "";
-        this.email = "";
-        this.avatar = "";
-        this.showDialog = false;
-        this.code = "";
-        this.dialogTitle = "";
-        this.passwordFlag = null;
+        this.codeString = '30';
+        this.intervalCode = setInterval(() => {
+          if (this.codeString === '0') {
+            clearInterval(this.intervalCode);
+            this.codeString = '验证码';
+          } else {
+            this.codeString = (parseInt(this.codeString) - 1) + '';
+          }
+        }, 1000);
+      } else {
+        this.$message({
+          message: '请稍后再试！',
+          type: 'warning'
+        });
       }
+    },
+    clearDialog() {
+      this.password = '';
+      this.phoneNumber = '';
+      this.email = '';
+      this.avatar = '';
+      this.showDialog = false;
+      this.code = '';
+      this.dialogTitle = '';
+      this.passwordFlag = null;
     }
   }
+};
 </script>
 
 <style scoped>

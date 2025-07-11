@@ -80,178 +80,178 @@
 </template>
 
 <script>
-  const loader = () => import( "./common/loader");
-  const zombie = () => import( "./common/zombie");
-  const printer = () => import( "./common/printer");
-  const articleList = () => import( "./articleList");
-  const sortArticle = () => import( "./common/sortArticle");
-  const myFooter = () => import( "./common/myFooter");
-  const myAside = () => import( "./myAside");
+const loader = () => import( './common/loader');
+const zombie = () => import( './common/zombie');
+const printer = () => import( './common/printer');
+const articleList = () => import( './articleList');
+const sortArticle = () => import( './common/sortArticle');
+const myFooter = () => import( './common/myFooter');
+const myAside = () => import( './myAside');
 
-  export default {
-    components: {
-      loader,
-      zombie,
-      printer,
-      articleList,
-      sortArticle,
-      myFooter,
-      myAside
-    },
+export default {
+  components: {
+    loader,
+    zombie,
+    printer,
+    articleList,
+    sortArticle,
+    myFooter,
+    myAside
+  },
 
-    data() {
-      return {
-        pushDialogVisible: false,
-        push: {},
-        loading: false,
-        showAside: true,
-        indexType: 1,
-        printerInfo: "你看对面的青山多漂亮",
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: null,
-          articleSearch: ""
-        },
-        guShi: {
-          "content": "",
-          "origin": "",
-          "author": "",
-          "category": ""
-        },
-        articles: [],
-        sortArticles: {}
-      };
-    },
+  data() {
+    return {
+      pushDialogVisible: false,
+      push: {},
+      loading: false,
+      showAside: true,
+      indexType: 1,
+      printerInfo: '你看对面的青山多漂亮',
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        sortId: null,
+        articleSearch: ''
+      },
+      guShi: {
+        'content': '',
+        'origin': '',
+        'author': '',
+        'category': ''
+      },
+      articles: [],
+      sortArticles: {}
+    };
+  },
 
-    watch: {},
+  watch: {},
 
-    created() {
-      this.getGuShi();
-      this.getSortArticles();
-    },
+  created() {
+    this.getGuShi();
+    this.getSortArticles();
+  },
 
-    computed: {
-      sortInfo() {
-        return this.$store.state.sortInfo;
-      }
-    },
+  computed: {
+    sortInfo() {
+      return this.$store.state.sortInfo;
+    }
+  },
 
-    mounted() {
-      setTimeout(() => {
-        this.push = this.$common.pushNotification(this.$store.state.webInfo.notices, false);
-        if(!this.$common.isEmpty(this.push)) {
-          if("0" !== localStorage.getItem("showPushNotification_" + this.push['链接'])) {
-            this.pushDialogVisible = true;
-            localStorage.setItem("showPushNotification_" + this.push['链接'], "0");
-          }
+  mounted() {
+    setTimeout(() => {
+      this.push = this.$common.pushNotification(this.$store.state.webInfo.notices, false);
+      if(!this.$common.isEmpty(this.push)) {
+        if('0' !== localStorage.getItem('showPushNotification_' + this.push['链接'])) {
+          this.pushDialogVisible = true;
+          localStorage.setItem('showPushNotification_' + this.push['链接'], '0');
         }
-      }, 2000);
+      }
+    }, 2000);
+  },
+
+  methods: {
+    async selectSort(sort) {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        sortId: sort.id,
+        articleSearch: ''
+      };
+      this.articles = [];
+      await this.getArticles();
+      this.$nextTick(() => {
+        this.indexType = 2;
+        $('.announcement').css('max-width', '780px');
+        document.querySelector('.recent-posts').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      });
+    },
+    async selectArticle(articleSearch) {
+      this.pagination = {
+        current: 1,
+        size: 10,
+        total: 0,
+        searchKey: '',
+        sortId: null,
+        articleSearch: articleSearch
+      };
+      this.articles = [];
+      await this.getArticles();
+      this.$nextTick(() => {
+        this.indexType = 2;
+        $('.announcement').css('max-width', '780px');
+        document.querySelector('.recent-posts').scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      });
+    },
+    pageArticles() {
+      this.pagination.current = this.pagination.current + 1;
+      this.getArticles();
     },
 
-    methods: {
-      async selectSort(sort) {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: sort.id,
-          articleSearch: ""
-        };
-        this.articles = [];
-        await this.getArticles();
-        this.$nextTick(() => {
-          this.indexType = 2;
-          $(".announcement").css("max-width", "780px");
-          document.querySelector('.recent-posts').scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-            inline: "nearest"
-          });
-        });
-      },
-      async selectArticle(articleSearch) {
-        this.pagination = {
-          current: 1,
-          size: 10,
-          total: 0,
-          searchKey: "",
-          sortId: null,
-          articleSearch: articleSearch
-        };
-        this.articles = [];
-        await this.getArticles();
-        this.$nextTick(() => {
-          this.indexType = 2;
-          $(".announcement").css("max-width", "780px");
-          document.querySelector('.recent-posts').scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-            inline: "nearest"
-          });
-        });
-      },
-      pageArticles() {
-        this.pagination.current = this.pagination.current + 1;
-        this.getArticles();
-      },
-
-      async getArticles() {
-        await this.$http.post(this.$constant.baseURL + "/article/listArticle", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.articles = this.articles.concat(res.data.records);
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      getSortArticles() {
-        this.$http.get(this.$constant.baseURL + "/article/listSortArticle")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.sortArticles = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      navigation(selector) {
-        let pageId = document.querySelector(selector);
-        window.scrollTo({
-          top: pageId.offsetTop,
-          behavior: "smooth"
-        });
-      },
-      pushUrl(url) {
-        window.open(url);
-      },
-      getGuShi() {
-        let that = this;
-        let xhr = new XMLHttpRequest();
-        xhr.open('get', this.$constant.jinrishici);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            that.guShi = JSON.parse(xhr.responseText);
-            that.printerInfo = that.guShi.content;
+    async getArticles() {
+      await this.$http.post(this.$constant.baseURL + '/article/listArticle', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.articles = this.articles.concat(res.data.records);
+            this.pagination.total = res.data.total;
           }
-        };
-        xhr.send();
-      }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    getSortArticles() {
+      this.$http.get(this.$constant.baseURL + '/article/listSortArticle')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.sortArticles = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    navigation(selector) {
+      let pageId = document.querySelector(selector);
+      window.scrollTo({
+        top: pageId.offsetTop,
+        behavior: 'smooth'
+      });
+    },
+    pushUrl(url) {
+      window.open(url);
+    },
+    getGuShi() {
+      let that = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('get', this.$constant.jinrishici);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          that.guShi = JSON.parse(xhr.responseText);
+          that.printerInfo = that.guShi.content;
+        }
+      };
+      xhr.send();
     }
   }
+};
 </script>
 
 <style scoped>

@@ -155,24 +155,24 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      articleList: {
-        type: Array
-      },
-      sortName: {
-        type: String
-      }
+export default {
+  props: {
+    articleList: {
+      type: Array
     },
-    methods: {
-      handleAdd() {
-        const route = this.$router.resolve({
-          path: '/articleEdit'
-        });
-        window.location.assign(route.href);
-      }
+    sortName: {
+      type: String
+    }
+  },
+  methods: {
+    handleAdd() {
+      const route = this.$router.resolve({
+        path: '/articleEdit'
+      });
+      window.location.assign(route.href);
     }
   }
+};
 </script>
 
 <style scoped>

@@ -101,7 +101,7 @@
           <div class="myCenter">
             <el-radio-group v-model="resourcePath.type">
               <template v-for="item in resourceTypes">
-                <el-radio-button :label="item.value">{{ item.label }}</el-radio-button>
+                <el-radio-button :key="item.value" :label="item.value">{{ item.label }}</el-radio-button>
               </template>
             </el-radio-group>
           </div>
@@ -155,204 +155,204 @@
 
 <script>
 
-  const uploadPicture = () => import( "../common/uploadPicture");
-  const proButton = () => import( "../common/proButton");
+const uploadPicture = () => import( '../common/uploadPicture');
+const proButton = () => import( '../common/proButton');
 
-  export default {
-    components: {
-      uploadPicture,
-      proButton
-    },
-    data() {
-      return {
-        resourceTypes: [
-          {label: "友链", value: "friendUrl"},
-          {label: "图片", value: "lovePhoto"},
-          {label: "音乐", value: "funny"},
-          {label: "收藏夹", value: "favorites"}
-        ],
-        pagination: {
-          current: 1,
-          size: 10,
-          total: 0,
-          resourceType: "",
-          status: null
-        },
-        resourcePaths: [],
-        coverDialog: false,
-        uploadDialog: false,
-        addResourcePathDialog: false,
-        isUpdate: false,
-        resourcePath: {
-          title: "",
-          classify: "",
-          introduction: "",
-          cover: "",
-          url: "",
-          type: "",
-          remark: ""
-        }
+export default {
+  components: {
+    uploadPicture,
+    proButton
+  },
+  data() {
+    return {
+      resourceTypes: [
+        {label: '友链', value: 'friendUrl'},
+        {label: '图片', value: 'lovePhoto'},
+        {label: '音乐', value: 'funny'},
+        {label: '收藏夹', value: 'favorites'}
+      ],
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        resourceType: '',
+        status: null
+      },
+      resourcePaths: [],
+      coverDialog: false,
+      uploadDialog: false,
+      addResourcePathDialog: false,
+      isUpdate: false,
+      resourcePath: {
+        title: '',
+        classify: '',
+        introduction: '',
+        cover: '',
+        url: '',
+        type: '',
+        remark: ''
       }
+    };
+  },
+
+  computed: {},
+
+  watch: {},
+
+  created() {
+    this.getResourcePaths();
+  },
+
+  mounted() {
+  },
+
+  methods: {
+    addPicture(res) {
+      this.resourcePath.cover = res;
+      this.coverDialog = false;
     },
-
-    computed: {},
-
-    watch: {},
-
-    created() {
-      this.getResourcePaths();
+    addFile(res) {
+      this.resourcePath.url = res;
+      this.uploadDialog = false;
     },
-
-    mounted() {
+    addResourcePathUrl() {
+      if (this.addResourcePathDialog === false) {
+        return;
+      }
+      if (!['funny'].includes(this.resourcePath.type)) {
+        this.$message({
+          message: '请选择有效资源类型！',
+          type: 'error'
+        });
+        return;
+      }
+      this.uploadDialog = true;
     },
-
-    methods: {
-      addPicture(res) {
-        this.resourcePath.cover = res;
-        this.coverDialog = false;
-      },
-      addFile(res) {
-        this.resourcePath.url = res;
-        this.uploadDialog = false;
-      },
-      addResourcePathUrl() {
-        if (this.addResourcePathDialog === false) {
-          return;
-        }
-        if (!['funny'].includes(this.resourcePath.type)) {
+    addResourcePathCover() {
+      if (this.addResourcePathDialog === false) {
+        return;
+      }
+      if (this.$common.isEmpty(this.resourcePath.type)) {
+        this.$message({
+          message: '请选择资源类型！',
+          type: 'error'
+        });
+        return;
+      }
+      this.coverDialog = true;
+    },
+    addResourcePath() {
+      if (this.$common.isEmpty(this.resourcePath.title) || this.$common.isEmpty(this.resourcePath.type)) {
+        this.$message({
+          message: '标题和资源类型不能为空！',
+          type: 'error'
+        });
+        return;
+      }
+      this.$http.post(this.$constant.baseURL + '/webInfo/' + (this.isUpdate ? 'updateResourcePath' : 'saveResourcePath'), this.resourcePath, true)
+        .then(() => {
           this.$message({
-            message: "请选择有效资源类型！",
-            type: "error"
+            message: '保存成功！',
+            type: 'success'
           });
-          return;
-        }
-        this.uploadDialog = true;
-      },
-      addResourcePathCover() {
-        if (this.addResourcePathDialog === false) {
-          return;
-        }
-        if (this.$common.isEmpty(this.resourcePath.type)) {
+          this.addResourcePathDialog = false;
+          this.clearDialog();
+          this.search();
+        })
+        .catch((error) => {
           this.$message({
-            message: "请选择资源类型！",
-            type: "error"
-          });
-          return;
-        }
-        this.coverDialog = true;
-      },
-      addResourcePath() {
-        if (this.$common.isEmpty(this.resourcePath.title) || this.$common.isEmpty(this.resourcePath.type)) {
-          this.$message({
-            message: "标题和资源类型不能为空！",
-            type: "error"
-          });
-          return;
-        }
-        this.$http.post(this.$constant.baseURL + "/webInfo/" + (this.isUpdate ? "updateResourcePath" : "saveResourcePath"), this.resourcePath, true)
-          .then((res) => {
-            this.$message({
-              message: "保存成功！",
-              type: "success"
-            });
-            this.addResourcePathDialog = false;
-            this.clearDialog();
-            this.search();
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      search() {
-        this.pagination.total = 0;
-        this.pagination.current = 1;
-        this.getResourcePaths();
-      },
-      getResourcePaths() {
-        this.$http.post(this.$constant.baseURL + "/webInfo/listResourcePath", this.pagination, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.resourcePaths = res.data.records;
-              this.pagination.total = res.data.total;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      changeStatus(item) {
-        this.$http.post(this.$constant.baseURL + "/webInfo/updateResourcePath", item, true)
-          .then((res) => {
-            this.$message({
-              message: "修改成功！",
-              type: "success"
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      handlePageChange(val) {
-        this.pagination.current = val;
-        this.getResourcePaths();
-      },
-      handleDelete(item) {
-        this.$confirm('确认删除？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'success',
-          center: true
-        }).then(() => {
-          this.$http.get(this.$constant.baseURL + "/webInfo/deleteResourcePath", {id: item.id}, true)
-            .then((res) => {
-              this.search();
-              this.$message({
-                message: "删除成功！",
-                type: "success"
-              });
-            })
-            .catch((error) => {
-              this.$message({
-                message: error.message,
-                type: "error"
-              });
-            });
-        }).catch(() => {
-          this.$message({
-            type: 'success',
-            message: '已取消删除!'
+            message: error.message,
+            type: 'error'
           });
         });
-      },
-      handleEdit(item) {
-        this.resourcePath = JSON.parse(JSON.stringify(item));
-        this.addResourcePathDialog = true;
-        this.isUpdate = true;
-      },
-      clearDialog() {
-        this.isUpdate = false;
-        this.addResourcePathDialog = false;
-        this.resourcePath = {
-          title: "",
-          classify: "",
-          introduction: "",
-          cover: "",
-          url: "",
-          type: "",
-          remark: ""
-        }
-      }
+    },
+    search() {
+      this.pagination.total = 0;
+      this.pagination.current = 1;
+      this.getResourcePaths();
+    },
+    getResourcePaths() {
+      this.$http.post(this.$constant.baseURL + '/webInfo/listResourcePath', this.pagination, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.resourcePaths = res.data.records;
+            this.pagination.total = res.data.total;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    changeStatus(item) {
+      this.$http.post(this.$constant.baseURL + '/webInfo/updateResourcePath', item, true)
+        .then(() => {
+          this.$message({
+            message: '修改成功！',
+            type: 'success'
+          });
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    handlePageChange(val) {
+      this.pagination.current = val;
+      this.getResourcePaths();
+    },
+    handleDelete(item) {
+      this.$confirm('确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'success',
+        center: true
+      }).then(() => {
+        this.$http.get(this.$constant.baseURL + '/webInfo/deleteResourcePath', {id: item.id}, true)
+          .then(() => {
+            this.search();
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            });
+          })
+          .catch((error) => {
+            this.$message({
+              message: error.message,
+              type: 'error'
+            });
+          });
+      }).catch(() => {
+        this.$message({
+          type: 'success',
+          message: '已取消删除!'
+        });
+      });
+    },
+    handleEdit(item) {
+      this.resourcePath = JSON.parse(JSON.stringify(item));
+      this.addResourcePathDialog = true;
+      this.isUpdate = true;
+    },
+    clearDialog() {
+      this.isUpdate = false;
+      this.addResourcePathDialog = false;
+      this.resourcePath = {
+        title: '',
+        classify: '',
+        introduction: '',
+        cover: '',
+        url: '',
+        type: '',
+        remark: ''
+      };
     }
   }
+};
 </script>
 
 <style scoped>

@@ -69,17 +69,14 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      departmentList: {
-        type: Array
-      }
-    },
-    methods: {},
-    mounted() {
-      this.$emit('department-small-mounted');
+export default {
+  props: {
+    departmentList: {
+      type: Array
     }
-  }
+  },
+  methods: {},
+};
 </script>
 
 <style scoped>

@@ -11,41 +11,41 @@
 </template>
 
 <script>
-  import myHeader from "./common/myHeader.vue";
-  import sidebar from "./common/sidebar.vue";
+import myHeader from './common/myHeader.vue';
+import sidebar from './common/sidebar.vue';
 
-  export default {
-    components: {
-      myHeader,
-      sidebar
-    },
+export default {
+  components: {
+    myHeader,
+    sidebar
+  },
 
-    data() {
-      return {}
-    },
+  data() {
+    return {};
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
-      let sysConfig = this.$store.state.sysConfig;
-      if (!this.$common.isEmpty(sysConfig) && !this.$common.isEmpty(sysConfig['webStaticResourcePrefix'])) {
-        let root = document.querySelector(":root");
-        let webStaticResourcePrefix = sysConfig['webStaticResourcePrefix'];
-        root.style.setProperty("--backgroundPicture", "url(" + webStaticResourcePrefix + "assets/backgroundPicture.jpg)");
-        const font = new FontFace("poetize-font", "url(" + webStaticResourcePrefix + "assets/font.woff2)");
-        font.load();
-        document.fonts.add(font);
-      }
-    },
+  created() {
+    let sysConfig = this.$store.state.sysConfig;
+    if (!this.$common.isEmpty(sysConfig) && !this.$common.isEmpty(sysConfig['webStaticResourcePrefix'])) {
+      let root = document.querySelector(':root');
+      let webStaticResourcePrefix = sysConfig['webStaticResourcePrefix'];
+      root.style.setProperty('--backgroundPicture', 'url(' + webStaticResourcePrefix + 'assets/backgroundPicture.jpg)');
+      const font = new FontFace('poetize-font', 'url(' + webStaticResourcePrefix + 'assets/font.woff2)');
+      font.load();
+      document.fonts.add(font);
+    }
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {}
-  }
+  methods: {}
+};
 </script>
 
 <style scoped>

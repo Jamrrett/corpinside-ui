@@ -180,42 +180,42 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        historyInfo: {}
-      }
-    },
+export default {
+  data() {
+    return {
+      historyInfo: {}
+    };
+  },
 
-    computed: {},
+  computed: {},
 
-    watch: {},
+  watch: {},
 
-    created() {
-      this.getHistoryInfo();
-    },
+  created() {
+    this.getHistoryInfo();
+  },
 
-    mounted() {
+  mounted() {
 
-    },
+  },
 
-    methods: {
-      getHistoryInfo() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getHistoryInfo", {}, true)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.historyInfo = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+  methods: {
+    getHistoryInfo() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getHistoryInfo', {}, true)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.historyInfo = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      }
+        });
     }
   }
+};
 </script>
 
 <style scoped>

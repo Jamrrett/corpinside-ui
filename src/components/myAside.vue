@@ -166,88 +166,88 @@
 </template>
 
 <script>
-  import vueSeamlessScroll from "vue-seamless-scroll";
+import vueSeamlessScroll from 'vue-seamless-scroll';
 
-  export default {
-    components: {
-      vueSeamlessScroll
+export default {
+  components: {
+    vueSeamlessScroll
+  },
+  data() {
+    return {
+      pagination: {
+        current: 1,
+        size: 5,
+        recommendStatus: true
+      },
+      recommendArticles: [],
+      admires: [],
+      showAdmireDialog: false,
+      articleSearch: ''
+    };
+  },
+  computed: {
+    webInfo() {
+      return this.$store.state.webInfo;
     },
-    data() {
-      return {
-        pagination: {
-          current: 1,
-          size: 5,
-          recommendStatus: true
-        },
-        recommendArticles: [],
-        admires: [],
-        showAdmireDialog: false,
-        articleSearch: ""
+    sortInfo() {
+      return this.$store.getters.navigationBar;
+    }
+  },
+  created() {
+    this.getRecommendArticles();
+    this.getAdmire();
+  },
+  methods: {
+    selectSort(sort) {
+      this.$emit('selectSort', sort);
+    },
+    selectArticle() {
+      this.$emit('selectArticle', this.articleSearch);
+    },
+    showAdmire() {
+      if (this.$common.isEmpty(this.$store.state.currentUser)) {
+        this.$message({
+          message: '请先登录！',
+          type: 'error'
+        });
+        return;
       }
+
+      this.showAdmireDialog = true;
     },
-    computed: {
-      webInfo() {
-        return this.$store.state.webInfo;
-      },
-      sortInfo() {
-        return this.$store.getters.navigationBar;
-      }
-    },
-    created() {
-      this.getRecommendArticles();
-      this.getAdmire();
-    },
-    methods: {
-      selectSort(sort) {
-        this.$emit("selectSort", sort);
-      },
-      selectArticle() {
-        this.$emit("selectArticle", this.articleSearch);
-      },
-      showAdmire() {
-        if (this.$common.isEmpty(this.$store.state.currentUser)) {
+    getAdmire() {
+      this.$http.get(this.$constant.baseURL + '/webInfo/getAdmire')
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.admires = res.data;
+          }
+        })
+        .catch((error) => {
           this.$message({
-            message: "请先登录！",
-            type: "error"
+            message: error.message,
+            type: 'error'
           });
-          return;
-        }
-
-        this.showAdmireDialog = true;
-      },
-      getAdmire() {
-        this.$http.get(this.$constant.baseURL + "/webInfo/getAdmire")
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.admires = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
+        });
+    },
+    getRecommendArticles() {
+      this.$http.post(this.$constant.baseURL + '/article/listArticle', this.pagination)
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.recommendArticles = res.data.records;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
           });
-      },
-      getRecommendArticles() {
-        this.$http.post(this.$constant.baseURL + "/article/listArticle", this.pagination)
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.recommendArticles = res.data.records;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      showTip() {
-        this.$router.push({path: '/weiYan'});
-      }
+        });
+    },
+    showTip() {
+      this.$router.push({path: '/weiYan'});
     }
   }
+};
 </script>
 
 <style scoped>

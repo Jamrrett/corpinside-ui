@@ -163,7 +163,7 @@
 
   var SvgRenderer = {isSvg: true};
 
-// round path coordinates to 3 decimals
+  // round path coordinates to 3 decimals
   var round = SvgRenderer.round = function (num) {
     return Math.round(num * 1000) / 1000;
   };
@@ -250,7 +250,7 @@
 
   var TAU = utils.TAU;
 
-// 'pos' = 'position'
+  // 'pos' = 'position'
   Vector.prototype.set = function (pos) {
     this.x = pos && pos.x || 0;
     this.y = pos && pos.y || 0;
@@ -258,8 +258,8 @@
     return this;
   };
 
-// set coordinates without sanitizing
-// vec.write({ y: 2 }) only sets y coord
+  // set coordinates without sanitizing
+  // vec.write({ y: 2 }) only sets y coord
   Vector.prototype.write = function (pos) {
     if (!pos) {
       return this;
@@ -473,7 +473,7 @@
     }
   };
 
-// ----- update ----- //
+  // ----- update ----- //
 
   Anchor.prototype.update = function () {
     // update self
@@ -511,7 +511,7 @@
     return a.sortValue - b.sortValue;
   };
 
-// custom getter to check for flatGraph before using it
+  // custom getter to check for flatGraph before using it
   Object.defineProperty(Anchor.prototype, 'flatGraph', {
     get: function () {
       if (!this._flatGraph) {
@@ -528,7 +528,7 @@
     this.flatGraph = this.getFlatGraph();
   };
 
-// return Array of self & all child graph items
+  // return Array of self & all child graph items
   Anchor.prototype.getFlatGraph = function () {
     var flatGraph = [this];
     return this.addChildFlatGraph(flatGraph);
@@ -546,12 +546,12 @@
     this.sortValue = this.renderOrigin.z;
   };
 
-// ----- render ----- //
+  // ----- render ----- //
 
   Anchor.prototype.render = function () {
   };
 
-// TODO refactor out CanvasRenderer so its not a dependency within anchor.js
+  // TODO refactor out CanvasRenderer so its not a dependency within anchor.js
   Anchor.prototype.renderGraphCanvas = function (ctx) {
     if (!ctx) {
       throw new Error('ctx is ' + ctx + '. ' +
@@ -572,7 +572,7 @@
     });
   };
 
-// ----- misc ----- //
+  // ----- misc ----- //
 
   Anchor.prototype.copy = function (options) {
     // copy options
@@ -603,7 +603,7 @@
     this.rotate.z = utils.modulo(this.rotate.z, TAU);
   };
 
-// ----- subclass ----- //
+  // ----- subclass ----- //
 
   function getSubclass(Super) {
     return function (defaults) {
@@ -652,12 +652,12 @@
   }
 }(this, function factory() {
 
-// quick & dirty drag event stuff
-// messes up if multiple pointers/touches
+  // quick & dirty drag event stuff
+  // messes up if multiple pointers/touches
 
-// check for browser window #85
+  // check for browser window #85
   var hasWindow = typeof window != 'undefined';
-// event support, default to mouse events
+  // event support, default to mouse events
   var downEvent = 'mousedown';
   var moveEvent = 'mousemove';
   var upEvent = 'mouseup';
@@ -848,7 +848,7 @@
     }
   };
 
-// TODO debounce this?
+  // TODO debounce this?
   Illustration.prototype.onWindowResize = function () {
     this.setMeasuredSize();
     this.onResize(this.width, this.height);
@@ -868,7 +868,7 @@
     this.setSize(width, height);
   };
 
-// ----- render ----- //
+  // ----- render ----- //
 
   Illustration.prototype.renderGraph = function (item) {
     if (this.isCanvas) {
@@ -878,13 +878,13 @@
     }
   };
 
-// combo method
+  // combo method
   Illustration.prototype.updateRenderGraph = function (item) {
     this.updateGraph();
     this.renderGraph(item);
   };
 
-// ----- canvas ----- //
+  // ----- canvas ----- //
 
   Illustration.prototype.setCanvas = function (element) {
     this.element = element;
@@ -936,7 +936,7 @@
     this.ctx.restore();
   };
 
-// ----- svg ----- //
+  // ----- svg ----- //
 
   Illustration.prototype.setSvg = function (element) {
     this.element = element;
@@ -980,7 +980,7 @@
     }
   }
 
-// ----- drag ----- //
+  // ----- drag ----- //
 
   Illustration.prototype.setDragRotate = function (item) {
     if (!item) {
@@ -1154,11 +1154,11 @@
     this.updatePathCommands();
   };
 
-// place holder for Ellipse, Rect, etc.
+  // place holder for Ellipse, Rect, etc.
   Shape.prototype.setPath = function () {
   };
 
-// parse path into PathCommands
+  // parse path into PathCommands
   Shape.prototype.updatePathCommands = function () {
     var previousPoint;
     this.pathCommands = this.path.map(function (pathPart, i) {
@@ -1190,7 +1190,7 @@
     });
   };
 
-// ----- update ----- //
+  // ----- update ----- //
 
   Shape.prototype.reset = function () {
     this.renderOrigin.set(this.origin);
@@ -1235,7 +1235,7 @@
     this.sortValue = sortValueTotal / pointCount;
   };
 
-// ----- render ----- //
+  // ----- render ----- //
 
   Shape.prototype.render = function (ctx, renderer) {
     var length = this.pathCommands.length;
@@ -1260,7 +1260,7 @@
   };
 
   var TAU = utils.TAU;
-// Safari does not render lines with no size, have to render circle instead
+  // Safari does not render lines with no size, have to render circle instead
   Shape.prototype.renderCanvasDot = function (ctx) {
     var lineWidth = this.getLineWidth();
     if (!lineWidth) {
@@ -1343,7 +1343,7 @@
     visible: true,
   });
 
-// ----- update ----- //
+  // ----- update ----- //
 
   Group.prototype.updateSortValue = function () {
     var sortValueTotal = 0;
@@ -1360,7 +1360,7 @@
     }
   };
 
-// ----- render ----- //
+  // ----- render ----- //
 
   Group.prototype.render = function (ctx, renderer) {
     if (!this.visible) {
@@ -1372,14 +1372,14 @@
     });
   };
 
-// actual group flatGraph only used inside group
+  // actual group flatGraph only used inside group
   Group.prototype.updateFlatGraph = function () {
     // do not include self
     var flatGraph = [];
     this.flatGraph = this.addChildFlatGraph(flatGraph);
   };
 
-// do not include children, group handles rendering & sorting internally
+  // do not include children, group handles rendering & sorting internally
   Group.prototype.getFlatGraph = function () {
     return [this];
   };
@@ -1733,7 +1733,7 @@
   function noop() {
   }
 
-// ----- CylinderGroup ----- //
+  // ----- CylinderGroup ----- //
 
   var CylinderGroup = Group.subclass({
     color: '#333',
@@ -1792,17 +1792,17 @@
     return this.svgElement;
   };
 
-// prevent double-creation in parent.copyGraph()
-// only create in Cylinder.create()
+  // prevent double-creation in parent.copyGraph()
+  // only create in Cylinder.create()
   CylinderGroup.prototype.copyGraph = noop;
 
-// ----- CylinderEllipse ----- //
+  // ----- CylinderEllipse ----- //
 
   var CylinderEllipse = Ellipse.subclass();
 
   CylinderEllipse.prototype.copyGraph = noop;
 
-// ----- Cylinder ----- //
+  // ----- Cylinder ----- //
 
   var Cylinder = Shape.subclass({
     diameter: 1,
@@ -1845,11 +1845,11 @@
     });
   };
 
-// Cylinder shape does not render anything
+  // Cylinder shape does not render anything
   Cylinder.prototype.render = function () {
   };
 
-// ----- set child properties ----- //
+  // ----- set child properties ----- //
 
   var childProperties = ['stroke', 'fill', 'color', 'visible'];
   childProperties.forEach(function (property) {
@@ -1871,7 +1871,7 @@
     });
   });
 
-// TODO child property setter for backface, frontBaseColor, & rearBaseColor
+  // TODO child property setter for backface, frontBaseColor, & rearBaseColor
 
   return Cylinder;
 
@@ -2026,15 +2026,15 @@
   }
 }(this, function factory(utils, Anchor, Shape, Rect) {
 
-// ----- BoxRect ----- //
+  // ----- BoxRect ----- //
 
   var BoxRect = Rect.subclass();
-// prevent double-creation in parent.copyGraph()
-// only create in Box.create()
+  // prevent double-creation in parent.copyGraph()
+  // only create in Box.create()
   BoxRect.prototype.copyGraph = function () {
   };
 
-// ----- Box ----- //
+  // ----- Box ----- //
 
   var TAU = utils.TAU;
   var faceNames = [
@@ -2150,7 +2150,7 @@
     }[faceName];
   };
 
-// ----- set face properties ----- //
+  // ----- set face properties ----- //
 
   var childProperties = ['color', 'stroke', 'fill', 'backface', 'front',
     'visible'];
@@ -2211,8 +2211,8 @@
     define('zdog', [], root.Zdog);
   }
 })(this, function factory(Zdog, CanvasRenderer, SvgRenderer, Vector, Anchor,
-                          Dragger, Illustration, PathCommand, Shape, Group, Rect, RoundedRect,
-                          Ellipse, Polygon, Hemisphere, Cylinder, Cone, Box) {
+  Dragger, Illustration, PathCommand, Shape, Group, Rect, RoundedRect,
+  Ellipse, Polygon, Hemisphere, Cylinder, Cone, Box) {
 
   Zdog.CanvasRenderer = CanvasRenderer;
   Zdog.SvgRenderer = SvgRenderer;

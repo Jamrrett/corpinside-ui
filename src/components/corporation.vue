@@ -5,16 +5,35 @@
         <div class="corporation-head my-animation-hideToShow">
           <!-- 背景图片 -->
   <!--        <div style="width: 90%;padding: 0 10px;margin: 0 auto;position: relative;height: 100%">-->
-          <el-image class="corporation-image my-el-image"
-                    v-once
-                    lazy
-                    :src="getImageSrc(corporation.corporationCover)"
-                    fit="cover"
-                    style="margin-left: calc(-50vw + 50%);margin-right: calc(-50vw + 50%);width: 100vw;">
-            <div slot="error" class="image-slot">
-              <div class="corporation-image"></div>
-            </div>
-          </el-image>
+<!--          <el-image class="corporation-image my-el-image"-->
+<!--                    lazy-->
+<!--                    :src="getImageSrc(corporation.corporationCover)"-->
+<!--                    fit="cover"-->
+<!--                    :style="{left: '50%', transform: 'translateX(-50%)',width: clientWidth + 'px'}">-->
+<!--            <div slot="placeholder">-->
+<!--              <el-image :src="getPlaceholderSrc(corporation.corporationCover)" fit="cover"-->
+<!--                   :style="{filter: 'blur(5px)',-->
+<!--                    width: '100%',-->
+<!--                    // 添加确保定位生效的样式-->
+<!--                    position: 'relative', // 或 absolute 根据需求-->
+<!--                    display: 'inline-block'}"-->
+<!--                   alt="Loading..."/>-->
+<!--            </div>-->
+<!--            <div slot="error" class="image-slot">-->
+<!--              <div class="corporation-image"></div>-->
+<!--            </div>-->
+<!--          </el-image>-->
+<!--          <div class="progressive" :style="{left: '50%', transform: 'translateX(-50%)',width: clientWidth + 'px', height: '100%'}">-->
+          <div class="my-progressive" :style="{width: clientWidth + 'px', height: '100%'}">
+            <img class="preview" style="width: 100%;height: 100%;object-fit: cover" :src="getPlaceholderSrc(corporation.corporationCover)" />
+            <img class="origin"
+                 style="width: 100%;height: 100%;object-fit: cover"
+                 :src="getImageNetwork(corporation.corporationCover)"
+                 @error="handleImageError"
+                 @load="handleImageLoad"
+            />
+            <div class="corporation-image" v-show="imageError"></div>
+          </div>
   <!--        </div>-->
           <!-- 文章信息 -->
           <div class="corporation-info-container">
@@ -139,7 +158,7 @@
 <!--              <div v-show="ifShowDepartments" :key="ifShowIntroduction^ifShowDepartments">-->
               <div v-show="ifShowDepartments">
 <!--                <div v-if="!$common.isEmpty(departments)">-->
-                  <sortDepartmentSmall :departmentList="departments" @department-small-mounted="handleDepartmentSmallMounted"></sortDepartmentSmall>
+                  <sortDepartmentSmall :departmentList="departments"></sortDepartmentSmall>
 <!--                </div>-->
 <!--                <div v-else>-->
 <!--                  <div style="display: flex;flex-direction: column;align-items: center;padding: 20px 0 40px">-->
@@ -221,241 +240,313 @@
 </template>
 
 <script>
-  const comment = () => import( "./comment/comment");
-  const sortArticleSmall = () => import( "./common/sortArticleSmall");
-  const sortDepartmentSmall = () => import( "./common/sortDepartmentSmall");
-  const videoPlayer = () => import( "./common/videoPlayer");
-  import MarkdownIt from 'markdown-it';
+const comment = () => import( './comment/comment');
+const sortArticleSmall = () => import( './common/sortArticleSmall');
+const sortDepartmentSmall = () => import( './common/sortDepartmentSmall');
+const videoPlayer = () => import( './common/videoPlayer');
+import MarkdownIt from 'markdown-it';
 
-  export default {
-    components: {
-      comment,
-      sortArticleSmall,
-      sortDepartmentSmall,
-      videoPlayer
-    },
+export default {
+  components: {
+    comment,
+    sortArticleSmall,
+    sortDepartmentSmall,
+    videoPlayer
+  },
 
-    data() {
-      return {
-        id: this.$route.params.id,
-        subscribe: false,
-        corporation: {},
-        departments: [],
-        corporationContentHtml: "",
-        treeHoleList: [],
-        weiYanDialogVisible: false,
-        copyrightDialogVisible: false,
-        newsTime: "",
-        password: "",
-        tips: "",
-        scrollTop: 0,
-        articlesByCorporation: {},
-        ifShowIntroduction: true,
-        ifShowDepartments: true,
-        trianglePathIntroduction: 'M220 1004 Q200 1024 180 1004 L180 20 Q200 0 220 20 L1004 492 Q1024 512 1004 532 Z',
-        trianglePathDepartments: 'M220 1004 Q200 1024 180 1004 L180 20 Q200 0 220 20 L1004 492 Q1024 512 1004 532 Z'
-      };
+  data() {
+    return {
+      id: this.$route.params.id,
+      subscribe: false,
+      corporation: {},
+      departments: [],
+      corporationContentHtml: '',
+      treeHoleList: [],
+      weiYanDialogVisible: false,
+      copyrightDialogVisible: false,
+      imageError: false,
+      imageLoad: false,
+      newsTime: '',
+      password: '',
+      tips: '',
+      scrollTop: 0,
+      articlesByCorporation: {},
+      clientWidth: document.documentElement.clientWidth,
+      connectionType: '4g', // 默认网络类型
+      connectionEffectiveType: '4g', // 实际有效网络类型
+      ifShowIntroduction: true,
+      ifShowDepartments: true,
+      trianglePathIntroduction: 'M220 1004 Q200 1024 180 1004 L180 20 Q200 0 220 20 L1004 492 Q1024 512 1004 532 Z',
+      trianglePathDepartments: 'M220 1004 Q200 1024 180 1004 L180 20 Q200 0 220 20 L1004 492 Q1024 512 1004 532 Z'
+    };
+  },
+  created() {
+    this.getCorporation(localStorage.getItem('corporation_password_' + this.id));
+    this.getArticlesByCorporation();
+    this.getDepartmentByCorporation();
+  },
+  computed: {
+    sortInfo() {
+      return this.$store.state.sortInfo;
     },
-    created() {
-        this.getCorporation(localStorage.getItem("corporation_password_" + this.id));
-        this.getArticlesByCorporation();
-        this.getDepartmentByCorporation();
+    rotationStyleIntroduction() {
+      return this.ifShowIntroduction ? 'rotate(90deg)' : 'rotate(0deg)';
     },
-    computed: {
-      sortInfo() {
-        return this.$store.state.sortInfo;
-      },
-      rotationStyleIntroduction() {
-        return this.ifShowIntroduction ? 'rotate(90deg)' : 'rotate(0deg)';
-      },
-      rotationStyleDepartments() {
-        return this.ifShowDepartments ? 'rotate(90deg)' : 'rotate(0deg)';
+    rotationStyleDepartments() {
+      return this.ifShowDepartments ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+  },
+  mounted() {
+    this.detectNetwork();
+    window.addEventListener('resize', this.handleResize);
+    // window.addEventListener("scroll", this.onScrollPage);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
+  },
+  // destroyed() {
+  //   window.removeEventListener("scroll", this.onScrollPage);
+  // },
+  // watch: {
+  //   scrollTop(scrollTop, oldScrollTop) {
+  //     let isShow = scrollTop - window.innerHeight > 30;
+  //     if (isShow) {
+  //       $("#toc-button").css("bottom", "14.1vh");
+  //     } else {
+  //       $("#toc-button").css("bottom", "8vh");
+  //     }
+  //   },
+  // },
+  methods: {
+    handleResize() {
+      // 更新窗口宽度
+      this.clientWidth = document.documentElement.clientWidth;
+    },
+    detectNetwork() {
+      if (navigator.connection) {
+        this.connectionEffectiveType = navigator.connection.effectiveType;
+        console.log(this.connectionEffectiveType);
+        console.log(navigator.connection);
       }
     },
-    // mounted() {
-    //   window.addEventListener("scroll", this.onScrollPage);
-    // },
-    // destroyed() {
-    //   window.removeEventListener("scroll", this.onScrollPage);
-    // },
-    // watch: {
-    //   scrollTop(scrollTop, oldScrollTop) {
-    //     let isShow = scrollTop - window.innerHeight > 30;
-    //     if (isShow) {
-    //       $("#toc-button").css("bottom", "14.1vh");
-    //     } else {
-    //       $("#toc-button").css("bottom", "8vh");
-    //     }
-    //   },
-    // },
-    methods: {
-      getImageSrc(originalSrc) {
-        const dpr = window.devicePixelRatio || 1;
-        if (dpr >= 2.75) {
-          // 假设存在 @3x 后缀的高分辨率图片
-          return originalSrc.replace(/\.\w+$/, '_3x$&');
-        } else if (dpr >= 1.75) {
-          // 假设存在 @2x 后缀的高分辨率图片
-          return originalSrc.replace(/\.\w+$/, '_2x$&');
-        }
-        return originalSrc;
-      },
-      handleDepartmentSmallMounted() {
-        console.log("handleDepartmentSmallMounted");
-      },
-      getArticlesByCorporation() {
-        return this.$http.get(this.$constant.baseURL + "/article/getArticlesByCorporation", {corporationId: this.id})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.articlesByCorporation = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      onScrollPage() {
-        this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-        if (this.scrollTop < (window.innerHeight / 4)) {
-          $(".toc").css("top", window.innerHeight / 4);
-        } else {
-          $(".toc").css("top", "90px");
-        }
-      },
-      addId() {
-        let headings = $(".entry-content").find("h1, h2, h3, h4, h5, h6");
-        headings.attr('id', (i, id) => id || 'toc-' + i);
-      },
-      getCorporation(password) {
-        return this.$http.get(this.$constant.baseURL + "/corporation/getCorporationById", {id: this.id, password: password})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.corporation = res.data;
-              const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
-              this.corporationContentHtml = md.render(this.corporation.corporationContent);
-              this.$nextTick(() => {
-                this.$common.imgShow(".entry-content img");
-                this.highlight();
-              });
-              if (!this.$common.isEmpty(password)) {
-                localStorage.setItem("corporation_password_" + this.id, password);
-              }
-              if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.subscribe)) {
-                this.subscribe = JSON.parse(this.$store.state.currentUser.subscribe).includes(this.corporation.labelId);
-              }
-            }
-          })
-          .catch((error) => {
-            if ("密码错误" === error.message.substr(0, 4)) {
-              if (!this.$common.isEmpty(password)) {
-                localStorage.removeItem("corporation_password_" + this.id);
-                this.$message({
-                  message: "密码错误，请重新输入！",
-                  type: "error",
-                  customClass: "message-index"
-                });
-              }
-              this.tips = error.message.substr(4);
-            } else {
-              this.$message({
-                message: error.message,
-                type: "error",
-                customClass: "message-index"
-              });
-              this.tips = error.message;
-            }
-          });
-      },
-      getDepartmentByCorporation() {
-        return this.$http.get(this.$constant.baseURL + "/department/getDepartmentByCorporationId", {id: this.id})
-          .then((res) => {
-            if (!this.$common.isEmpty(res.data)) {
-              this.departments = res.data;
-            }
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-          });
-      },
-      highlight() {
-        let attributes = {
-          autocomplete: "off",
-          autocorrect: "off",
-          autocapitalize: "off",
-          spellcheck: "false",
-          contenteditable: "false"
-        };
+    getImageNetwork(originalSrc) {
+      if (!originalSrc) return '';
+      const network = {
+        'slow-2g': () => originalSrc,
+        '2g': () => originalSrc,
+        '3g': () => this.getImageSrc(originalSrc),
+        '4g': () => this.getImageSrc(originalSrc),
+        '5g': () => this.getImageSrc(originalSrc),
+        'default': () => this.getImageSrc(originalSrc)
+      }
+      return network[this.connectionEffectiveType]() || network['default']();
+    },
+    getImageSrc(originalSrc) {
+      // return originalSrc.replace(/\.\w+$/, '_4x$&');
+      if (!originalSrc) {
+        return '';
+      }
+      const dpr = window.devicePixelRatio || 1;
+      if (dpr >= 2.75) {
+        // 假设存在 @3x 后缀的高分辨率图片
+        return originalSrc.replace(/\.\w+$/, '_3x$&');
+      } else if (dpr >= 1.75) {
+        // 假设存在 @2x 后缀的高分辨率图片
+        return originalSrc.replace(/\.\w+$/, '_2x$&');
+      }
+      return originalSrc;
+    },
+    getPlaceholderSrc(originalSrc) {
+      if (!originalSrc) {
+        return '';
+      }
+      return originalSrc.replace(/\.\w+$/, '_placeholder$&');
+    },
+    handleImageLoad() {
+      this.imageLoad = true;
+      const previewImg = document.querySelector('.my-progressive img.preview');
+      previewImg.classList.add('animate-disappear');
+      const originImg = document.querySelector('.my-progressive img.origin');
+      originImg.classList.add('animate-appear');
 
-        $("pre").each(function (i, item) {
-          let preCode = $(item).children("code");
-          let classNameStr = preCode[0].className;
-          let classNameArr = classNameStr.split(" ");
+      // const styleSheet = document.createElement('style');
+      // styleSheet.textContent = `
+      //   @keyframes disappear {
+      //     from { opacity: 1; }
+      //     to { opacity: 0; }
+      //   }
+      // `;
+      // document.head.appendChild(styleSheet);
+      // previewImg.style.animation = 'disappear 0.5s ease-in-out forwards';
+    },
+    handleImageError(e) {
+      this.imageError = true;
+      // 设置默认图片或隐藏错误图片
+      // $('.progressive img').hide();
+      const images = document.querySelectorAll('.my-progressive img');
+      images.forEach(image => {
+        image.style.display = 'none';
+      });
+      // e.target.style.display = 'none';
+      // 或者设置默认图片
+      // e.target.src = '/path/to/default-image.jpg';
 
-          let lang = "";
-          classNameArr.some(function (className) {
-            if (className.indexOf("language-") > -1) {
-              lang = className.substring(className.indexOf("-") + 1, className.length);
-              return true;
-            }
-          });
-
-          // 检测语言是否存在，不存在则自动检测
-          let language = hljs.getLanguage(lang.toLowerCase());
-          if (language === undefined) {
-            // 启用自动检测
-            let autoLanguage = hljs.highlightAuto(preCode.text());
-            preCode.removeClass("language-" + lang);
-            lang = autoLanguage.language;
-            if (lang === undefined) {
-              lang = "java";
-            }
-            preCode.addClass("language-" + lang);
-          } else {
-            lang = language.name;
+      // 也可以添加错误处理逻辑
+      console.error('图片加载失败:', e.target.src);
+    },
+    getArticlesByCorporation() {
+      return this.$http.get(this.$constant.baseURL + '/article/getArticlesByCorporation', {corporationId: this.id})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.articlesByCorporation = res.data;
           }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    onScrollPage() {
+      this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      if (this.scrollTop < (window.innerHeight / 4)) {
+        $('.toc').css('top', window.innerHeight / 4);
+      } else {
+        $('.toc').css('top', '90px');
+      }
+    },
+    addId() {
+      let headings = $('.entry-content').find('h1, h2, h3, h4, h5, h6');
+      headings.attr('id', (i, id) => id || 'toc-' + i);
+    },
+    getCorporation(password) {
+      return this.$http.get(this.$constant.baseURL + '/corporation/getCorporationById', {id: this.id, password: password})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.corporation = res.data;
+            const md = new MarkdownIt({breaks: true}).use(require('markdown-it-multimd-table'));
+            this.corporationContentHtml = md.render(this.corporation.corporationContent);
+            this.$nextTick(() => {
+              // this.$common.imgShow('.entry-content img');
+              // this.highlight();
+            });
+            if (!this.$common.isEmpty(password)) {
+              localStorage.setItem('corporation_password_' + this.id, password);
+            }
+            if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.subscribe)) {
+              this.subscribe = JSON.parse(this.$store.state.currentUser.subscribe).includes(this.corporation.labelId);
+            }
+          }
+        })
+        .catch((error) => {
+          if ('密码错误' === error.message.substr(0, 4)) {
+            if (!this.$common.isEmpty(password)) {
+              localStorage.removeItem('corporation_password_' + this.id);
+              this.$message({
+                message: '密码错误，请重新输入！',
+                type: 'error',
+                customClass: 'message-index'
+              });
+            }
+            this.tips = error.message.substr(4);
+          } else {
+            this.$message({
+              message: error.message,
+              type: 'error',
+              customClass: 'message-index'
+            });
+            this.tips = error.message;
+          }
+        });
+    },
+    getDepartmentByCorporation() {
+      return this.$http.get(this.$constant.baseURL + '/department/getDepartmentByCorporationId', {id: this.id})
+        .then((res) => {
+          if (!this.$common.isEmpty(res.data)) {
+            this.departments = res.data;
+          }
+        })
+        .catch((error) => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          });
+        });
+    },
+    highlight() {
+      let attributes = {
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        spellcheck: 'false',
+        contenteditable: 'false'
+      };
 
-          $(item).addClass("highlight-wrap");
-          $(item).attr(attributes);
-          preCode.attr("data-rel", lang.toUpperCase()).addClass(lang.toLowerCase());
-          // 启用代码高亮
-          hljs.highlightBlock(preCode[0]);
-          // 启用代码行号
-          hljs.lineNumbersBlock(preCode[0]);
+      $('pre').each(function (i, item) {
+        let preCode = $(item).children('code');
+        let classNameStr = preCode[0].className;
+        let classNameArr = classNameStr.split(' ');
+
+        let lang = '';
+        classNameArr.some(function (className) {
+          if (className.indexOf('language-') > -1) {
+            lang = className.substring(className.indexOf('-') + 1, className.length);
+            return true;
+          }
         });
 
-        $("pre code").each(function (i, block) {
-          $(block).attr({
-            id: "hljs-" + i,
-          });
+        // 检测语言是否存在，不存在则自动检测
+        let language = hljs.getLanguage(lang.toLowerCase());
+        if (language === undefined) {
+          // 启用自动检测
+          let autoLanguage = hljs.highlightAuto(preCode.text());
+          preCode.removeClass('language-' + lang);
+          lang = autoLanguage.language;
+          if (lang === undefined) {
+            lang = 'java';
+          }
+          preCode.addClass('language-' + lang);
+        } else {
+          lang = language.name;
+        }
 
-          $(block).after(
-            '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
+        $(item).addClass('highlight-wrap');
+        $(item).attr(attributes);
+        preCode.attr('data-rel', lang.toUpperCase()).addClass(lang.toLowerCase());
+        // 启用代码高亮
+        hljs.highlightBlock(preCode[0]);
+        // 启用代码行号
+        hljs.lineNumbersBlock(preCode[0]);
+      });
+
+      $('pre code').each(function (i, block) {
+        $(block).attr({
+          id: 'hljs-' + i,
+        });
+
+        $(block).after(
+          '<a class="copy-code" href="javascript:" data-clipboard-target="#hljs-' +
             i +
             '"><i class="fa fa-clipboard" aria-hidden="true"></i></a>'
-          );
-          new ClipboardJS(".copy-code");
-        });
+        );
+        new ClipboardJS('.copy-code');
+      });
 
-        if ($(".entry-content").children("table").length > 0) {
-          $(".entry-content")
-            .children("table")
-            .wrap("<div class='table-wrapper'></div>");
-        }
-      },
-      showIntroduction() {
-        this.ifShowIntroduction = !this.ifShowIntroduction;
-      },
-      showDepartments() {
-        this.ifShowDepartments = !this.ifShowDepartments;
+      if ($('.entry-content').children('table').length > 0) {
+        $('.entry-content')
+          .children('table')
+          .wrap('<div class=\'table-wrapper\'></div>');
       }
+    },
+    showIntroduction() {
+      this.ifShowIntroduction = !this.ifShowIntroduction;
+    },
+    showDepartments() {
+      this.ifShowDepartments = !this.ifShowDepartments;
     }
   }
+};
 </script>
 
 <style scoped>
@@ -475,6 +566,47 @@
     height: 100%;
     background-color: var(--miniMask);
     content: "";
+  }
+
+  .my-progressive {
+    position: relative;
+    overflow: hidden;
+  }
+  .my-progressive img {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  .my-progressive img.preview {
+    z-index: 2;
+    /*animation: disappear 0.5s ease-in-out forwards;*/
+  }
+  .my-progressive img.origin {
+    z-index: 1;
+  }
+  @keyframes disappear {
+    0% {
+      opacity: 1;
+      display: inline;
+    }
+    100% {
+      opacity: 0;
+      display: none;
+    }
+  }
+  .animate-disappear {
+    animation: disappear 0.5s ease-in-out forwards;
+  }
+  @keyframes appear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  .animate-appear {
+    animation: appear 0.5s ease-in-out forwards;
   }
 
   .corporation-info-container {

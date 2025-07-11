@@ -21,83 +21,83 @@
   </div>
 </template>
 <script>
-  export default {
-    props: {
-      isHitokoto: {
-        type: Boolean,
-        default: true
-      },
-      isShehui: {
-        type: Boolean,
-        default: false
-      }
+export default {
+  props: {
+    isHitokoto: {
+      type: Boolean,
+      default: true
     },
-    data() {
-      return {
-        guShi: {
-          "content": "...",
-          "origin": "...",
-          "author": "...",
-          "category": "..."
-        },
-        hitokoto: {
-          "hitokoto": "...",
-          "from": "...",
-          "from_who": "..."
+    isShehui: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      guShi: {
+        'content': '...',
+        'origin': '...',
+        'author': '...',
+        'category': '...'
+      },
+      hitokoto: {
+        'hitokoto': '...',
+        'from': '...',
+        'from_who': '...'
+      }
+    };
+  },
+  created() {
+    if (!this.isShehui) {
+      if (this.isHitokoto) {
+        this.getHitokoto();
+      } else {
+        this.getGuShi();
+      }
+    } else {
+      this.hitokoto.from = '';
+      this.hitokoto.from_who = '';
+      this.sendShehui();
+    }
+  },
+
+  methods: {
+    sendShehui() {
+      let that = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('get', this.$constant.shehui);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          let shehui = xhr.responseText;
+          that.hitokoto.hitokoto = shehui.substring(1, shehui.length - 1);
         }
       };
+      xhr.send();
     },
-    created() {
-      if (!this.isShehui) {
-        if (this.isHitokoto) {
-          this.getHitokoto();
-        } else {
-          this.getGuShi();
+    getGuShi() {
+      let that = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('get', this.$constant.jinrishici);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          that.guShi = JSON.parse(xhr.responseText);
         }
-      } else {
-        this.hitokoto.from = "";
-        this.hitokoto.from_who = "";
-        this.sendShehui();
-      }
+      };
+      xhr.send();
     },
-
-    methods: {
-      sendShehui() {
-        let that = this;
-        let xhr = new XMLHttpRequest();
-        xhr.open('get', this.$constant.shehui);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            let shehui = xhr.responseText;
-            that.hitokoto.hitokoto = shehui.substring(1, shehui.length - 1);
-          }
-        };
-        xhr.send();
-      },
-      getGuShi() {
-        let that = this;
-        let xhr = new XMLHttpRequest();
-        xhr.open('get', this.$constant.jinrishici);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            that.guShi = JSON.parse(xhr.responseText);
-          }
-        };
-        xhr.send();
-      },
-      getHitokoto() {
-        let that = this;
-        let xhr = new XMLHttpRequest();
-        xhr.open('get', this.$constant.hitokoto);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4) {
-            that.hitokoto = JSON.parse(xhr.responseText);
-          }
+    getHitokoto() {
+      let that = this;
+      let xhr = new XMLHttpRequest();
+      xhr.open('get', this.$constant.hitokoto);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          that.hitokoto = JSON.parse(xhr.responseText);
         }
-        xhr.send();
-      }
+      };
+      xhr.send();
     }
-  };
+  }
+};
 </script>
 <style scoped>
 
