@@ -5,7 +5,7 @@ module.exports = {
   //   ? '/corpinside-ui/'  // 确保与仓库名一致
   //   : '/',
   devServer: {
-    port: 80,
+    port: 8080,
     https: false,
     open: false
   },

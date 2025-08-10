@@ -12,8 +12,8 @@ import mavonEditor from 'mavon-editor';
 // import './utils/title'
 //引入css
 import './assets/css/animation.css';
-import './assets/css/index.css';
-import './assets/css/tocbot.css';
+import './assets/css/index.less';
+import './assets/css/tocbot.less';
 import './assets/css/color.css';
 import './assets/css/markdown-highlight.css';
 import './assets/css/font-awesome.min.css';

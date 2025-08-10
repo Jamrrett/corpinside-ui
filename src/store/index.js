@@ -6,12 +6,12 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     toolbar: JSON.parse(localStorage.getItem('toolbar') || '{"visible": false, "enter": true}'),
-    sortInfo: JSON.parse(localStorage.getItem('sortInfo') || '[]'),
+    sortInfo: [],
     sortCorporationInfo: JSON.parse(localStorage.getItem('sortCorporationInfo') || '[]'),
     currentUser: JSON.parse(localStorage.getItem('currentUser') || '{}'),
     currentAdmin: JSON.parse(localStorage.getItem('currentAdmin') || '{}'),
     sysConfig: JSON.parse(localStorage.getItem('sysConfig') || '{}'),
-    webInfo: JSON.parse(localStorage.getItem('webInfo') || '{"webName": "", "webTitle": [], "notices": [], "randomCover": [], "footer": "", "backgroundImage": "", "avatar": ""}')
+    webInfo: JSON.parse(localStorage.getItem('webInfo') || '{"webName": "", "webDescription": "", "notices": [], "footer": ""}')
   },
   getters: {
     articleTotal: state => {
@@ -40,14 +40,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    changeToolbarStatus(state, toolbarState) {
-      state.toolbar = toolbarState;
-      localStorage.setItem('toolbar', JSON.stringify(toolbarState));
-    },
     loadSortInfo(state, sortInfo) {
       if (sortInfo !== null && sortInfo.length !== 0) {
-        state.sortInfo = sortInfo.sort((s1, s2) => s1.priority - s2.priority);
-        localStorage.setItem('sortInfo', JSON.stringify(sortInfo.sort((s1, s2) => s1.priority - s2.priority)));
+        state.sortInfo = sortInfo;
       }
     },
     loadSortCorporationInfo(state, sortCorporationInfo) {
@@ -69,9 +64,6 @@ export default new Vuex.Store({
       localStorage.setItem('currentAdmin', JSON.stringify(user));
     },
     loadWebInfo(state, webInfo) {
-      webInfo.webTitle = webInfo.webTitle.split('');
-      webInfo.notices = JSON.parse(webInfo.notices);
-      webInfo.randomCover = JSON.parse(webInfo.randomCover);
       state.webInfo = webInfo;
       localStorage.setItem('webInfo', JSON.stringify(webInfo));
     }

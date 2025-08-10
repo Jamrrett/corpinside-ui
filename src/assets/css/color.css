@@ -71,6 +71,27 @@
     --black: black;
     --lightYellow: #F4E1C0;
 
+    --content-background-color: #ffffff;
+    --content-background-color-light: #f3f5f7;
+    --nav-text-color: #ffffff;
+    --hover-color-text: #39c5bb;
+    --hoverColor: rgb(255, 255, 255);
+    --hover-box-shadow: 0 2px 13px -2px rgba(110, 110, 110, 0.4);
+
+    --theme-green: #39c5bb;
+    --theme-green-hover: #30b0aa;
+    --theme-green-active: #28a098;
+    --theme-purple: #bdbdf0;
+    --theme-pink: #eec1ea;
+    --theme-blue: #87cefa;
+
+    --white-content: #ffffff;
+    --grey-content: #797979;
+    --grey-background: #bbbbbb;
+    --label-background: rgba(200, 200, 200, 0.2);
+    --list-item-border: #cccccc;
+    --content-border: #aaaaaa;
+
     /*--globalFont: poetize-font;*/
-    --globalFont: "Microsoft YaHei";
+    --globalFont: "PingFang SC", "Microsoft YaHei";
 }

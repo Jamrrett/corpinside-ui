@@ -37,30 +37,14 @@ const routes = [
       name: 'department',
       component: () => import('../components/department')
     }, {
-      path: '/weiYan',
-      name: 'weiYan',
-      component: () => import('../components/weiYan')
-    }, {
-      path: '/love',
-      name: 'love',
-      component: () => import('../components/love')
-    }, {
-      path: '/favorite',
-      name: 'favorite',
-      component: () => import('../components/favorite')
-    }, {
-      path: '/game',
-      name: 'game',
-      component: () => import('../components/game')
-    }, {
-      path: '/HeaRT',
-      name: 'HeaRT',
-      component: () => import('../components/HeaRT')
-    }, {
-      path: '/travel',
-      name: 'travel',
-      component: () => import('../components/travel')
-    }, {
+    //   path: '/game',
+    //   name: 'game',
+    //   component: () => import('../components/game')
+    // }, {
+    //   path: '/HeaRT',
+    //   name: 'HeaRT',
+    //   component: () => import('../components/HeaRT')
+    // }, {
       path: '/about',
       name: 'about',
       component: () => import('../components/about')
@@ -68,96 +52,92 @@ const routes = [
       path: '/login',
       name: 'login',
       component: () => import('../components/login')
-    }, {
-      path: '/user/:userId',
-      name: 'user',
-      component: () => import('../components/user')
-    }, {
-      path: '/articleEdit',
-      name: 'articleEdit',
-      component: () => import('../components/articleEdit')
-    }, {
-      path: '/letter',
-      name: 'letter',
-      component: () => import('../components/letter')
+    // }, {
+    //   path: '/user/:userId',
+    //   name: 'user',
+    //   component: () => import('../components/user')
+    // }, {
+    //   path: '/articleEdit',
+    //   name: 'articleEdit',
+    //   component: () => import('../components/articleEdit')
     }]
   },
-  {
-    path: '/admin',
-    redirect: '/welcome',
-    meta: {requiresAuth: true},
-    component: () => import('../components/admin/admin'),
-    children: [{
-      path: '/welcome',
-      name: 'welcome',
-      component: () => import('../components/admin/welcome')
-    }, {
-      path: '/main',
-      name: 'main',
-      component: () => import('../components/admin/main')
-    }, {
-      path: '/webEdit',
-      name: 'webEdit',
-      component: () => import('../components/admin/webEdit')
-    }, {
-      path: '/userList',
-      name: 'userList',
-      component: () => import('../components/admin/userList')
-    }, {
-      path: '/postList',
-      name: 'postList',
-      component: () => import('../components/admin/postList')
-    }, {
-      path: '/postEdit',
-      name: 'postEdit',
-      component: () => import('../components/admin/postEdit')
-    }, {
-      path: '/corporationList',
-      name: 'corporationList',
-      component: () => import('../components/admin/corporationList')
-    }, {
-      path: '/corporationEdit',
-      name: 'corporationEdit',
-      component: () => import('../components/admin/corporationEdit')
-    }, {
-      path: '/departmentList',
-      name: 'departmentList',
-      component: () => import('../components/admin/departmentList')
-    }, {
-      path: '/departmentEdit',
-      name: 'departmentEdit',
-      component: () => import('../components/admin/departmentEdit')
-    }, {
-      path: '/sortList',
-      name: 'sortList',
-      component: () => import('../components/admin/sortList')
-    }, {
-      path: '/configList',
-      name: 'configList',
-      component: () => import('../components/admin/configList')
-    }, {
-      path: '/commentList',
-      name: 'commentList',
-      component: () => import('../components/admin/commentList')
-    }, {
-      path: '/treeHoleList',
-      name: 'treeHoleList',
-      component: () => import('../components/admin/treeHoleList')
-    }, {
-      path: '/resourceList',
-      name: 'resourceList',
-      component: () => import('../components/admin/resourceList')
-    }, {
-      path: '/resourcePathList',
-      name: 'resourcePathList',
-      component: () => import('../components/admin/resourcePathList')
-    }]
-  },
-  {
-    path: '/verify',
-    name: 'verify',
-    component: () => import('../components/admin/verify')
-  }
+  // {
+  //   path: '/admin',
+  //   redirect: '/welcome',
+  //   meta: {requiresAuth: true},
+  //   component: () => import('../components/admin/admin'),
+  //   children: [{
+  //     path: '/welcome',
+  //     name: 'welcome',
+  //     component: () => import('../components/admin/welcome')
+  //   }, {
+  //     path: '/main',
+  //     name: 'main',
+  //     component: () => import('../components/admin/main')
+  //   }, {
+  //     path: '/webEdit',
+  //     name: 'webEdit',
+  //     component: () => import('../components/admin/webEdit')
+  //   }, {
+  //     path: '/userList',
+  //     name: 'userList',
+  //     component: () => import('../components/admin/userList')
+  //   }, {
+  //     path: '/postList',
+  //     name: 'postList',
+  //     component: () => import('../components/admin/postList')
+  //   }, {
+  //     path: '/postEdit',
+  //     name: 'postEdit',
+  //     component: () => import('../components/admin/postEdit')
+  //   }, {
+  //     path: '/corporationList',
+  //     name: 'corporationList',
+  //     component: () => import('../components/admin/corporationList')
+  //   }, {
+  //     path: '/corporationEdit',
+  //     name: 'corporationEdit',
+  //     component: () => import('../components/admin/corporationEdit')
+  //   }, {
+  //     path: '/departmentList',
+  //     name: 'departmentList',
+  //     component: () => import('../components/admin/departmentList')
+  //   }, {
+  //     path: '/departmentEdit',
+  //     name: 'departmentEdit',
+  //     component: () => import('../components/admin/departmentEdit')
+  //   }, {
+  //     path: '/sortList',
+  //     name: 'sortList',
+  //     component: () => import('../components/admin/sortList')
+  //   }, {
+  //     path: '/configList',
+  //     name: 'configList',
+  //     component: () => import('../components/admin/configList')
+  //   }, {
+  //     path: '/commentList',
+  //     name: 'commentList',
+  //     component: () => import('../components/admin/commentList')
+  //   }, {
+  //     path: '/treeHoleList',
+  //     name: 'treeHoleList',
+  //     component: () => import('../components/admin/treeHoleList')
+  //   }, {
+  //     path: '/resourceList',
+  //     name: 'resourceList',
+  //     component: () => import('../components/admin/resourceList')
+  //   }, {
+  //     path: '/resourcePathList',
+  //     name: 'resourcePathList',
+  //     component: () => import('../components/admin/resourcePathList')
+  //   }]
+  // },
+  // {
+  //   path: '/verify',
+  //   name: 'verify',
+  //   component: () => import('../components/admin/verify')
+  // }
 ];
 
 const router = new VueRouter({

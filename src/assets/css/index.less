@@ -1,0 +1,352 @@
+@FooterHeight: 10px;
+@ToolButtonHeight: 45px;
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    overflow-y: scroll;
+    color: var(--fontColor);
+    font-family: var(--globalFont), serif;
+    background-color: var(--background);
+    word-break: break-word;
+}
+
+a {
+    text-decoration: inherit;
+    color: inherit;
+}
+
+.page-container-wrapper {
+    background: var(--background);
+}
+
+.page-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+    width: 90%;
+    margin: 25px auto 0;
+    padding: 0 0 20px;
+
+    .left-container {
+        width: calc(100% - 20px - 300px);
+    }
+
+    .right-container {
+        width: 300px;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    .page-container .left-container {
+        width: calc(100% - 20px - 260px);
+    }
+
+    .page-container .right-container {
+        width: 260px;
+    }
+}
+
+@media screen and (max-width: 840px) {
+    .page-container-wrapper .page-container .left-container {
+        width: 100%;
+    }
+
+    .page-container-wrapper .page-container {
+        flex-direction: column;
+        .right-container {
+            width: 100%;
+        }
+    }
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+
+    .pagination {
+        padding: 10px 15px;
+        border: 1px solid var(--list-item-border);
+        border-radius: 3rem;
+        color: var(--grey--grey-contentFont);
+        background-color: var(--content-background-color);
+        width: 100px;
+        user-select: none;
+        cursor: pointer;
+        text-align: center;
+
+        &:hover {
+            border: 1px solid var(--theme-green);
+            color: var(--theme-green);
+            box-shadow: 0 0 5px var(--theme-green);
+        }
+    }
+}
+
+.tool-button {
+    position: fixed;
+    right: 3vw;
+    z-index: 100;
+    cursor: pointer;
+    height: @ToolButtonHeight;
+    width: @ToolButtonHeight;
+    border-radius: 100%;
+    color: var(--nav-text-color);
+    background: var(--theme-green);
+    box-shadow: 1px 1px 6px rgba(100, 100, 100, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+        color: var(--black);
+        background: var(--theme-green-hover);
+    }
+
+    &:active {
+        background: var(--theme-green-active);
+    }
+
+    &.color-mode-button {
+        bottom: calc(@FooterHeight + 5px);
+    }
+
+    &.article-toc-button {
+        bottom: calc(@FooterHeight + 5px + 1 * @ToolButtonHeight + 1 * 10px);
+    }
+
+    &.go-top-button {
+        bottom: calc(@FooterHeight + 5px + 2 * @ToolButtonHeight + 2 * 10px);
+    }
+}
+
+/* 模块化背景色及透明度 */
+.background-opacity {
+    /*background: var(--background);*/
+    /*opacity: 0.88;*/
+}
+
+.my-el-image {
+    width: 100%;
+    height: 100%;
+}
+
+.my-el-image .image-slot {
+    width: 100%;
+    height: 100%;
+}
+
+/* 遮罩 */
+.poem-image::before {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--translucent);
+    content: "";
+}
+
+.user-avatar {
+    cursor: pointer;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+/*.user-avatar:hover {*/
+/*    transform: rotate(360deg);*/
+/*}*/
+
+/* 滚动条 */
+/*::-webkit-scrollbar {*/
+/*    width: 5px;*/
+/*    padding-right: 5px;*/
+/*}*/
+
+/*::-webkit-scrollbar-track {*/
+/*    background-color: rgba(73, 177, 245, 0.2);*/
+/*}*/
+
+/*::-webkit-scrollbar-thumb {*/
+/*    background-color: #49b1f5;*/
+/*    background-image: linear-gradient(*/
+/*            45deg,*/
+/*            rgba(255, 255, 255, 0.4) 25%,*/
+/*            transparent 25%,*/
+/*            transparent 50%,*/
+/*            rgba(255, 255, 255, 0.4) 50%,*/
+/*            rgba(255, 255, 255, 0.4) 75%,*/
+/*            transparent 75%,*/
+/*            transparent*/
+/*    );*/
+/*    border-radius: 1em;*/
+/*}*/
+
+.el-select-dropdown.el-popper ::-webkit-scrollbar {
+    display: none;
+}
+
+/* 选中样式 */
+::selection {
+    background: var(--lightGreen);
+    color: var(--white);
+}
+
+/* 居中 */
+.myCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transformCenter {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 两边 */
+.myBetween {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 阴影 */
+.shadow-box-mini {
+    box-shadow: 1px 1px 3px var(--mask);
+}
+
+.shadow-box {
+    box-shadow: 0 1px 20px -6px var(--borderColor);
+    transition: all 0.3s ease;
+}
+
+.shadow-box:hover {
+    box-shadow: 0 5px 10px 5px var(--borderHoverColor);
+}
+
+/* el弹出框样式 */
+.el-message {
+    top: 80px !important;
+    border: 0;
+}
+
+.el-message * {
+    color: var(--white) !important;
+    font-weight: 600;
+}
+
+.el-message--success {
+    background: var(--themeBackground);
+}
+
+.el-message--warning {
+    background: var(--gradientBG);
+}
+
+.el-message--error {
+    background: var(--gradualRed);
+}
+
+/* 图标旋转 */
+.iconRotate {
+    animation: rotate 2s linear infinite;
+}
+
+
+.el-upload.el-upload--picture, .el-upload.el-upload--text {
+    width: 100%;
+}
+
+.el-upload-dragger {
+    width: 100% !important;
+    height: 100px !important;
+}
+
+/* 导航栏 */
+.toolbarDrawer {
+    max-width: 500px;
+    background-color: var(--background);
+}
+
+.toolbarDrawer .el-drawer__header {
+    font-size: 24px;
+    color: var(--fontColor);
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+}
+
+.small-menu {
+    font-size: 20px;
+    user-select: none;
+    position: relative;
+}
+
+.small-menu > li {
+    padding: 10px 10px;
+    list-style: none;
+    line-height: 40px;
+    cursor: pointer;
+}
+
+.el-tooltip__popper.is-light {
+    background: var(--lightGreen);
+    border-radius: 10px;
+    color: var(--white);
+    padding: 12px 20px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    line-height: 1.5;
+    font-size: 1.2rem;
+    border: unset;
+}
+
+.el-tooltip__popper .popper__arrow {
+    border-style: unset;
+}
+
+.message-index {
+    z-index: 3000 !important;
+}
+
+.article-copy .el-dialog {
+    border-radius: 15px;
+    margin-top: 5vh !important;
+}
+
+.article-copy .el-dialog__body {
+    padding: 15px 25px 30px;
+}
+
+.index-push .el-dialog {
+    border-radius: 15px;
+    margin-top: 10vh !important;
+}
+
+.index-push .el-dialog__title {
+    font-weight: bold;
+}
+
+
+@media screen and (max-width: 800px) {
+    .el-dialog {
+        width: 70% !important;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .el-dialog {
+        width: 80% !important;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .el-dialog {
+        width: 90% !important;
+    }
+}

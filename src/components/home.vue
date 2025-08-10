@@ -1,222 +1,120 @@
 <template>
   <div>
-    <!-- el过渡动画 -->
-    <transition name="el-fade-in-linear">
-      <!-- 导航栏 -->
-      <div v-show="toolbar.visible || ($common.mobile() || mobile)"
-           @mouseenter="hoverEnter = true"
-           @mouseleave="hoverEnter = false"
-           :class="[{ enter: toolbar.enter }, { hoverEnter: (hoverEnter || this.$route.path === '/favorite' || this.$route.path === '/travel') && !toolbar.enter }]"
-           class="toolbar-content myBetween">
-        <div style="width: 100%;max-width: 1600px;margin: 0 auto">
-          <div class="toolbar-container myBetween" style="width: 90%;margin: 0 auto">
-            <!-- 网站名称 -->
-            <div class="toolbar-title">
-              <h2 @click="$router.push({path: '/'})">{{$store.state.webInfo.webName}}</h2>
+    <!-- 导航栏 -->
+    <div v-show="toolbar.visible || ($common.mobile() || mobile)" class="toolbar-content myBetween">
+      <div style="width: 100%;max-width: 1600px;margin: 0 auto">
+        <div class="toolbar-container myBetween" style="width: 90%;margin: 0 auto">
+          <!-- 网站名称 -->
+          <div>
+            <router-link class="toolbar-title" :to="{ path: '/' }">
+              <h2>{{$store.state.webInfo.webName}}</h2>
+            </router-link>
+          </div>
+
+          <!-- 手机导航按钮 -->
+          <div v-if="$common.mobile() || mobile"
+               class="toolbar-mobile-menu"
+               @click="toolbarDrawer = !toolbarDrawer"
+               :class="{ enter: toolbar.enter }">
+            <i class="el-icon-s-operation"></i>
+          </div>
+
+          <!-- 导航列表 -->
+          <div v-else class="menu-container">
+            <div class="menu-item-container" v-for="menuItem in this.$constant.menuItems" :key="menuItem.title">
+              <router-link :to="{ path: menuItem.path }">
+                  <div class="menu-item">
+                    <span>{{ menuItem.title }}</span>
+                  </div>
+              </router-link>
             </div>
 
-            <!-- 手机导航按钮 -->
-            <div v-if="$common.mobile() || mobile"
-                 class="toolbar-mobile-menu"
-                 @click="toolbarDrawer = !toolbarDrawer"
-                 :class="{ enter: toolbar.enter }">
-              <i class="el-icon-s-operation"></i>
-            </div>
+            <!-- 个人中心 -->
+            <div v-if="!$common.isEmpty($store.state.currentUser)">
+              <el-dropdown placement="bottom">
+                <el-avatar class="user-avatar" :size="36"
+                           style="margin-top: 12px;background-color: var(--lightGreen);width: 36px;height: 36px"
+                           :src="!$common.isEmpty($store.state.currentUser)?$store.state.currentUser.avatar:$store.state.webInfo.avatar"
+                           @click.native="handleAvatarClick">
+                </el-avatar>
 
-            <!-- 导航列表 -->
-            <div v-else>
-              <ul class="scroll-menu">
-                <router-link :to="{ path: `/` }" style="text-decoration: none;color: inherit;">
-                  <li>
-                    <div class="my-menu">
-                      🏡 <span>首页</span>
-                    </div>
-                  </li>
-                </router-link>
-
-    <!--            <el-dropdown :hide-timeout="500" placement="bottom">-->
-                <router-link :to="{ path: `/sort/1` }" style="text-decoration: none;color: inherit;">
-                  <li>
-                    <div class="my-menu">
-                      📒 <span>面试经验</span>
-                    </div>
-                  </li>
-                </router-link>
-    <!--              <el-dropdown-menu slot="dropdown">-->
-    <!--                <el-dropdown-item v-for="(sort, index) in sortInfo" :key="index">-->
-    <!--                  <div @click="$router.push({path: '/sort', query: {sortId: sort.id}})">-->
-    <!--                    {{sort.sortName}}-->
-    <!--                  </div>-->
-    <!--                </el-dropdown-item>-->
-    <!--              </el-dropdown-menu>-->
-    <!--            </el-dropdown>-->
-
-                <!-- 工作体验 -->
-                <router-link :to="{ path: `/sort/2` }" style="text-decoration: none;color: inherit;">
-                  <li>
-                    <div class="my-menu">
-                      💻 <span>工作体验</span>
-                    </div>
-                  </li>
-                </router-link>
-
-                <!-- 留言 -->
-                <router-link :to="{ path: `/about` }" style="text-decoration: none;color: inherit;">
-                  <li>
-                    <div class="my-menu">
-                      📪 <span>关于 · 留言</span>
-                    </div>
-                  </li>
-                </router-link>
-
-                <!-- 个人中心 -->
-                <li>
-                  <el-dropdown placement="bottom">
-                    <el-avatar class="user-avatar" :size="36"
-                               style="margin-top: 12px;background-color: var(--lightGreen);width: 36px;height: 36px"
-                               :src="!$common.isEmpty($store.state.currentUser)?$store.state.currentUser.avatar:$store.state.webInfo.avatar"
-                               @click.native="handleAvatarClick">
-                    </el-avatar>
-
-                    <el-dropdown-menu slot="dropdown">
-                      <router-link :to="{ path: `/user/${$store.state.currentUser.id}`}"
-                           style="width: 100%;height: 100%;text-decoration: none;color: inherit"
-                           v-if="!$common.isEmpty($store.state.currentUser)">
-                        <el-dropdown-item>
-                            <i class="fa fa-user-circle" aria-hidden="true"></i> <span>个人中心</span>
-                        </el-dropdown-item>
-                      </router-link>
-                      <el-dropdown-item @click.native="logout()" v-if="!$common.isEmpty($store.state.currentUser)">
-                        <i class="fa fa-sign-out" aria-hidden="true"></i> <span>退出</span>
-                      </el-dropdown-item>
-                      <router-link :to="{ path: `/login` }"
-                           @click.native="setRedirectPath"
-                           style="width: 100%;height: 100%;text-decoration: none;color: inherit"
-                           v-if="$common.isEmpty($store.state.currentUser)">
-                        <el-dropdown-item>
-                          <i class="fa fa-sign-in" aria-hidden="true"></i> <span>登录&thinsp;<span style="font-size: 13px">/</span>&nbsp;注册</span>
-                        </el-dropdown-item>
-                      </router-link>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </li>
-              </ul>
+                <el-dropdown-menu>
+                  <router-link :to="{ path: `/user/${$store.state.currentUser.id}`}"
+                       style="width: 100%;height: 100%;text-decoration: none;color: inherit"
+                       v-if="!$common.isEmpty($store.state.currentUser)">
+                    <el-dropdown-item>
+                        <i class="fa fa-user-circle" aria-hidden="true"></i> <span>个人中心</span>
+                    </el-dropdown-item>
+                  </router-link>
+                  <el-dropdown-item @click.native="logout()" v-if="!$common.isEmpty($store.state.currentUser)">
+                    <i class="fa fa-sign-out" aria-hidden="true"></i> <span>退出</span>
+                  </el-dropdown-item>
+                  <router-link :to="{ path: `/login` }"
+                       @click.native="setRedirectPath"
+                       style="width: 100%;height: 100%;text-decoration: none;color: inherit"
+                       v-if="$common.isEmpty($store.state.currentUser)">
+                    <el-dropdown-item>
+                      <i class="fa fa-sign-in" aria-hidden="true"></i> <span>登录&thinsp;<span style="font-size: 13px">/</span>&nbsp;注册</span>
+                    </el-dropdown-item>
+                  </router-link>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </div>
         </div>
       </div>
-    </transition>
+    </div>
 
     <div id="main-container" class="main-container">
-      <div style="min-height: calc(100vh - 60px - 70px);max-width: 1600px;margin: auto">
-        <router-view></router-view>
-      </div>
+      <router-view></router-view>
     </div>
-    <myFooter></myFooter>
+    <Footer />
 
-    <!-- 回到顶部按钮 -->
-<!--    <div href="#" class="cd-top" v-if="!$common.mobile()" @click="toTop()"></div>-->
-
-    <div class="toolButton">
-      <div class="backTop" v-if="toolButton" @click="toTop()">
-        <!-- 回到顶部按钮 -->
-        <svg viewBox="0 0 1024 1024" width="50" height="50">
-          <path
-            d="M696.741825 447.714002c2.717387-214.485615-173.757803-312.227566-187.33574-320.371729-10.857551 5.430775-190.050127 103.168727-187.33274 320.371729-35.297037 24.435488-73.306463 65.1623-67.875688 135.752376 5.430775 70.589076 76.018851 119.460051 103.168726 116.745664 27.152875-2.716387 19.004713-21.7221 19.004713-21.7221l8.148162-38.011425s40.721814 59.732525 51.583363 59.732525h146.609927c13.574938 0 51.585363-59.732525 51.585363-59.732525l8.147162 38.011425s-8.147162 19.005713 19.004713 21.7221c27.148876 2.714388 97.738951-46.156588 103.168727-116.745664s-32.57965-111.316888-67.876688-135.752376z m-187.33574-2.713388c-5.426776 0-70.589076-2.717387-78.733239-78.737238 2.713388-73.306463 73.306463-78.733239 78.733239-81.450626 5.430775 0 76.02385 8.144163 78.736238 81.450626-8.143163 76.019851-73.305463 78.737238-78.736238 78.737238z m0 0"
-            fill="#000000"></path>
-          <path
-            d="M423.602441 746.060699c6.47054-6.297579 12.823107-7.017417 21.629121-2.784372 34.520213 16.582259 70.232157 19.645568 107.031855 9.116944 8.118169-2.323476 15.974396-5.475765 23.598677-9.22392 13.712907-6.73648 26.003134 0.8878 26.080116 16.13936 0.109975 22.574907-0.024994 45.142816 0.080982 67.709725 0.031993 7.464316-2.277486 13.322995-9.44387 16.608254-7.277358 3.333248-13.765895 1.961558-19.526595-3.264264-3.653176-3.313253-7.063407-6.897444-10.634601-10.304675-6.563519-6.259588-6.676494-6.25259-10.625603 1.603638-8.437097 16.80121-16.821205 33.623415-25.257302 50.423625-2.489438 4.953882-5.706713 9.196925-11.411426 10.775569-8.355115 2.315478-15.772442-1.070758-20.272427-9.867774-8.774021-17.15313-17.269104-34.453228-25.918153-51.669344-3.750154-7.469315-3.9891-7.479313-10.141712-1.514658-3.715162 3.602187-7.31435 7.326347-11.142486 10.800563-5.571743 5.060858-11.934308 6.269586-18.936728 3.207277-6.82746-2.984327-9.869774-8.483086-9.892769-15.685462-0.070984-23.506697-0.041991-47.018393-0.020995-70.532089 0.007998-4.679944 1.46467-8.785018 4.803916-11.538397z"
-            fill="#000000"></path>
-        </svg>
+    <div class="tool-button color-mode-button" @click="changeColor()">
+      <SvgIcon :name="darkMode === $constant.DarkMode.DARK ? 'light' : 'dark'" :size="24" />
       </div>
 
-<!--      <el-popover placement="left"-->
-<!--                  :close-delay="500"-->
-<!--                  trigger="hover">-->
-<!--        <div slot="reference">-->
-<!--          <i class="fa fa-cog iconRotate" style="color: var(&#45;&#45;black)" aria-hidden="true"></i>-->
-<!--        </div>-->
-<!--        <div class="my-setting">-->
-<!--          <div>-->
-<!--            &lt;!&ndash; 太阳按钮 &ndash;&gt;-->
-<!--            <i v-if="isDark" class="el-icon-sunny iconRotate" @click="changeColor()"></i>-->
-<!--            &lt;!&ndash; 月亮按钮 &ndash;&gt;-->
-<!--            <i v-else class="fa fa-moon-o" aria-hidden="true" @click="changeColor()"></i>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </el-popover>-->
-    </div>
-
-    <!-- 图片预览 -->
-    <div id="outerImg">
-      <div id="innerImg" style="position:absolute">
-        <img id="bigImg" src="" alt="图片预览"/>
-      </div>
+    <div class="tool-button go-top-button" v-if="showGoTopButton" @click="toTop()">
+      <SvgIcon name="go-top" :size="30" />
     </div>
 
     <el-drawer :visible.sync="toolbarDrawer"
                :show-close="false"
                size="65%"
                custom-class="toolbarDrawer"
-               title="欢迎光临"
+               title="CorpInside"
                direction="ltr">
       <div>
         <ul class="small-menu">
-          <li @click="smallMenu({path: '/'})">
+          <li v-for="menuItem in this.$constant.menuItems" :key="menuItem.title" @click="smallMenu({ path: menuItem.path })">
             <div>
-              🏡 <span>首页</span>
+              <span>{{ menuItem.title }}</span>
             </div>
           </li>
 
-          <li @click="smallMenu({path: '/sort'})">
-            <div>
-              📒 <span>面试经验</span>
-            </div>
-<!--            <div>-->
-<!--              <div v-for="(menu, index) in sortInfo"-->
-<!--                   :key="index"-->
-<!--                   class="sortMenu"-->
-<!--                   @click="smallMenu({path: '/sort', query: {sortId: menu.id}})">-->
-<!--                {{menu.sortName}}-->
-<!--              </div>-->
-<!--            </div>-->
-          </li>
-
-          <!-- 工作体验 -->
-          <li @click="smallMenu({path: '/favorite'})">
-            <div>
-              💻 <span>工作体验</span>
-            </div>
-          </li>
-
-          <!-- 留言 -->
-          <li @click="smallMenu({path: '/about'})">
-            <div>
-              📪 <span>关于 · 留言</span>
-            </div>
-          </li>
-
-          <template v-if="$common.isEmpty($store.state.currentUser)">
-            <li @click="smallMenu({path: '/login'})">
-              <div>
-                <i class="fa fa-sign-in" aria-hidden="true"></i>
-                <span>&nbsp;登录</span>
-              </div>
-            </li>
-          </template>
-          <template v-else>
-            <li @click="smallMenu({path: `/user/${$store.state.currentUser.id}`})">
-              <div>
-                <i class="fa fa-user-circle" aria-hidden="true"></i>
-                <span>&nbsp;个人中心</span>
-              </div>
-            </li>
-            <li @click="smallMenuLogout()">
-              <div>
-                <i class="fa fa-sign-out" aria-hidden="true"></i>
-                <span>&nbsp;退出</span>
-              </div>
-            </li>
+          <template v-if="!$common.isEmpty($store.state.currentUser)">
+            <template v-if="$common.isEmpty($store.state.currentUser)">
+              <li @click="smallMenu({path: '/login'})">
+                <div>
+                  <i class="fa fa-sign-in" aria-hidden="true"></i>
+                  <span>&nbsp;登录</span>
+                </div>
+              </li>
+            </template>
+            <template v-else>
+              <li @click="smallMenu({path: `/user/${$store.state.currentUser.id}`})">
+                <div>
+                  <i class="fa fa-user-circle" aria-hidden="true"></i>
+                  <span>&nbsp;个人中心</span>
+                </div>
+              </li>
+              <li @click="smallMenuLogout()">
+                <div>
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                  <span>&nbsp;退出</span>
+                </div>
+              </li>
+            </template>
           </template>
         </ul>
       </div>
@@ -225,99 +123,54 @@
 </template>
 
 <script>
-const myFooter = () => import( './common/myFooter');
+const SvgIcon = () => import( './icon');
+const Footer = () => import( './common/footer.vue');
+import { getWebInfo } from "@/utils/data/webInfo";
+import { getSortInfo } from "@/utils/data/sort";
+import { getSortCorporationInfo } from "@/utils/data/sortCorporation";
 
 export default {
   components: {
-    myFooter
+    SvgIcon,
+    Footer
   },
   data() {
     return {
-      toolButton: false,
-      hoverEnter: false,
+      showGoTopButton: false,
       mouseAnimation: false,
-      isDark: false,
+      darkMode: localStorage.getItem('DarkMode') || this.$constant.DarkMode.LIGHT,
       scrollTop: 0,
       toolbarDrawer: false,
-      mobile: false
+      mobile: window.innerWidth <= 840,
     };
   },
   mounted() {
-    // window.addEventListener('scroll', this.onScrollPage);
-
-    // window.addEventListener('load', function() {
-    //   const performanceData = window.performance.getEntriesByType('navigation')[0];
-    //   console.log('页面加载时间:', performanceData.loadEventEnd - performanceData.startTime);
-    //   console.log('DOM 解析时间:', performanceData.domComplete - performanceData.domInteractive);
-    //
-    //   // 监控资源加载时间
-    //   const resources = window.performance.getEntriesByType('resource');
-    //   resources.forEach(resource => {
-    //     console.log(`资源 ${resource.name} 加载时间:`, resource.duration);
-    //   });
-    // });
-    // if (this.isDaylight()) {
-    //   this.isDark = true;
-    //   let root = document.querySelector(":root");
-    //   root.style.setProperty("--background", "#272727");
-    //   root.style.setProperty("--fontColor", "white");
-    //   root.style.setProperty("--borderColor", "#4F4F4F");
-    //   root.style.setProperty("--borderHoverColor", "black");
-    //   root.style.setProperty("--articleFontColor", "#E4E4E4");
-    //   root.style.setProperty("--articleGreyFontColor", "#D4D4D4");
-    //   root.style.setProperty("--commentContent", "#D4D4D4");
-    //   root.style.setProperty("--favoriteBg", "#1e1e1e");
-    // }
+    window.addEventListener('scroll', this.onScrollPage);
+    window.addEventListener('storage', this.handleStorageChange);
   },
   destroyed() {
-    // window.removeEventListener('scroll', this.onScrollPage);
+    window.removeEventListener('scroll', this.onScrollPage);
+    window.removeEventListener('storage', this.handleStorageChange);
   },
   watch: {
-    // scrollTop(scrollTop, oldScrollTop) {
-    //   //如果滑动距离超过屏幕高度三分之一视为进入页面，背景改为白色
-    //   let enter = scrollTop > window.innerHeight / 2;
-    //   const top = scrollTop - oldScrollTop < 0;
-    //   let isShow = scrollTop - window.innerHeight > 30;
-    //   this.toolButton = isShow;
-    //   if (isShow && !this.$common.mobile()) {
-    //     if (window.innerHeight > 950) {
-    //       $('.cd-top').css('top', '0');
-    //     } else {
-    //       $('.cd-top').css('top', window.innerHeight - 950 + 'px');
-    //     }
-    //   } else if (!isShow && !this.$common.mobile()) {
-    //     $('.cd-top').css('top', '-900px');
-    //   }
-    //
-    //   //导航栏显示与颜色
-    //   let toolbarStatus = {
-    //     enter: enter,
-    //     visible: top,
-    //   };
-    //   this.$store.commit('changeToolbarStatus', toolbarStatus);
-    // },
+    scrollTop(scrollTop) {
+      this.showGoTopButton = scrollTop > window.innerHeight / 2;
+    },
   },
   created() {
-    let toolbarStatus = {
-      enter: false,
-      visible: true,
-    };
-    this.$store.commit('changeToolbarStatus', toolbarStatus);
     this.getWebInfo();
-    this.getSysConfig();
     this.getSortInfo();
     this.getSortCorporationInfo();
 
-    this.mobile = document.body.clientWidth < 1100;
-
     window.addEventListener('resize', () => {
-      let docWidth = document.body.clientWidth;
-      if (docWidth < 810) {
+      let docWidth = window.innerWidth;
+      if (docWidth <= 840) {
         this.mobile = true;
       } else {
         this.mobile = false;
       }
     });
+    this.setColor();
   },
   computed: {
     toolbar() {
@@ -369,83 +222,18 @@ export default {
     },
 
     getWebInfo() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/getWebInfo')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.$store.commit('loadWebInfo', res.data);
-            localStorage.setItem('defaultStoreType', res.data.defaultStoreType);
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-
-    getSysConfig() {
-      this.$http.get(this.$constant.baseURL + '/sysConfig/listSysConfig')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.$store.commit('loadSysConfig', res.data);
-            this.buildCssPicture();
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-
-    buildCssPicture() {
-      let root = document.querySelector(':root');
-      let webStaticResourcePrefix = this.$store.state.sysConfig['webStaticResourcePrefix'];
-      // console.log(webStaticResourcePrefix);
-      // root.style.setProperty("--commentURL", "url(" + webStaticResourcePrefix + "assets/commentURL.png)");
-      root.style.setProperty('--springBg', 'url(' + webStaticResourcePrefix + 'assets/springBg.jpg)');
-      // root.style.setProperty("--admireImage", "url(" + webStaticResourcePrefix + "assets/admireImage.jpg)");
-      // root.style.setProperty("--toTop", "url(" + webStaticResourcePrefix + "assets/toTop.png)");
-      // root.style.setProperty("--bannerWave1", "url(" + webStaticResourcePrefix + "assets/bannerWave1.png) repeat-x");
-      // root.style.setProperty("--bannerWave2", "url(" + webStaticResourcePrefix + "assets/bannerWave2.png) repeat-x");
-      root.style.setProperty('--backgroundPicture', 'url(' + webStaticResourcePrefix + 'assets/backgroundPicture.jpg)');
-      // root.style.setProperty("--toolbar", "url(" + webStaticResourcePrefix + "assets/toolbar.jpg)");
-      // root.style.setProperty("--love", "url(" + webStaticResourcePrefix + "assets/love.jpg)");
-      // const font = new FontFace("poetize-font", "url(" + webStaticResourcePrefix + "assets/font.woff2)");
-      // font.load();
-      // document.fonts.add(font);
+      const webInfo = getWebInfo();
+      this.$store.commit('loadWebInfo', webInfo);
     },
 
     getSortInfo() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/getSortInfo')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.$store.commit('loadSortInfo', res.data);
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      const sortInfo = getSortInfo();
+      this.$store.commit('loadSortInfo', sortInfo);
     },
 
     getSortCorporationInfo() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/getSortCorporationInfo')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.$store.commit('loadSortCorporationInfo', res.data);
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      const sortCorporationInfo = getSortCorporationInfo();
+      this.$store.commit('loadSortCorporationInfo', sortCorporationInfo);
     },
 
     handleAvatarClick() {
@@ -458,29 +246,69 @@ export default {
         this.$router.push({ path: '/login' });
       }
     },
-
+    handleStorageChange(event) {
+      if (event.key === 'DarkMode') {
+        this.darkMode = event.newValue;
+        this.setColor();
+      }
+    },
     changeColor() {
-      this.isDark = !this.isDark;
+      const newMode = this.darkMode === this.$constant.DarkMode.LIGHT ? this.$constant.DarkMode.DARK : this.$constant.DarkMode.LIGHT;
+      this.darkMode = newMode;
+      localStorage.setItem('DarkMode', newMode);
+      this.setColor();
+    },
+    setColor() {
       let root = document.querySelector(':root');
 
-      if (this.isDark) {
-        root.style.setProperty('--background', '#272727');
-        root.style.setProperty('--fontColor', 'white');
+      if (this.darkMode === this.$constant.DarkMode.DARK) {
+        root.style.setProperty('--background', '#1d1d1d');
+        root.style.setProperty('--fontColor', '#cccccc');
         root.style.setProperty('--borderColor', '#4F4F4F');
         root.style.setProperty('--borderHoverColor', 'black');
         root.style.setProperty('--articleFontColor', '#E4E4E4');
         root.style.setProperty('--articleGreyFontColor', '#D4D4D4');
         root.style.setProperty('--commentContent', '#D4D4D4');
         root.style.setProperty('--favoriteBg', '#1e1e1e');
+        root.style.setProperty('--content-background-color', '#2a2a2a');
+        root.style.setProperty('--content-background-color-light', '#2a2a2a');
+        root.style.setProperty('--hover-box-shadow', '0 2px 13px 6px rgba(20, 20, 20, 0.7)');
+        root.style.setProperty('--theme-green', '#2b918a');
+        root.style.setProperty('--theme-green-hover', '#20817a');
+        root.style.setProperty('--theme-green-active', '#1d716a');
+        root.style.setProperty('--theme-purple', '#7b7bc7');
+        root.style.setProperty('--theme-pink', '#a877a2');
+        root.style.setProperty('--theme-blue', '#347ab2');
+        root.style.setProperty('--white-content', '#eeeeee');
+        root.style.setProperty('--grey-content', '#898989');
+        root.style.setProperty('--grey-background', '#444444');
+        root.style.setProperty('--label-background', 'rgba(128, 128, 128, 0.2)');
+        root.style.setProperty('--list-item-border', '#494949');
+        root.style.setProperty('--content-border', '#777777');
       } else {
         root.style.setProperty('--background', '#f1f3f5');
-        root.style.setProperty('--fontColor', 'black');
+        root.style.setProperty('--fontColor', '#000000');
         root.style.setProperty('--borderColor', 'rgba(0, 0, 0, 0.5)');
         root.style.setProperty('--borderHoverColor', 'rgba(110, 110, 110, 0.4)');
         root.style.setProperty('--articleFontColor', '#1F1F1F');
         root.style.setProperty('--articleGreyFontColor', '#616161');
         root.style.setProperty('--commentContent', '#F7F9FE');
         root.style.setProperty('--favoriteBg', '#f7f9fe');
+        root.style.setProperty('--content-background-color', '#ffffff');
+        root.style.setProperty('--content-background-color-light', '#f3f5f7');
+        root.style.setProperty('--hover-box-shadow', '0 2px 13px -2px rgba(110, 110, 110, 0.4)');
+        root.style.setProperty('--theme-green', '#39c5bb');
+        root.style.setProperty('--theme-green-hover', '#30b0aa');
+        root.style.setProperty('--theme-green-active', '#28a098');
+        root.style.setProperty('--theme-purple', '#bdbdf0');
+        root.style.setProperty('--theme-pink', '#eec1ea');
+        root.style.setProperty('--theme-blue', '#87cefa');
+        root.style.setProperty('--white-content', '#ffffff');
+        root.style.setProperty('--grey-content', '#797979');
+        root.style.setProperty('--grey-background', '#bbbbbb');
+        root.style.setProperty('--label-background', 'rgba(200, 200, 200, 0.2)');
+        root.style.setProperty('--list-item-border', '#cccccc');
+        root.style.setProperty('--content-border', '#aaaaaa');
       }
     },
 
@@ -494,203 +322,70 @@ export default {
     onScrollPage() {
       this.scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
     },
-
-    isDaylight() {
-      let currDate = new Date();
-      if (currDate.getHours() > 22 || currDate.getHours() < 7) {
-        return true;
-      } else {
-        return false;
-      }
-    },
   }
 };
 </script>
 
 <style scoped>
+.main-container {
+  padding-top: 60px;
+  background: var(--background);
+  min-height: calc(100vh - 60px);
+  max-width: 1600px;
+  margin: auto;
+}
 
-  .main-container {
-    padding-top: 60px;
-    background: var(--background);
-  }
+.toolbar-content {
+  width: 100%;
+  height: 60px;
+  background: var(--content-background-color);
+  position: fixed;
+  z-index: 100;
+  user-select: none;
+  box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.05);
+}
 
-  .toolbar-content {
-    width: 100%;
-    height: 60px;
-    background: var(--white);
-    color: var(--black);
-    /* 固定位置，不随滚动条滚动 */
-    position: fixed;
-    z-index: 100;
-    /* 禁止选中文字 */
-    user-select: none;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 2px 4px 2px rgba(0, 0, 0, 0.05);
-  }
+.toolbar-title {
+  cursor: pointer;
+}
 
-  .toolbar-title {
-    margin-left: 20px;
-    cursor: pointer;
-  }
+.toolbar-mobile-menu {
+  font-size: 30px;
+  cursor: pointer;
+}
 
-  .toolbar-mobile-menu {
-    font-size: 30px;
-    margin-right: 15px;
-    cursor: pointer;
-  }
+.menu-container {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
 
-  .scroll-menu {
-    margin: 0 10px 0 0;
-    display: flex;
-    justify-content: flex-end;
-    padding: 0;
-  }
-
-  .scroll-menu li {
-    list-style: none;
-    margin: 0 12px;
-    font-size: 17px;
+  .menu-item-container {
+    font-size: 16px;
     height: 60px;
     line-height: 60px;
     position: relative;
     cursor: pointer;
+
+    .menu-item {
+      padding: 0 16px;
+    }
   }
 
-  .scroll-menu li:hover .my-menu span {
-    color: var(--themeBackground);
-  }
-
-  .scroll-menu li:hover .my-menu i {
-    color: var(--themeBackground);
-    animation: scale 1.5s ease-in-out infinite;
-  }
-
-  .scroll-menu li .my-menu:after {
+  .menu-item-container:not(:first-child):after {
     content: "";
     display: block;
     position: absolute;
-    bottom: 0;
-    height: 6px;
-    background-color: var(--themeBackground);
-    width: 100%;
-    max-width: 0;
-    transition: max-width 0.25s ease-in-out;
-  }
-
-  .scroll-menu li:hover .my-menu:after {
-    max-width: 100%;
-  }
-
-  .sortMenu {
-    margin-left: 44px;
-    font-size: 17px;
-    position: relative;
-  }
-
-  .sortMenu:after {
-    top: 32px;
-    width: 35px;
+    bottom: 50%;
     left: 0;
-    height: 2px;
-    background: var(--themeBackground);
-    content: "";
-    border-radius: 1px;
-    position: absolute;
+    background-color: var(--borderColor);
+    height: 20%;
+    width: 1px;
+    transform: translateX(50%) translateY(50%);
   }
 
-  .el-dropdown {
-    font-size: unset;
-    color: unset;
+  .menu-item-container:hover {
+    color: var(--hover-color-text);
   }
+}
 
-  .el-popper[x-placement^=bottom] {
-    margin-top: -8px;
-  }
-
-  .el-dropdown-menu {
-    padding: 5px 0;
-  }
-
-  .el-dropdown-menu__item {
-    font-size: unset;
-  }
-
-  .el-dropdown-menu__item:hover {
-    background-color: var(--white);
-    color: var(--themeBackground);
-  }
-
-  .toolButton {
-    position: fixed;
-    right: 3vh;
-    bottom: 3vh;
-    animation: slide-bottom 0.5s ease-in-out both;
-    z-index: 100;
-    cursor: pointer;
-    font-size: 25px;
-    width: 30px;
-  }
-
-  .my-setting {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    cursor: pointer;
-    font-size: 20px;
-  }
-
-  .my-setting i {
-    padding: 5px;
-  }
-
-  .my-setting i:hover {
-    color: var(--themeBackground);
-  }
-
-  .cd-top {
-    background: var(--toTop) no-repeat center;
-    position: fixed;
-    right: 5vh;
-    top: -900px;
-    z-index: 99;
-    width: 70px;
-    height: 900px;
-    background-size: contain;
-    transition: all 0.5s ease-in-out;
-    cursor: pointer;
-  }
-
-  .backTop {
-    transition: all 0.3s ease-in;
-    position: relative;
-    top: 0;
-    left: -13px;
-  }
-
-  .backTop:hover {
-    top: -10px;
-  }
-
-  #outerImg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 10;
-    width: 100%;
-    height: 100%;
-    display: none;
-  }
-
-  @media screen and (max-width: 1200px) {
-    .toolbar-container {
-      width: 100% !important;
-    }
-  }
-
-  @media screen and (max-width: 400px) {
-    .toolButton {
-      right: 0.5vh;
-    }
-  }
 </style>

@@ -1,12 +1,10 @@
 <template>
   <div>
     <div class="introduce-search-container">
-      <div class="introduce-search-box" style="color: var(--white)">
-        <div class="logo-content" style="padding-left: 3%">
+      <div class="introduce-search-box" style="color: var(--white-content)">
+        <div class="logo-content" style="padding-left: 20px">
           <h2>
-            <span>关于&thinsp;</span>
-            <span v-for="(a, index) in $store.state.webInfo.webTitle" :key="index">{{a}}</span>
-            <span>&thinsp;……</span>
+            <span>关于&thinsp;{{$store.state.webInfo.webName}}&thinsp;……</span>
           </h2>
         </div>
       </div>
@@ -98,207 +96,49 @@
         </div>
       </div>
     </div>
-
-<!--    <div>-->
-<!--      <div class="message-in" style="text-align: center">-->
-<!--        <h2 class="message-title">树洞</h2>-->
-<!--        <div>-->
-<!--          <input class="message-input"-->
-<!--                 type="text"-->
-<!--                 style="outline: none;width: 70%"-->
-<!--                 placeholder="留下点什么啦~"-->
-<!--                 v-model="messageContent"-->
-<!--                 @click="show = true"-->
-<!--                 maxlength="60"/>-->
-<!--          <button v-show="show"-->
-<!--                  style="margin-left: 12px;cursor: pointer;width: 20%"-->
-<!--                  @click="submitMessage"-->
-<!--                  class="message-input">发射-->
-<!--          </button>-->
-<!--        </div>-->
-<!--      </div>-->
-
-<!--    </div>-->
-    <div class="comment-wrap">
-      <div class="comment-content">
-        <comment :source="$constant.source" :type="'message'" :userId="$constant.userId"></comment>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-const comment = () => import( './comment/comment');
 
 export default {
-  components: {
-    comment
-  },
+  components: {},
   data() {
-    return {
-      show: false,
-      messageContent: '',
-      // background: {"background": "url(" + this.$store.state.webInfo.backgroundImage + ") center center / cover no-repeat"},
-      barrageList: []
-    };
+    return {};
   },
-  created() {
-    this.getTreeHole();
-  },
-  methods: {
-    getTreeHole() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/listTreeHole')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            res.data.forEach(m => {
-              this.barrageList.push({
-                id: m.id,
-                avatar: m.avatar,
-                msg: m.message,
-                time: Math.floor(Math.random() * 5 + 10)
-              });
-            });
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-    submitMessage() {
-      if (this.messageContent.trim() === '') {
-        this.$message({
-          message: '你还没写呢~',
-          type: 'warning'
-        });
-        return;
-      }
-
-      let treeHole = {
-        message: this.messageContent.trim()
-      };
-
-      if (!this.$common.isEmpty(this.$store.state.currentUser) && !this.$common.isEmpty(this.$store.state.currentUser.avatar)) {
-        treeHole.avatar = this.$store.state.currentUser.avatar;
-      }
-
-
-      this.$http.post(this.$constant.baseURL + '/webInfo/saveTreeHole', treeHole)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.barrageList.push({
-              id: res.data.id,
-              avatar: res.data.avatar,
-              msg: res.data.message,
-              time: Math.floor(Math.random() * 5 + 10)
-            });
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-
-      this.messageContent = '';
-      this.show = false;
-    }
-  }
+  created() {},
+  methods: {}
 };
 </script>
 
 <style scoped>
+.introduce-search-container {
+  /* 向下排列 */
+  display: flex;
+  flex-direction: row;
+  cursor: default;
+  width: 90%;
+  padding: 30px 0 0;
+  margin: 0 auto;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+}
 
-  .introduce-search-container {
-    /* 向下排列 */
-    display: flex;
-    flex-direction: row;
-    cursor: default;
-    width: 90%;
-    padding: 30px 20px 0 20px;
-    margin: 0 auto;
-    overflow: hidden;
-    justify-content: center;
-    align-items: center;
-  }
+.introduce-search-box {
+  background: linear-gradient(-45deg, var(--theme-blue), var(--theme-pink), var(--theme-purple));
+  width: 100%;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 
-  .introduce-search-box {
-    background: linear-gradient(-45deg, #87CEFA, #eec1ea, #bdbdf0);
-    width: 100%;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .page-container {
-    display: flex;
-    justify-content: center;
-    width: 90%;
-    margin: 25px auto 0;
-    padding: 0 20px 20px 20px;
-    flex-direction: row;
-  }
-
-  .page-content-box {
-    background-color: var(--white);
-    border-radius: 10px;
-    width: 100%;
-    padding: 25px 3%;
-    line-height: 2;
-  }
-
-  .message-in {
-    position: absolute;
-    left: 50%;
-    top: 40%;
-    transform: translate(-50%, -50%);
-    color: var(--white);
-    animation: hideToShow 2.5s;
-    width: 360px;
-    z-index: 10;
-  }
-
-  .message-title {
-    user-select: none;
-    text-align: center;
-  }
-
-  .message-input {
-    border-radius: 1.2rem;
-    border: var(--white) 1px solid;
-    color: var(--white);
-    background: var(--transparent);
-    padding: 10px 10px;
-  }
-
-  .message-input::-webkit-input-placeholder {
-    color: var(--white);
-  }
-
-  .barrage-container {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: calc(100% - 50px);
-    width: 100%;
-    user-select: none;
-    overflow: hidden;
-  }
-
-  .comment-wrap {
-    background: var(--background);
-    width: 100%;
-  }
-
-  .comment-content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px 40px;
-  }
+.page-content-box {
+  background-color: var(--content-background-color);
+  border-radius: 10px;
+  width: 100%;
+  padding: 15px 20px;
+  line-height: 2;
+}
 </style>

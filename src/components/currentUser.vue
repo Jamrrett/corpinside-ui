@@ -961,7 +961,7 @@ export default {
   }
 
   .article-first {
-    color: var(--greyFont);
+    color: var(--grey-content);
     padding: 15px;
   }
 
@@ -992,7 +992,7 @@ export default {
 
   .post-meta {
     font-size: 12px;
-    color: var(--greyFont);
+    color: var(--grey-content);
   }
 
   .post-meta span:not(:last-child) {
@@ -1020,7 +1020,7 @@ export default {
     background-color: var(--maxLightGray);
     border-radius: 3px;
     font-size: 14px;
-    color: var(--greyFont);
+    color: var(--grey-content);
     transition: all 0.3s;
     cursor: pointer;
     user-select: none;

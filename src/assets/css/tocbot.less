@@ -1,0 +1,97 @@
+@toolbarHeight: 60px;
+@FooterHeight: 10px;
+@ToolButtonHeight: 45px;
+
+.toc {
+    width: 300px;
+    height: fit-content;
+    background: var(--content-background-color);
+    border-radius: 8px;
+    z-index: 100;
+    /*transition: all 1s;*/
+    padding: 10px 10px 10px 5px;
+    /*color: var(--maxGreyFont);*/
+}
+
+.toc-fixed {
+    position: fixed;
+    top: 80px;
+}
+
+.toc-float {
+    position: fixed;
+    bottom: calc(@FooterHeight + 20px);
+    right: calc(@ToolButtonHeight + 3vw + 10px);
+    box-shadow: var(--hover-box-shadow);
+    max-width: calc(100vw - @ToolButtonHeight - 3vw - 10px - 5vw);
+    //max-height: calc(100vh - @toolbarHeight - @FooterHeight - 20px - 10px);
+
+    & > .toc-list {
+        max-height: calc(100vh - @toolbarHeight - @FooterHeight - 20px - 30px - 60px) !important;
+    }
+}
+
+.toc::before {
+    content: '目录';
+    font-size: 24px;
+    line-height: 40px;
+    display: block;
+    text-align: center;
+}
+
+.toc > .toc-list {
+    overflow-y: scroll;
+    max-height: 52vh;
+    position: relative;
+    /*padding-inline-start: 35px !important;*/
+    padding-right: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.toc > .toc-list::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.toc > .toc-list::-webkit-scrollbar-track {
+    background-color: rgba(73, 177, 245, 0.2);
+}
+
+.toc > .toc-list::-webkit-scrollbar-thumb {
+    background-color: var(--theme-green);
+    border-radius: 1em;
+}
+
+.toc .toc-list {
+    padding-inline-start: 25px;
+}
+
+.toc a.toc-link {
+    color: currentColor;
+    height: 100%;
+    text-decoration: none;
+}
+
+/*.toc .is-collapsible {*/
+/*    max-height: 1000px;*/
+/*    overflow: hidden;*/
+/*    transition: all 300ms ease-in-out;*/
+/*}*/
+
+/*.toc .is-collapsed {*/
+/*    max-height: 0;*/
+/*}*/
+
+.toc .toc-link {
+    margin: 4px 0;
+    display: block;
+}
+
+.toc .is-active-link {
+    /*font-weight: 700;*/
+    color: var(--white) !important;
+    background: var(--theme-green);
+    padding: 4px 8px;
+    border-radius: 5px;
+}
