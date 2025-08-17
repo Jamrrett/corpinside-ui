@@ -48,102 +48,74 @@ const routes = [
       path: '/about',
       name: 'about',
       component: () => import('../components/about')
-    }, {
-      path: '/login',
-      name: 'login',
-      component: () => import('../components/login')
+    // }, {
+    //   path: '/login',
+    //   name: 'login',
+    //   component: () => import('../components/login')
     // }, {
     //   path: '/user/:userId',
     //   name: 'user',
     //   component: () => import('../components/user')
-    // }, {
-    //   path: '/articleEdit',
-    //   name: 'articleEdit',
-    //   component: () => import('../components/articleEdit')
+    }, {
+      path: '/articleEdit',
+      name: 'articleEdit',
+      component: () => import('../components/articleEdit')
     }]
   },
-  // {
-  //   path: '/admin',
-  //   redirect: '/welcome',
-  //   meta: {requiresAuth: true},
-  //   component: () => import('../components/admin/admin'),
-  //   children: [{
-  //     path: '/welcome',
-  //     name: 'welcome',
-  //     component: () => import('../components/admin/welcome')
-  //   }, {
-  //     path: '/main',
-  //     name: 'main',
-  //     component: () => import('../components/admin/main')
-  //   }, {
-  //     path: '/webEdit',
-  //     name: 'webEdit',
-  //     component: () => import('../components/admin/webEdit')
-  //   }, {
-  //     path: '/userList',
-  //     name: 'userList',
-  //     component: () => import('../components/admin/userList')
-  //   }, {
-  //     path: '/postList',
-  //     name: 'postList',
-  //     component: () => import('../components/admin/postList')
-  //   }, {
-  //     path: '/postEdit',
-  //     name: 'postEdit',
-  //     component: () => import('../components/admin/postEdit')
-  //   }, {
-  //     path: '/corporationList',
-  //     name: 'corporationList',
-  //     component: () => import('../components/admin/corporationList')
-  //   }, {
-  //     path: '/corporationEdit',
-  //     name: 'corporationEdit',
-  //     component: () => import('../components/admin/corporationEdit')
-  //   }, {
-  //     path: '/departmentList',
-  //     name: 'departmentList',
-  //     component: () => import('../components/admin/departmentList')
-  //   }, {
-  //     path: '/departmentEdit',
-  //     name: 'departmentEdit',
-  //     component: () => import('../components/admin/departmentEdit')
-  //   }, {
-  //     path: '/sortList',
-  //     name: 'sortList',
-  //     component: () => import('../components/admin/sortList')
-  //   }, {
-  //     path: '/configList',
-  //     name: 'configList',
-  //     component: () => import('../components/admin/configList')
-  //   }, {
-  //     path: '/commentList',
-  //     name: 'commentList',
-  //     component: () => import('../components/admin/commentList')
-  //   }, {
-  //     path: '/treeHoleList',
-  //     name: 'treeHoleList',
-  //     component: () => import('../components/admin/treeHoleList')
-  //   }, {
-  //     path: '/resourceList',
-  //     name: 'resourceList',
-  //     component: () => import('../components/admin/resourceList')
-  //   }, {
-  //     path: '/resourcePathList',
-  //     name: 'resourcePathList',
-  //     component: () => import('../components/admin/resourcePathList')
-  //   }]
-  // },
-  // {
-  //   path: '/verify',
-  //   name: 'verify',
-  //   component: () => import('../components/admin/verify')
-  // }
+  {
+    path: '/admin',
+    meta: {requiresAuth: true},
+    component: () => import('../components/admin/admin'),
+    children: [{
+      path: '/admin',
+      name: 'main',
+      component: () => import('../components/admin/main')
+    }, {
+      path: '/admin/webEdit',
+      name: 'webEdit',
+      component: () => import('../components/admin/webEdit')
+    }, {
+      path: '/admin/userList',
+      name: 'userList',
+      component: () => import('../components/admin/userList')
+    }, {
+      path: '/admin/articleList',
+      name: 'articleList',
+      component: () => import('../components/admin/articleList')
+    }, {
+      path: '/admin/corporationList',
+      name: 'corporationList',
+      component: () => import('../components/admin/corporationList')
+    }, {
+      path: '/admin/corporationEdit',
+      name: 'corporationEdit',
+      component: () => import('../components/admin/corporationEdit')
+    }, {
+      path: '/admin/departmentList',
+      name: 'departmentList',
+      component: () => import('../components/admin/departmentList')
+    }, {
+      path: '/admin/departmentEdit',
+      name: 'departmentEdit',
+      component: () => import('../components/admin/departmentEdit')
+    }]
+  },
+  {
+    path: '/verify',
+    name: 'verify',
+    component: () => import('../components/admin/verify')
+  },
+  {
+    path: '*', // 匹配所有未定义的路由
+    name: 'notFound',
+    component: () => import('../components/not-found')
+  }
 ];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   // base: process.env.NODE_ENV === 'production'
-  //   ? '/corpinside-ui/'
+  //   ? '/corpinside/'
   //   : '/',
   routes: routes,
   scrollBehavior(to, from, savedPosition) {

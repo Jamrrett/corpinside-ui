@@ -47,22 +47,23 @@
               <div class="page-content-box-content-item-content">
                 <p>
                   <span>
-                    网站采用前后端分离的方式，基于POETIZE开源博客进行二次开发<br>
+                    网站本地版本采用前后端分离的方式，基于POETIZE开源博客进行二次开发<br>
                     前端采用 Vue2 + ElementUI + Axios 等技术栈进行开发<br>
-                    后端采用 SpringBoot + MySQL + MyBatis-Plus 等技术栈进行开发
-<!--                    后端采用 SpringBoot + MySQL + MyBatis-Plus + Redis + Elasticsearch 等技术栈进行开发-->
+                    后端采用 SpringBoot + MySQL + MyBatis-Plus 等技术栈进行开发<br>
+                    目前已经实现了用户注册、登录、文章发布、文章评论、文章分类等功能
                   </span>
                 </p>
                 <p>
                   <span>
-                    网站目前尚处于开发建设阶段<br>
-                    目前已经实现了用户注册、登录、文章发布、文章评论、文章分类等功能<br>
-                    待开发功能：文章搜索、文章推荐、文章点赞、文章收藏
+                    网站线上版本为基于 Github Pages 静态托管的纯前端界面<br>
+                    <b>Why？</b>因为租云服务器要钱，而且部署起来比较麻烦...<br>
+                    目前用 json + js 模拟了后端接口，仅提供阅读服务，不可登录、发布文章<br>
+                    待开发功能：全局搜索
                   </span>
                 </p>
                 <p>
                   <span>
-                    如果大家在使用过程中遇到了bug，或者有任何建议，欢迎在评论区留言或者直接给我发邮件，谢谢！
+                    如果大家在使用过程中遇到了bug，或者有任何建议，欢迎直接给我发邮件，谢谢！
                   </span>
                 </p>
               </div>
@@ -75,19 +76,22 @@
               <div class="page-content-box-content-item-content">
                 <p>
                   <span>
-                    一名正在努力学Java、学MySQL、学Redis、学消息队列，期望能够找到暑期实习的研二在读学生，目前就读于哈尔滨工业大学（深圳）
+                    一名正在实习的研三在读学生，目前就读于哈尔滨工业大学（深圳）
                   </span>
                 </p>
                 <p>
                   <span>
-                    爱好：篮球🏀（你怎么知道我读研期间获得了3次校赛冠军和1次院赛冠军+MVP，并且还是二级裁判？😼)<br>
+                    爱好：篮球🏀（你怎么知道我读研期间获得了4次校赛冠军和1次院赛冠军+MVP，并且还是二级裁判？😼)<br>
                     研究方向：计算机视觉，AIGC，时尚AI<br>
                     发表论文：暂无😑课题组偏向于项目，对科研产出要求不高<br>
                     参与项目：真伪票据识别、校园OJ系统开发、污染物预测与平台开发<br>
-                    实习经历：北京大学深圳研究生院 城市规划与设计学院 科研助理<br>
-                    <span style="display: block;text-indent: 5em;">美国大选预测（Trump or Harris)</span>
-                    <span style="display: block;text-indent: 5em;">51个州+特区的预测准确率98.04%（即仅有1个州预测失误，其余州的真实投票获胜者我们全部预测正确）</span>
-                    邮箱：jiahengw@outlook.com<br>
+                    实习经历：<br>
+                    <span style="display: block;text-indent: 2em;"><b>字节跳动 前端开发</b></span>
+                    <span style="display: block;text-indent: 4em;">待补充......</span>
+                    <span style="display: block;text-indent: 2em;"><b>北京大学深圳研究生院 城市规划与设计学院 科研助理</b></span>
+                    <span style="display: block;text-indent: 4em;">美国大选预测（Trump or Harris)</span>
+                    <span style="display: block;text-indent: 4em;">51个州+特区的预测准确率98.04%（即仅有1个州预测失误，其余州的真实投票获胜者我们全部预测正确）</span>
+                    邮箱：jhw@vip.qq.com<br>
                   </span>
                 </p>
               </div>

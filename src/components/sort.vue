@@ -38,7 +38,7 @@ export default {
       sortId: this.$route.params.sortId,
       corporationId: this.$route.query.corporationId,
       departmentId: this.$route.query.departmentId,
-      sort: null,
+      sort: {},
       pagination: {
         current: 1,
         size: 10,

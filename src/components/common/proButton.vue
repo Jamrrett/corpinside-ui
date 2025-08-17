@@ -1,9 +1,12 @@
 <template>
-  <div class="myButton">
-    <div :style="beforeColor">{{info}}</div>
-    <div :style="afterColor">{{info}}</div>
-    <div :style="afterColor">{{info}}</div>
-  </div>
+  <el-button
+    class="myButton"
+    :size="size"
+    :round="round"
+    :circle="circle"
+    :loading="loading"
+    :disabled="disable"
+  >{{info}}</el-button>
 </template>
 
 <script>
@@ -11,62 +14,46 @@ export default {
   props: {
     info: {
       type: String,
-      default: '确定'
+      default: '确定',
     },
-    before: {
-      type: String
+    size: {
+      type: String,
+      default: 'medium',
     },
-    after: {
-      type: String
-    }
+    round: {
+      type: Boolean,
+      default: false,
+    },
+    circle: {
+      type: Boolean,
+      default: false,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    disable: {
+      type: Boolean,
+      default: false,
+    },
   },
-  data() {
-    return {
-      beforeColor: {'background': this.before},
-      afterColor: {'background': this.after}
-    };
-  }
 };
 </script>
 
-<style scoped>
-  .myButton {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    width: 66px;
-    height: 33px;
-    border-radius: 4px;
-    color: var(--white);
-    font-size: 14px;
-    overflow: hidden;
+<style scoped lang="less">
+.myButton {
+  cursor: pointer;
+  user-select: none;
+  color: var(--white-content);
+  background-color: var(--theme-green);
+  border: none;
+
+  &:hover {
+    background-color: var(--theme-green-hover);
   }
 
-  .myButton div {
-    width: 66px;
-    height: 33px;
-    line-height: 33px;
-    border-radius: 4px;
-    text-align: center;
-    position: absolute;
+  &:active {
+    background-color: var(--theme-green-active);
   }
-
-  .myButton div:nth-child(2) {
-    width: 100px;
-    transition: all 0.3s ease;
-    transform: translateX(-120px) skewX(-30deg);
-  }
-
-  .myButton div:nth-child(3) {
-    transition: all 0.3s ease;
-    transform: translateX(-120px);
-  }
-
-  .myButton:hover div:nth-child(2) {
-    transform: translateX(20px) skewX(-30deg);
-  }
-
-  .myButton:hover div:nth-child(3) {
-    transform: translateX(0px);
-  }
+}
 </style>

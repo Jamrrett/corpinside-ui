@@ -36,3 +36,10 @@ export const getCorporationsBySortId = (sortId, pagination) => {
     total: corporationsBySortId.length,
   };
 }
+
+export const getCorporationTitles = () => {
+  return corporations.map(item => ({
+    id: item.id,
+    corporationTitle: item.corporationTitle,
+  }));
+};

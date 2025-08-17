@@ -1,9 +1,54 @@
 {
+  "user": {
+    "id": "0",
+    "username": "username",
+    "password": "password",
+    "email": "email",
+    "avatar": "avatar",
+    "introduction": "introduction",
+    "resume": "resume",
+    "userType": 2,
+    "createTime": "createTime"
+  },
   "article": {
-    "title": "文章标题",
-    "content": "文章内容",
-    "viewStatus": 1,
-    "createTime": "2023-01-01 00:00:00",
-    "updateTime": "2023-01-01 00:00:00"
+    "id": "0",
+    "sortId": "0",
+    "username": "username",
+    "articleTitle": "articleTitle",
+    "articleContent": "articleContent",
+    "corporationId": "0",
+    "corporationTitle": "corporationTitle",
+    "departmentId": "0",
+    "departmentTitle": "departmentTitle",
+    "sortCorporationId": "0",
+    "sortCorporationName": "sortCorporationName",
+    "date": "date",
+    "createTime": "createTime",
+    "updateTime": "updateTime",
+    "recommendStatus": false
+  },
+  "corporation": {
+    "id": "0",
+    "sortId": "1",
+    "corporationTitle": "corporationTitle",
+    "corporationLogo": "corporationLogo",
+    "corporationCover": "corporationCover",
+    "corporationContent": "",
+    "rating": 4.8,
+    "difficulty": 4.8,
+    "industry": "industry",
+    "foundedYear": "foundedYear",
+    "createTime": "createTime",
+    "updateTime": "updateTime"
+  },
+  "department": {
+    "id": "0",
+    "departmentTitle": "departmentTitle",
+    "departmentContent": "departmentContent",
+    "corporationId": "0",
+    "rating": 4.8,
+    "difficulty": 4.8,
+    "createTime": "createTime",
+    "updateTime": "updateTime"
   }
 }

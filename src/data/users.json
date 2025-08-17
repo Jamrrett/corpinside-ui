@@ -2,10 +2,12 @@
   {
     "id": "1",
     "username": "Jamrrett Wu",
-    "password": "123456",
-    "email": "jiahengw@outlook.com",
+    "password": "K-IQNoTs2tUO2aA6atRU4g==",
+    "email": "jhw@vip.qq.com",
     "avatar": "images/avatars/Jamrrett Wu.webp",
     "introduction": "admin user",
-    "resume": ""
+    "resume": "",
+    "userType": 0,
+    "createTime": "2025-03-09 23:22:01"
   }
 ]

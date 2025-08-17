@@ -84,6 +84,7 @@
     --theme-purple: #bdbdf0;
     --theme-pink: #eec1ea;
     --theme-blue: #87cefa;
+    --theme-background: linear-gradient(-45deg, var(--theme-blue), var(--theme-pink), var(--theme-purple));
 
     --white-content: #ffffff;
     --grey-content: #797979;

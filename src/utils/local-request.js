@@ -1,52 +1,51 @@
-import axios from 'axios';
 import constant from './constant';
 //处理url参数
 import qs from 'qs';
 
 import store from '../store';
 
-
-axios.defaults.baseURL = constant.baseURL;
-
-let redirectToLogin;
-
-export const setRedirectToLogin = (callback) => {
-  redirectToLogin = callback;
-};
-
-// 添加请求拦截器
-axios.interceptors.request.use(function (config) {
-  // 在发送请求之前做些什么
-  return config;
-}, function (error) {
-  // 对请求错误做些什么
-  return Promise.reject(error);
-});
+import { getSortInfo } from "@/utils/data/sort";
+import { getSortCorporationInfo } from "@/utils/data/sortCorporation";
+import { postLogin } from "@/utils/data/user";
+import { getCorporationTitles } from "@/utils/data/corporation";
+import { getDepartmentTitles } from "@/utils/data/department";
+import {
+  getArticleById,
+  getArticlesBySortId,
+  getArticlesByCorporationIdGroupBySortId,
+  getArticlesByDepartmentIdGroupBySortId,
+} from "@/utils/data/article";
+import {
+  adminGetUserList,
+  adminGetArticleList,
+  adminGetCorporationList,
+  adminGetDepartmentList,
+} from "@/utils/data/admin";
 
 // 添加响应拦截器
-axios.interceptors.response.use(function (response) {
-  if (response.data !== null && response.data.hasOwnProperty('code') && response.data.code !== 200) {
-    if (response.data.code === 300) {
-      store.commit('loadCurrentUser', {});
-      localStorage.removeItem('userToken');
-      store.commit('loadCurrentAdmin', {});
-      localStorage.removeItem('adminToken');
-      // window.location.href = constant.webURL + "/login";
-      if (typeof redirectToLogin === 'function') {
-        redirectToLogin();
-      }
-      else {
-        console.log(typeof redirectToLogin);
-      }
-    }
-    return Promise.reject(new Error(response.data.message));
-  } else {
-    return response;
-  }
-}, function (error) {
-  // 对响应错误做点什么
-  return Promise.reject(error);
-});
+// axios.interceptors.response.use(function (response) {
+//   if (response.data !== null && response.data.hasOwnProperty('code') && response.data.code !== 200) {
+//     if (response.data.code === 300) {
+//       store.commit('loadCurrentUser', {});
+//       localStorage.removeItem('userToken');
+//       store.commit('loadCurrentAdmin', {});
+//       localStorage.removeItem('adminToken');
+//       // window.location.href = constant.webURL + "/login";
+//       if (typeof redirectToLogin === 'function') {
+//         redirectToLogin();
+//       }
+//       else {
+//         console.log(typeof redirectToLogin);
+//       }
+//     }
+//     return Promise.reject(new Error(response.data.message));
+//   } else {
+//     return response;
+//   }
+// }, function (error) {
+//   // 对响应错误做点什么
+//   return Promise.reject(error);
+// });
 
 // 当data为URLSearchParams对象时设置为application/x-www-form-urlencoded;charset=utf-8
 // 当data为普通对象时，会被设置为application/json;charset=utf-8
@@ -66,14 +65,18 @@ export default {
     }
 
     return new Promise((resolve, reject) => {
-      axios
-        .post(url, json ? params : qs.stringify(params), config)
-        .then(res => {
-          resolve(res.data);
-        })
-        .catch(err => {
-          reject(err);
-        });
+      switch (url) {
+        case '/user/login':
+          postLogin(params).then(res => {
+            resolve(res);
+          }).catch(err => {
+            reject(err);
+          });
+          break;
+        default:
+          reject(new Error('url not found'));
+          break;
+      }
     });
   },
 
@@ -86,14 +89,11 @@ export default {
     }
 
     return new Promise((resolve, reject) => {
-      axios.get(url, {
-        params: params,
-        headers: headers
-      }).then(res => {
-        resolve(res.data);
-      }).catch(err => {
-        reject(err);
-      });
+      switch (url) {
+        default:
+          reject(new Error('url not found'));
+          break;
+      }
     });
   },
 

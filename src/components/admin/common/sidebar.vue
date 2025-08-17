@@ -11,37 +11,10 @@
              unique-opened
              :default-active="$router.currentRoute.path"
              router>
-      <template v-for="item in items">
-        <template v-if="isBoss || !item.isBoss">
-          <template v-if="item.subs">
-            <el-submenu :index="item.index" :key="item.index">
-              <template slot="title">
-                <i :class="item.icon"></i>
-                <span>{{ item.title }}</span>
-              </template>
-              <template v-for="subItem in item.subs">
-                <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
-                  <template slot="title">
-                    {{ subItem.title }}
-                  </template>
-                  <el-menu-item v-for="threeItem in subItem.subs" :key="threeItem.index" :index="threeItem.index">
-                    {{ threeItem.title }}
-                  </el-menu-item>
-                </el-submenu>
-                <el-menu-item v-else :index="subItem.index" :key="subItem.index">
-                  {{ subItem.title }}
-                </el-menu-item>
-              </template>
-            </el-submenu>
-          </template>
-          <template v-else>
-            <el-menu-item :index="item.index" :key="item.index">
-              <i :class="item.icon"></i>
-              {{ item.title }}
-            </el-menu-item>
-          </template>
-        </template>
-      </template>
+      <el-menu-item v-for="item in items" :index="item.index" :key="item.index">
+        <i :class="item.icon"></i>
+        {{ item.title }}
+      </el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -51,67 +24,30 @@ export default {
   data() {
     return {
       isCollapse: true,
-      isBoss: this.$store.state.currentAdmin.isBoss,
       items: [{
         icon: 'el-icon-s-home',
-        index: '/main',
+        index: '/admin',
         title: '系统首页',
-        isBoss: true
       }, {
         icon: 'el-icon-s-tools',
-        index: '/webEdit',
+        index: '/admin/webEdit',
         title: '网站设置',
-        isBoss: true
       }, {
         icon: 'el-icon-user-solid',
-        index: '/userList',
+        index: '/admin/userList',
         title: '用户管理',
-        isBoss: true
       }, {
         icon: 'el-icon-postcard',
-        index: '/postList',
+        index: '/admin/articleList',
         title: '文章管理',
-        isBoss: false
       }, {
         icon: 'el-icon-office-building',
-        index: '/corporationList',
+        index: '/admin/corporationList',
         title: '公司管理',
-        isBoss: false
       }, {
         icon: 'el-icon-suitcase',
-        index: '/departmentList',
+        index: '/admin/departmentList',
         title: '部门管理',
-        isBoss: false
-      }, {
-        icon: 'el-icon-notebook-2',
-        index: '/sortList',
-        title: '分类管理',
-        isBoss: true
-      }, {
-        icon: 'el-icon-notebook-1',
-        index: '/configList',
-        title: '配置管理',
-        isBoss: true
-      }, {
-        icon: 'el-icon-edit-outline',
-        index: '/commentList',
-        title: '评论管理',
-        isBoss: false
-      }, {
-        icon: 'el-icon-s-comment',
-        index: '/treeHoleList',
-        title: '留言管理',
-        isBoss: true
-      }, {
-        icon: 'el-icon-paperclip',
-        index: '/resourceList',
-        title: '资源管理',
-        isBoss: true
-      }, {
-        icon: 'el-icon-bank-card',
-        index: '/resourcePathList',
-        title: '资源聚合',
-        isBoss: true
       }]
     };
   },
@@ -144,27 +80,26 @@ export default {
 </script>
 
 <style scoped>
+.sidebar {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 70px;
+  bottom: 0;
+  overflow-y: scroll;
+  width: 130px;
+  user-select: none;
+}
 
-  .sidebar {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 70px;
-    bottom: 0;
-    overflow-y: scroll;
-    width: 130px;
-    user-select: none;
-  }
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
 
-  .sidebar::-webkit-scrollbar {
-    width: 0;
-  }
+.sidebar > ul {
+  height: 100%;
+}
 
-  .sidebar > ul {
-    height: 100%;
-  }
-
-  .sidebar-el-menu .el-menu-item {
-    padding: 0 10px !important;
-  }
+.sidebar-el-menu .el-menu-item {
+  padding: 0 10px !important;
+}
 </style>

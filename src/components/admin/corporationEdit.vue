@@ -249,7 +249,7 @@ export default {
       this.$http.get(this.$constant.baseURL + '/webInfo/getSortCorporationInfo')
         .then((res) => {
           if (!this.$common.isEmpty(res.data)) {
-            this.sorts = res.data;
+            this.sorts = res.data.sortCorporations;
             if (!this.$common.isEmpty(this.id)) {
               this.getCorporation();
             }

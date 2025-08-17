@@ -113,11 +113,6 @@ export default {
   mounted() {
     window.addEventListener('scroll', this.onScrollPage);
     window.addEventListener('resize', this.handleResize);
-    this.upOffsetTop = this.getElementOffset('article-wrapper');
-    this.downOffsetTop = Math.floor(
-      this.getElementOffset('article-body') - this.upOffsetTop
-    );
-    this.upOffsetTop = this.getElementScroll('article-wrapper');
   },
 
   destroyed() {
@@ -131,12 +126,6 @@ export default {
     },
     clickTocButton() {
       this.isShowToc = !this.isShowToc;
-    },
-    getElementOffset(elementId) {
-      return document.getElementById(elementId).offsetTop;
-    },
-    getElementScroll(elementId) {
-      return document.getElementById(elementId).scrollTop;
     },
     onScrollPage() {
       const docRef = this.$refs['article-container'];

@@ -1,10 +1,6 @@
 <template>
   <div>
     <div class="handle-box">
-      <el-select v-model="pagination.recommendStatus" placeholder="是否推荐" style="width: 120px" class="mrb10">
-        <el-option key="1" label="是" :value="true"></el-option>
-        <el-option key="2" label="否" :value="false"></el-option>
-      </el-select>
       <el-select style="width: 140px" class="mrb10" v-model="pagination.corporationId" placeholder="请选择公司">
         <el-option
           v-for="item in corporations"
@@ -16,59 +12,21 @@
       <el-input v-model="pagination.searchKey" placeholder="部门名称" class="handle-input mrb10"></el-input>
       <el-button type="primary" icon="el-icon-search" @click="searchDepartments()">搜索</el-button>
       <el-button type="danger" @click="clearSearch()">清除参数</el-button>
-      <el-button type="primary" @click="$router.push({path: '/departmentEdit'})">新增部门</el-button>
+      <el-button type="primary" @click="$router.push({ path: '/admin/departmentEdit' })">新增部门</el-button>
     </div>
     <el-table :data="departments" border class="table" header-cell-class-name="table-header">
-      <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-      <el-table-column prop="username" label="作者" align="center"></el-table-column>
-      <el-table-column prop="departmentTitle" label="公司名称" align="center"></el-table-column>
-      <el-table-column prop="sortDepartment.sortName" label="分类" align="center"></el-table-column>
-      <el-table-column prop="viewCount" label="浏览量" align="center"></el-table-column>
-      <el-table-column prop="likeCount" label="点赞数" align="center"></el-table-column>
-      <el-table-column label="是否可见" align="center">
+      <el-table-column prop="id" label="ID" width="55" align="center" />
+      <el-table-column prop="departmentTitle" label="部门名称" align="center" />
+      <el-table-column label="所属公司" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.viewStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.viewStatus === false ? '不可见' : '可见'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 1)" v-model="scope.row.viewStatus"></el-switch>
+          {{ corporations.find(item => item.id === scope.row.corporationId).corporationTitle }}
         </template>
       </el-table-column>
-      <el-table-column label="Logo" align="center">
-        <template slot-scope="scope">
-          <el-image lazy class="table-td-thumb" :src="scope.row.departmentLogo" fit="logo"></el-image>
-        </template>
-      </el-table-column>
-      <el-table-column label="封面" align="center">
-        <template slot-scope="scope">
-          <el-image lazy class="table-td-thumb" :src="scope.row.departmentCover" fit="cover"></el-image>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否启用评论" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.commentStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.commentStatus === false ? '否' : '是'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 2)" v-model="scope.row.commentStatus"></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否推荐" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.recommendStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.recommendStatus === false ? '否' : '是'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 3)" v-model="scope.row.recommendStatus"></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column prop="commentCount" label="评论数" align="center"></el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
-      <el-table-column prop="updateTime" label="最终修改时间" align="center"></el-table-column>
+      <el-table-column prop="updateTime" label="修改时间" align="center" />
       <el-table-column label="操作" width="180" align="center">
         <template slot-scope="scope">
           <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button type="text" icon="el-icon-delete" style="color: var(--orangeRed)" @click="handleDelete(scope.row)">
+          <el-button disabled type="text" icon="el-icon-delete" style="color: var(--orangeRed)" @click="handleDelete(scope.row)">
             删除
           </el-button>
         </template>
@@ -86,11 +44,12 @@
 </template>
 
 <script>
+import {getCorporationTitles} from "@/utils/data/corporation";
+import {adminGetDepartmentList} from "@/utils/data/admin";
 
 export default {
   data() {
     return {
-      isBoss: this.$store.state.currentAdmin.isBoss,
       pagination: {
         current: 1,
         size: 10,
@@ -114,18 +73,7 @@ export default {
 
   methods: {
     getCorporations() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/listSortAndCorporations')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.corporations = res.data.corporations;
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      this.corporations = getCorporationTitles();
     },
     clearSearch() {
       this.pagination = {
@@ -134,30 +82,14 @@ export default {
         total: 0,
         searchKey: '',
         recommendStatus: null,
-        sortId: null
+        corporationId: null
       };
       this.getDepartments();
     },
     getDepartments() {
-      let url = '';
-      if (this.isBoss) {
-        url = '/admin/department/boss/list';
-      } else {
-        url = '/admin/department/user/list';
-      }
-      this.$http.post(this.$constant.baseURL + url, this.pagination, true)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.departments = res.data.records;
-            this.pagination.total = res.data.total;
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      const res = adminGetDepartmentList(this.pagination);
+      this.departments = res.data;
+      this.pagination.total = res.total;
     },
     handlePageChange(val) {
       this.pagination.current = val;
@@ -239,7 +171,7 @@ export default {
       });
     },
     handleEdit(item) {
-      this.$router.push({path: '/departmentEdit', query: {id: item.id}});
+      this.$router.push({ path: '/admin/departmentEdit', query: {id: item.id }});
     }
   }
 };

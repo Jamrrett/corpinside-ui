@@ -4,12 +4,11 @@ import router from './router';
 import store from './store';
 import ElementUI from 'element-ui';
 import http from './utils/request';
+import localRequest from './utils/local-request';
 import common from './utils/common';
 import constant from './utils/constant';
 import mavonEditor from 'mavon-editor';
 //引入js
-// import './utils/live2d'
-// import './utils/title'
 //引入css
 import './assets/css/animation.css';
 import './assets/css/index.less';
@@ -31,6 +30,7 @@ Vue.use(progressive, {
 })
 
 Vue.prototype.$http = http;
+Vue.prototype.$localRequest = localRequest;
 Vue.prototype.$common = common;
 Vue.prototype.$constant = constant;
 

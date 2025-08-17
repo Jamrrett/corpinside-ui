@@ -7,3 +7,10 @@ export const getDepartmentById = (id) => {
 export const getDepartmentsByCorporationId = (corporationId) => {
   return departments.filter(department => department.corporationId === corporationId);
 }
+
+export const getDepartmentTitles = () => {
+  return departments.map(item => ({
+    id: item.id,
+    departmentTitle: item.departmentTitle,
+  }));
+};

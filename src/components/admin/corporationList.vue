@@ -1,37 +1,25 @@
 <template>
   <div>
     <div class="handle-box">
-      <el-select v-model="pagination.recommendStatus" placeholder="是否推荐" style="width: 120px" class="mrb10">
-        <el-option key="1" label="是" :value="true"></el-option>
-        <el-option key="2" label="否" :value="false"></el-option>
-      </el-select>
       <el-select style="width: 140px" class="mrb10" v-model="pagination.sortId" placeholder="请选择分类">
         <el-option
-          v-for="item in sorts"
+          v-for="item in sortCorporations"
           :key="item.id"
           :label="item.sortName"
           :value="item.id">
         </el-option>
       </el-select>
-      <el-input v-model="pagination.searchKey" placeholder="公司名称" class="handle-input mrb10"></el-input>
+      <el-input v-model="pagination.searchKey" placeholder="公司名称" class="handle-input mrb10" />
       <el-button type="primary" icon="el-icon-search" @click="searchCorporations()">搜索</el-button>
       <el-button type="danger" @click="clearSearch()">清除参数</el-button>
-      <el-button type="primary" @click="$router.push({path: '/corporationEdit'})">新增公司</el-button>
+      <el-button type="primary" @click="$router.push({ path: '/admin/corporationEdit' })">新增公司</el-button>
     </div>
     <el-table :data="corporations" border class="table" header-cell-class-name="table-header">
       <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-      <el-table-column prop="username" label="作者" align="center"></el-table-column>
-      <el-table-column prop="corporationTitle" label="公司名称" align="center"></el-table-column>
-      <el-table-column prop="sortCorporation.sortName" label="分类" align="center"></el-table-column>
-      <el-table-column prop="viewCount" label="浏览量" align="center"></el-table-column>
-      <el-table-column prop="likeCount" label="点赞数" align="center"></el-table-column>
-      <el-table-column label="是否可见" align="center">
+      <el-table-column prop="corporationTitle" label="公司名称" align="center" />
+      <el-table-column prop="sortCorporation.sortName" label="分类" align="center" >
         <template slot-scope="scope">
-          <el-tag :type="scope.row.viewStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.viewStatus === false ? '不可见' : '可见'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 1)" v-model="scope.row.viewStatus"></el-switch>
+          {{ sortCorporations.find(item => item.id === scope.row.sortId).sortName }}
         </template>
       </el-table-column>
       <el-table-column label="Logo" align="center">
@@ -44,31 +32,10 @@
           <el-image lazy class="table-td-thumb" :src="scope.row.corporationCover" fit="cover"></el-image>
         </template>
       </el-table-column>
-      <el-table-column label="是否启用评论" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.commentStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.commentStatus === false ? '否' : '是'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 2)" v-model="scope.row.commentStatus"></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="是否推荐" align="center">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.recommendStatus === false ? 'danger' : 'success'"
-                  disable-transitions>
-            {{scope.row.recommendStatus === false ? '否' : '是'}}
-          </el-tag>
-          <el-switch @click.native="changeStatus(scope.row, 3)" v-model="scope.row.recommendStatus"></el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column prop="commentCount" label="评论数" align="center"></el-table-column>
-      <el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
-      <el-table-column prop="updateTime" label="最终修改时间" align="center"></el-table-column>
+      <el-table-column prop="updateTime" label="修改时间" align="center" />
       <el-table-column label="操作" width="180" align="center">
         <template slot-scope="scope">
           <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button type="text" icon="el-icon-delete" style="color: var(--orangeRed)" @click="handleDelete(scope.row)">
             删除
           </el-button>
         </template>
@@ -86,11 +53,12 @@
 </template>
 
 <script>
+import {getSortCorporationInfo} from "@/utils/data/sortCorporation";
+import {adminGetCorporationList} from "@/utils/data/admin";
 
 export default {
   data() {
     return {
-      isBoss: this.$store.state.currentAdmin.isBoss,
       pagination: {
         current: 1,
         size: 10,
@@ -100,7 +68,7 @@ export default {
         sortId: null
       },
       corporations: [],
-      sorts: [],
+      sortCorporations: [],
     };
   },
 
@@ -114,21 +82,7 @@ export default {
 
   methods: {
     getSortCorporation() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/getSortCorporationInfo')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.sorts = res.data;
-            // if (!this.$common.isEmpty(this.id)) {
-            //   this.getCorporations();
-            // }
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      this.sortCorporations = getSortCorporationInfo();
     },
     clearSearch() {
       this.pagination = {
@@ -142,25 +96,9 @@ export default {
       this.getCorporations();
     },
     getCorporations() {
-      let url = '';
-      if (this.isBoss) {
-        url = '/admin/corporation/boss/list';
-      } else {
-        url = '/admin/corporation/user/list';
-      }
-      this.$http.post(this.$constant.baseURL + url, this.pagination, true)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.corporations = res.data.records;
-            this.pagination.total = res.data.total;
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      const res = adminGetCorporationList(this.pagination);
+      this.corporations = res.data;
+      this.pagination.total = res.total;
     },
     handlePageChange(val) {
       this.pagination.current = val;
@@ -171,78 +109,8 @@ export default {
       this.pagination.current = 1;
       this.getCorporations();
     },
-    changeStatus(article, flag) {
-      let param;
-      if (flag === 1) {
-        param = {
-          articleId: article.id,
-          viewStatus: article.viewStatus
-        };
-      } else if (flag === 2) {
-        param = {
-          articleId: article.id,
-          commentStatus: article.commentStatus
-        };
-      } else if (flag === 3) {
-        param = {
-          articleId: article.id,
-          recommendStatus: article.recommendStatus
-        };
-      }
-      this.$http.get(this.$constant.baseURL + '/admin/article/changeArticleStatus', param, true)
-        .then(() => {
-          if (flag === 1) {
-            this.$message({
-              duration: 0,
-              showClose: true,
-              message: '修改成功！注意，文章不可见时必须设置密码才能访问！',
-              type: 'warning'
-            });
-          } else {
-            this.$message({
-              message: '修改成功！',
-              type: 'success'
-            });
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-    handleDelete(item) {
-      this.$confirm('确认删除？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'success',
-        center: true
-      }).then(() => {
-        this.$http.get(this.$constant.baseURL + '/article/deleteArticle', {id: item.id}, true)
-          .then(() => {
-            this.pagination.current = 1;
-            this.getCorporations();
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            });
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: 'error'
-            });
-          });
-      }).catch(() => {
-        this.$message({
-          type: 'success',
-          message: '已取消删除!'
-        });
-      });
-    },
     handleEdit(item) {
-      this.$router.push({path: '/corporationEdit', query: {id: item.id}});
+      this.$router.push({ path: '/admin/corporationEdit', query: {id: item.id }});
     }
   }
 };

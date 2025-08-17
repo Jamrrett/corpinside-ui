@@ -2,7 +2,7 @@ const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   // publicPath: process.env.NODE_ENV === 'production'
-  //   ? '/corpinside-ui/'  // 确保与仓库名一致
+  //   ? '/corpinside/'  // 确保与仓库名一致
   //   : '/',
   devServer: {
     port: 8080,

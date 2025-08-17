@@ -7,15 +7,21 @@
         <router-view></router-view>
       </div>
     </div>
+    <DarkModeButton />
+    <GoTopButton />
   </div>
 </template>
 
 <script>
+import DarkModeButton from "@/components/common/dark-mode-button.vue";
+import GoTopButton from "@/components/common/go-top-button.vue";
 import myHeader from './common/myHeader.vue';
 import sidebar from './common/sidebar.vue';
 
 export default {
   components: {
+    DarkModeButton,
+    GoTopButton,
     myHeader,
     sidebar
   },
@@ -29,15 +35,8 @@ export default {
   watch: {},
 
   created() {
-    let sysConfig = this.$store.state.sysConfig;
-    if (!this.$common.isEmpty(sysConfig) && !this.$common.isEmpty(sysConfig['webStaticResourcePrefix'])) {
-      let root = document.querySelector(':root');
-      let webStaticResourcePrefix = sysConfig['webStaticResourcePrefix'];
-      root.style.setProperty('--backgroundPicture', 'url(' + webStaticResourcePrefix + 'assets/backgroundPicture.jpg)');
-      const font = new FontFace('poetize-font', 'url(' + webStaticResourcePrefix + 'assets/font.woff2)');
-      font.load();
-      document.fonts.add(font);
-    }
+    let root = document.querySelector(':root');
+    root.style.setProperty('--backgroundPicture', 'url(' + process.env.BASE_URL + '/images/backgroundPicture.jpg)');
   },
 
   mounted() {

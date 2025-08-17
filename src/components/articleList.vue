@@ -5,7 +5,7 @@
         <SvgIcon name="edit" :size="20" />
         <span>&thinsp;{{ sortName }}</span>
       </div>
-      <div class="article-edit" style="display: flex;flex-direction: column;justify-content: center">
+      <div v-if="!$common.isEmpty($store.state.currentUser)" class="article-edit" style="display: flex;flex-direction: column;justify-content: center">
         <el-button icon="el-icon-plus" class="add-article-button" @click="handleAdd">发布</el-button>
       </div>
     </div>

@@ -12,7 +12,7 @@
                     style="border-radius: 10px;"
                     v-once
                     lazy
-                    :src="$constant.webURL + corporation.corporationLogo"
+                    :src="BASE_URL + corporation.corporationLogo"
                     fit="cover">
             <div slot="error" class="image-slot myCenter" style="background-color: var(--theme-green)">
               <div class="error-text">
@@ -67,6 +67,12 @@ export default {
       type: Number,
       default: 4,
     },
+  },
+
+  data() {
+    return {
+      BASE_URL: process.env.BASE_URL,
+    };
   },
 
   computed: {
