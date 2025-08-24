@@ -2,6 +2,8 @@ import users from '@/data/users.json';
 import corporations from '@/data/corporations.json';
 import departments from "@/data/departments.json";
 import articles from '@/data/articles.json';
+import sorts from '@/data/sorts.json';
+import sortCorporations from '@/data/sortCorporations.json';
 
 export const adminGetUserList = (params) => {
   const { current, size, searchKey, userType } = params;
@@ -75,5 +77,33 @@ export const adminGetDepartmentList = (params) => {
   return {
     data: departmentList.slice((current - 1) * size, current * size),
     total: departmentList.length,
+  };
+};
+
+export const getWebDataInfo = () => {
+  const articleSortInfo = {};
+  sorts.forEach(sort => {
+    articleSortInfo[sort.sortName] = 0;
+  })
+  articles.forEach(article => {
+    articleSortInfo[sorts.find(sort => sort.id === article.sortId).sortName]++;
+  })
+  const corporationSortInfo = {};
+  sortCorporations.forEach(sortCorporation => {
+    corporationSortInfo[sortCorporation.sortName] = 0;
+  })
+  corporations.forEach(corporation => {
+    corporationSortInfo[sortCorporations.find(sort => sort.id === corporation.sortId).sortName]++;
+  })
+  return {
+    totalCountInfo: {
+      '文章': articles.length,
+      '企业': corporations.length,
+      '部门': departments.length,
+    },
+    sortCountInfo: {
+      '文章分类数据': articleSortInfo,
+      '企业分类数据': corporationSortInfo,
+    },
   };
 };

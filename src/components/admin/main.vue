@@ -15,162 +15,21 @@
 
       <!-- 总览 -->
       <div>
-        <div class="history-title">总览</div>
-        <div>
-          <div style="width: 400px;margin: 0 auto;display: flex;justify-content: center">
-            <div class="history-name" style="line-height: 35px">总访问量（每个IP每天记一次）:</div>
-            <div style="color:var(--maxLightRed);font-weight: bold;font-size: 30px;line-height: 35px">
-              {{historyInfo.ip_history_count}}
+        <div class="web-data-container">
+          <div class="card-row">
+            <div v-for="(item, index) in webDataInfo.totalCountInfo" :key="index" :class="['stat-card', `bg-${index + 1}`]">
+              <div class="card-name">{{ item.key }}</div>
+              <div class="card-number">{{ item.value }}</div>
             </div>
           </div>
-          <div class="history-info" style="width: 640px">
-            <div style="margin-right: 40px">
-              <div class="history-name">省份访问TOP10</div>
-              <div>
-                <el-table :data="historyInfo.ip_history_province">
-                  <el-table-column
-                    type="index"
-                    align="center"
-                    width="60">
-                  </el-table-column>
-                  <el-table-column
-                    prop="province"
-                    align="center"
-                    label="省份"
-                    width="140">
-                  </el-table-column>
-                  <el-table-column
-                    prop="num"
-                    align="center"
-                    label="数量"
-                    width="100">
-                  </el-table-column>
-                </el-table>
-              </div>
-            </div>
-            <div>
-              <div class="history-name">IP访问TOP10</div>
-              <div>
-                <el-table :data="historyInfo.ip_history_ip">
-                  <el-table-column
-                    type="index"
-                    align="center"
-                    width="60">
-                  </el-table-column>
-                  <el-table-column
-                    prop="ip"
-                    align="center"
-                    label="IP"
-                    width="140">
-                  </el-table-column>
-                  <el-table-column
-                    prop="num"
-                    align="center"
-                    label="数量"
-                    width="100">
-                  </el-table-column>
-                </el-table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 今日访问 -->
-      <div>
-        <div class="history-title">今日访问</div>
-        <div>
-          <div style="width: 250px;margin: 0 auto;display: flex;justify-content: center">
-            <div class="history-name" style="line-height: 35px">今日访问量：</div>
-            <div style="color:var(--maxLightRed);font-weight: bold;font-size: 30px;line-height: 35px">
-              {{historyInfo.ip_count_today}}
-            </div>
-          </div>
-          <div class="history-info" style="width: 640px">
-            <div style="margin-right: 40px">
-              <div class="history-name">今日访问省份统计</div>
-              <div>
-                <el-table :data="historyInfo.province_today">
-                  <el-table-column
-                    type="index"
-                    align="center"
-                    width="60">
-                  </el-table-column>
-                  <el-table-column
-                    prop="province"
-                    align="center"
-                    label="省份"
-                    width="140">
-                  </el-table-column>
-                  <el-table-column
-                    prop="num"
-                    align="center"
-                    label="数量"
-                    width="100">
-                  </el-table-column>
-                </el-table>
-              </div>
-            </div>
-            <div>
-              <div class="history-name">今日访问用户</div>
-              <div class="history-avatar">
-                <el-table :data="historyInfo.username_today">
-                  <el-table-column
-                    align="center"
-                    label="头像"
-                    width="100">
-                    <template slot-scope="scope">
-                      <el-avatar class="user-avatar" :size="30"
-                                 :src="scope.row.avatar">
-                      </el-avatar>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    prop="username"
-                    align="center"
-                    label="用户"
-                    width="200">
-                  </el-table-column>
-                </el-table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 昨日访问 -->
-      <div>
-        <div class="history-title">昨日访问</div>
-        <div>
-          <div style="width: 250px;margin: 0 auto;display: flex;justify-content: center">
-            <div class="history-name" style="line-height: 35px">昨日访问量：</div>
-            <div style="color:var(--maxLightRed);font-weight: bold;font-size: 30px;line-height: 35px">
-              {{historyInfo.ip_count_yest}}
-            </div>
-          </div>
-          <div class="history-info" style="width: 300px">
-            <div>
-              <div class="history-name">昨日访问用户</div>
-              <div class="history-avatar">
-                <el-table :data="historyInfo.username_yest">
-                  <el-table-column
-                    align="center"
-                    label="头像"
-                    width="100">
-                    <template slot-scope="scope">
-                      <el-avatar class="user-avatar" :size="30"
-                                 :src="scope.row.avatar">
-                      </el-avatar>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
-                    prop="username"
-                    align="center"
-                    label="用户"
-                    width="200">
-                  </el-table-column>
-                </el-table>
-              </div>
+          <!-- 第二行：两个表格 -->
+          <div class="second-row">
+            <div class="table-item" v-for="(item, index) in webDataInfo.sortCountInfo" :key="index">
+              <div class="table-title">{{ item.key }}</div>
+              <el-table :data="item.value">
+                <el-table-column prop="key" label="分类名称" align="center" />
+                <el-table-column prop="value" label="数量" align="center" />
+              </el-table>
             </div>
           </div>
         </div>
@@ -180,39 +39,35 @@
 </template>
 
 <script>
+import {getWebDataInfo} from '@/utils/data/admin';
+
 export default {
   data() {
     return {
-      historyInfo: {}
+      webDataInfo: [],
     };
   },
 
-  computed: {},
-
-  watch: {},
-
   created() {
-    this.getHistoryInfo();
-  },
-
-  mounted() {
-
+    this.getWebDataInfo();
   },
 
   methods: {
-    getHistoryInfo() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/getHistoryInfo', {}, true)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.historyInfo = res.data;
-          }
+    getWebDataInfo() {
+      this.webDataInfo = getWebDataInfo();
+      this.webDataInfo.totalCountInfo = this.turnObjectToTableArray(this.webDataInfo.totalCountInfo);
+      this.webDataInfo.sortCountInfo = this.turnObjectToTableArray(this.webDataInfo.sortCountInfo);
+      console.log(this.webDataInfo);
+    },
+    turnObjectToTableArray(object) {
+      let array = [];
+      for (let key in object) {
+        array.push({
+          key: key,
+          value: typeof object[key] === 'object' ? this.turnObjectToTableArray(object[key]) : object[key],
         })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      }
+      return array;
     }
   }
 };
@@ -235,40 +90,72 @@ export default {
     margin: 10px;
   }
 
-  .history-title {
-    margin: 15px auto 15px;
-    width: 120px;
-    text-align: center;
-    padding: 10px 20px;
-    background: var(--lightGreen);
-    color: var(--white);
-    font-weight: bold;
-    border-radius: 5px;
+  .web-data-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
   }
 
-  .history-name {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 10px 10px 0;
-    text-align: center;
-  }
-
-  .history-info {
+  .card-row {
     display: flex;
-    text-align: center;
-    margin: 20px auto 0;
+    gap: 40px;
+    margin-bottom: 32px;
+    background: var(--theme-background);
+
+    .stat-card {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px 40px;
+      color: var(--white-content);
+      border-radius: 10px;
+      box-shadow:
+        0 10px 0 0 var(--background),
+        0 -10px 0 0 var(--background),
+        40px 0 0 0 var(--background),
+        -40px 0 0 0 var(--background);
+
+      .card-name {
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .card-number {
+        font-size: 50px;
+        font-weight: bold;
+        text-align: right;
+        margin-top: 10px;
+      }
+    }
   }
 
-  .history-info >>> .el-table .cell {
-    line-height: unset;
+  .second-row {
+    display: flex;
+    gap: 40px;
+
+    .table-item {
+      flex: 1;
+      border-radius: 6px;
+      overflow: hidden;
+
+      .table-title {
+        padding: 10px 20px;
+        background-color: var(--label-background);
+        border-bottom: 1px solid #EBEEF5;
+        font-weight: bold;
+      }
+    }
   }
 
-  .history-avatar >>> .el-table .el-table__row .el-table__cell {
-    padding: 3.5px 0;
-  }
+  .el-table {
+    tr {
+      background: var(--content-background-color) !important;
 
-  .history-info >>> .el-table::before {
-    height: unset;
+      .el-table__cell {
+        background: var(--content-background-color) !important;
+      }
+    }
   }
 
 </style>

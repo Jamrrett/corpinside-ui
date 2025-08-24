@@ -44,7 +44,6 @@ export default {
   },
   computed: {},
   created() {
-    console.log(process.env);
     let root = document.querySelector(':root');
     root.style.setProperty('--backgroundPicture', 'url(' + this.$constant.webURL + '/images/backgroundPicture.jpg)');
   },
@@ -64,17 +63,16 @@ export default {
         isAdmin: true
       };
 
-      // this.$localRequest.post('/user/login', user, true, false)
-      this.$http.post('/user/login', user, true, false)
+      this.$localRequest.post('/user/login', user, true, false)
         .then((res) => {
           if (!this.$common.isEmpty(res.data)) {
             localStorage.setItem('adminToken', res.data.accessToken);
-            this.$store.commit('loadCurrentAdmin', res.data);
-            this.$store.commit('loadCurrentUser', res.data);
+            this.$store.commit('loadCurrentAdmin', res.data.user);
+            this.$store.commit('loadCurrentUser', res.data.user);
             localStorage.setItem('userToken', res.data.accessToken);
             this.account = '';
             this.password = '';
-            this.$router.push({ path: this.redirect });
+            this.$router.push({ path: this.redirect || '/admin' });
           }
         })
         .catch((error) => {

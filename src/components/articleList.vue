@@ -5,7 +5,7 @@
         <SvgIcon name="edit" :size="20" />
         <span>&thinsp;{{ sortName }}</span>
       </div>
-      <div v-if="!$common.isEmpty($store.state.currentUser)" class="article-edit" style="display: flex;flex-direction: column;justify-content: center">
+      <div v-if="!$common.isEmpty($store.state.currentUser)" class="article-edit">
         <el-button icon="el-icon-plus" class="add-article-button" @click="handleAdd">发布</el-button>
       </div>
     </div>
@@ -35,10 +35,10 @@
           <div class="article-list-item__footer">
             <!-- 信息 -->
             <div class="article-list-item__footer-info">
-              <div class="article-list-item__footer-info-item">
+              <router-link :to="{ path: `/user/${article.userId}` }" class="article-list-item__footer-info-item">
                 <SvgIcon name="user" :size="14" />
                 <span>{{ article.username }}</span>
-              </div>
+              </router-link>
               <div class="article-list-item__footer-info-item">
                 <SvgIcon name="date" :size="14" />
                 <span>{{ article.date }}</span>
@@ -141,6 +141,12 @@ export default {
       font-size: 20px;
       line-height: 30px;
     }
+
+    .article-edit {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 }
 
@@ -184,7 +190,7 @@ export default {
   &__title {
     width: 90%;
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -202,6 +208,7 @@ export default {
     }
 
     &-paragraph {
+      word-break: break-all;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
@@ -258,9 +265,24 @@ export default {
 }
 
 @media screen and (max-width: 520px) {
+  .article-list-header {
+    height: 55px !important;
+
+    .article-list-header__title {
+      font-size: 18px;
+    }
+  }
   .article-list-item {
     padding: 15px 20px 15px;
     gap: 6px;
+
+    .article-list-item__title {
+      font-size: 18px;
+    }
+
+    .article-list-item__content-inner {
+      font-size: 14px;
+    }
   }
 
   .article-list-item__footer {

@@ -88,7 +88,9 @@
 
     --white-content: #ffffff;
     --grey-content: #797979;
+    --light-grey-content: #696969;
     --grey-background: #bbbbbb;
+    --light-grey-background: #eaeaea;
     --label-background: rgba(200, 200, 200, 0.2);
     --list-item-border: #cccccc;
     --content-border: #aaaaaa;

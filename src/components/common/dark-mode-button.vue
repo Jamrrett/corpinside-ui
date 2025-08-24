@@ -61,7 +61,9 @@ export default {
         root.style.setProperty('--theme-blue', '#347ab2');
         root.style.setProperty('--white-content', '#eeeeee');
         root.style.setProperty('--grey-content', '#898989');
-        root.style.setProperty('--grey-background', '#444444');
+        root.style.setProperty('--light-grey-content', '#bbbbbb');
+        root.style.setProperty('--grey-background', '#666666');
+        root.style.setProperty('--light-grey-background', '#444444');
         root.style.setProperty('--label-background', 'rgba(128, 128, 128, 0.2)');
         root.style.setProperty('--list-item-border', '#494949');
         root.style.setProperty('--content-border', '#777777');
@@ -85,7 +87,9 @@ export default {
         root.style.setProperty('--theme-blue', '#87cefa');
         root.style.setProperty('--white-content', '#ffffff');
         root.style.setProperty('--grey-content', '#797979');
+        root.style.setProperty('--light-grey-content', '#696969');
         root.style.setProperty('--grey-background', '#bbbbbb');
+        root.style.setProperty('--light-grey-background', '#eaeaea');
         root.style.setProperty('--label-background', 'rgba(200, 200, 200, 0.2)');
         root.style.setProperty('--list-item-border', '#cccccc');
         root.style.setProperty('--content-border', '#aaaaaa');

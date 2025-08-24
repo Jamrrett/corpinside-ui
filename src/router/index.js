@@ -52,10 +52,10 @@ const routes = [
     //   path: '/login',
     //   name: 'login',
     //   component: () => import('../components/login')
-    // }, {
-    //   path: '/user/:userId',
-    //   name: 'user',
-    //   component: () => import('../components/user')
+    }, {
+      path: '/user/:userId',
+      name: 'user',
+      component: () => import('../components/user')
     }, {
       path: '/articleEdit',
       name: 'articleEdit',
@@ -70,10 +70,6 @@ const routes = [
       path: '/admin',
       name: 'main',
       component: () => import('../components/admin/main')
-    }, {
-      path: '/admin/webEdit',
-      name: 'webEdit',
-      component: () => import('../components/admin/webEdit')
     }, {
       path: '/admin/userList',
       name: 'userList',

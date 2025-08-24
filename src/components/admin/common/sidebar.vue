@@ -1,8 +1,8 @@
 <template>
   <div class="sidebar">
-    <div @click="collapse()" style="color: rgb(96, 98, 102);cursor: pointer;background-color: #ebf1f6;display: flex">
+    <div @click="collapse()" style="color: rgb(96, 98, 102);cursor: pointer;background-color: #ebf1f6;display: flex;align-items: center">
       <i class="el-icon-menu" style="margin: 14px;font-size: 17px"></i>
-      <div style="font-size: 15px;margin-top: 13px">折叠</div>
+      <div style="font-size: 15px">折叠</div>
     </div>
     <el-menu class="sidebar-el-menu"
              background-color="#ebf1f6"
@@ -28,10 +28,6 @@ export default {
         icon: 'el-icon-s-home',
         index: '/admin',
         title: '系统首页',
-      }, {
-        icon: 'el-icon-s-tools',
-        index: '/admin/webEdit',
-        title: '网站设置',
       }, {
         icon: 'el-icon-user-solid',
         index: '/admin/userList',
@@ -96,7 +92,7 @@ export default {
 }
 
 .sidebar > ul {
-  height: 100%;
+  height: calc(100% - 45px);
 }
 
 .sidebar-el-menu .el-menu-item {

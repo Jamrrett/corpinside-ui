@@ -12,7 +12,7 @@ export default {
 
   host: location.hostname + (location.port ? ':' + location.port : ''),
 
-  tocbot: 'https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.18.2/tocbot.min.js',
+  tocbot: '/js/tocbot.min.js',
 
   //前后端定义的密钥，AES使用16位
   cryptojs_key: 'sarasarasarasara',

@@ -171,22 +171,13 @@ export default {
       this.toolbarDrawer = false;
     },
     logout() {
-      this.$http.get(this.$constant.baseURL + '/user/logout')
-        .then((res) => {
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
       this.$store.commit('loadCurrentUser', {});
       localStorage.removeItem('userToken');
-      // if (this.$route.path === '/') {
-      //   this.$router.go(0);
-      // } else {
-      //   this.$router.push({ path: '/' });
-      // }
+
+      if (this.$store.state.currentAdmin) {
+        this.$store.commit('loadCurrentAdmin', {});
+        localStorage.removeItem('adminToken');
+      }
       if (this.$route.path.includes('articleEdit')) {
         window.location.assign('/');
       } else {

@@ -15,7 +15,7 @@ const sortedArticles = getSortedArticles();
 
 export const getArticleById = (id) => {
   return articles.find(article => article.id === id);
-}
+};
 
 export const getArticlesByCorporationIdGroupBySortId = (corporationId) => {
   return articles.filter(article => article.corporationId === corporationId).reduce((acc, article) => {
@@ -25,7 +25,7 @@ export const getArticlesByCorporationIdGroupBySortId = (corporationId) => {
     acc[article.sortId].push(article);
     return acc;
   }, {});
-}
+};
 
 export const getArticlesByDepartmentIdGroupBySortId = (departmentId) => {
   return articles.filter(article => article.departmentId === departmentId).reduce((acc, article) => {
@@ -35,27 +35,32 @@ export const getArticlesByDepartmentIdGroupBySortId = (departmentId) => {
     acc[article.sortId].push(article);
     return acc;
   }, {});
-}
+};
 
-export const getArticlesBySortId = (sortId, pagination, corporationId, departmentId) => {
-  const { current, size } = pagination;
-  let articlesBySortId;
+export const listArticle = (pagination) => {
+  const { current, size, sortId, corporationId, departmentId, userId } = pagination;
+  let articlesBySortId = sortedArticles;
+  if (sortId) {
+    articlesBySortId = articlesBySortId.filter(article => article.sortId === sortId);
+  }
+  if (corporationId) {
+    articlesBySortId = articlesBySortId.filter(article => article.corporationId === corporationId);
+  }
   if (departmentId) {
     articlesBySortId = sortedArticles.filter(article => article.sortId === sortId && article.departmentId === departmentId);
-  } else if (corporationId) {
-    articlesBySortId = sortedArticles.filter(article => article.sortId === sortId && article.corporationId === corporationId);
-  } else {
-    articlesBySortId = sortedArticles.filter(article => article.sortId === sortId);
+  }
+  if (userId) {
+    articlesBySortId = articlesBySortId.filter(article => article.userId === userId);
   }
   return {
     data: articlesBySortId.slice((current - 1) * size, current * size),
     total: articlesBySortId.length,
   };
-}
+};
 
 export const getRecommendArticles = (count) => {
   let recommendArticles = [];
-  for (const article of articles) {
+  for (const article of sortedArticles) {
     if (article.recommendStatus) {
       article.sort = getSortInfoById(article.sortId);
       recommendArticles.push(article);
@@ -65,4 +70,8 @@ export const getRecommendArticles = (count) => {
     }
   }
   return recommendArticles;
-}
+};
+
+export const getNewArticleId = () => {
+  return (articles.length + 1).toString();
+};

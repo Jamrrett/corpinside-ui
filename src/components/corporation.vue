@@ -40,7 +40,7 @@
             <div class="corporation-label-items">
               <router-link class="corporation-label-item" :to="{path: `/sortCorporation/${corporation.sortId}`}">
                 <SvgIcon name="label" :size="15"/>
-                <span>{{ $store.state.sortCorporationInfo[corporation.sortId].sortName }}</span>
+                <span>{{ $store.state.sortCorporationInfo.find(item => item.id === corporation.sortId).sortName }}</span>
               </router-link>
             </div>
           </div>

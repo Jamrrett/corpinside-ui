@@ -24,7 +24,7 @@
 const IntroduceSearchHeader = () => import( './common/introduce-search-header');
 const ArticleList = () => import( './articleList');
 const RecommendArticle = () => import( './common/recommend-article');
-import { getArticlesBySortId } from '@/utils/data/article';
+import { listArticle } from '@/utils/data/article';
 
 export default {
   components: {
@@ -36,8 +36,6 @@ export default {
   data() {
     return {
       sortId: this.$route.params.sortId,
-      corporationId: this.$route.query.corporationId,
-      departmentId: this.$route.query.departmentId,
       sort: {},
       pagination: {
         current: 1,
@@ -45,6 +43,8 @@ export default {
         total: 0,
         searchKey: '',
         sortId: this.$route.params.sortId,
+        corporationId: this.$route.query.corporationId,
+        departmentId: this.$route.query.departmentId,
       },
       articles: [],
     };
@@ -58,11 +58,11 @@ export default {
         total: 0,
         searchKey: '',
         sortId: this.$route.params.sortId,
+        corporationId: this.$route.query.corporationId,
+        departmentId: this.$route.query.departmentId,
       };
       this.articles.splice(0, this.articles.length);
       this.sortId = this.$route.params.sortId;
-      this.corporationId = this.$route.query.corporationId;
-      this.departmentId = this.$route.query.departmentId;
       this.getSort();
       this.getArticles();
     }
@@ -91,7 +91,7 @@ export default {
       }
     },
     getArticles() {
-      const res = getArticlesBySortId(this.$route.params.sortId, this.pagination, this.corporationId, this.departmentId);
+      const res = listArticle(this.pagination);
       this.articles = this.articles.concat(res.data);
       this.pagination.total = res.total;
     }

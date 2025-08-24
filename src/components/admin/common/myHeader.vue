@@ -58,17 +58,10 @@ export default {
 
   methods: {
     logout() {
-      this.$http.get(this.$constant.baseURL + '/user/logout', {}, true)
-        .then(() => {
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
       this.$store.commit('loadCurrentAdmin', {});
+      this.$store.commit('loadCurrentUser', {});
       localStorage.removeItem('adminToken');
+      localStorage.removeItem('userToken');
       this.$router.push({path: '/'});
     }
   }

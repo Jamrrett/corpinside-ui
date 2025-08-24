@@ -1,5 +1,6 @@
 import corporations from '@/data/corporations.json';
 import sortCorporations from '@/data/sortCorporations.json';
+import articles from "@/data/articles.json";
 
 export const getCorporationById = (id) => {
   return corporations.find(corporation => corporation.id === id);
@@ -42,4 +43,8 @@ export const getCorporationTitles = () => {
     id: item.id,
     corporationTitle: item.corporationTitle,
   }));
+};
+
+export const getNewCorporationId = () => {
+  return (corporations.length + 1).toString();
 };

@@ -13,6 +13,7 @@
   "article": {
     "id": "0",
     "sortId": "0",
+    "userId": "0",
     "username": "username",
     "articleTitle": "articleTitle",
     "articleContent": "articleContent",

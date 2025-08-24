@@ -10,7 +10,7 @@
             <div class="article-info-items">
               <div class="article-info-item">
                 <SvgIcon name="user" :size="14" />
-                <router-link :to="{ path: '/about' }">{{ article.username }}</router-link>
+                <router-link :to="{ path: `/user/${article.userId}` }">{{ article.username }}</router-link>
               </div>
               <span>·</span>
               <div class="article-info-item">
@@ -150,7 +150,10 @@ export default {
           fixedSidebarOffset: 'auto',
           scrollSmoothOffset: -75,
           headingsOffset: -150,
-          hasInnerContainers: false
+          hasInnerContainers: false,
+          onClick: (e) => {
+            e.preventDefault();
+          }
         });
       };
       if (this.$common.mobile()) {
@@ -385,6 +388,7 @@ export default {
 @media screen and (max-width: 640px) {
   .article-head {
     .article-title {
+      font-size: 28px;
       padding: 16px 20px 6px;
     }
 
@@ -396,6 +400,10 @@ export default {
         display: none;
       }
     }
+  }
+
+  .article-container {
+    padding: 0 20px;
   }
 }
 

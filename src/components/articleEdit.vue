@@ -25,29 +25,16 @@
         </el-form-item>
 
         <el-form-item label="内容" prop="articleContent">
-          <mavon-editor ref="md" @imgAdd="imgAdd" v-model="article.articleContent"/>
+          <mavon-editor ref="md" v-model="article.articleContent"/>
         </el-form-item>
 
-        <el-form-item label="公司" prop="corporationId">
-          <el-select v-model="article.corporationId" placeholder="请选择公司">
-            <el-option
-              v-for="item in corporations"
-              :key="item.id"
-              :label="item.corporationTitle"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="部门" prop="departmentId">
-          <el-select :disabled="$common.isEmpty(article.corporationId)" v-model="article.departmentId" placeholder="请选择部门">
-            <el-option
-              v-for="item in departments"
-              :key="item.id"
-              :label="item.departmentTitle"
-              :value="item.id">
-            </el-option>
-          </el-select>
+        <el-form-item label="日期" prop="date">
+          <el-date-picker
+            v-model="article.date"
+            type="date"
+            placeholder="选择日期"
+            value-format="yyyy-MM-dd">
+          </el-date-picker>
         </el-form-item>
 
         <el-form-item label="分类" prop="sortId">
@@ -60,37 +47,67 @@
             </el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item v-if="article.sortId !== '3'" label="公司" prop="corporationId">
+          <el-select v-model="article.corporationId" placeholder="请选择公司">
+            <el-option
+              v-for="item in corporations"
+              :key="item.id"
+              :label="item.corporationTitle"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item v-if="article.sortId !== '3'" label="部门" prop="departmentId">
+          <el-select :disabled="$common.isEmpty(article.corporationId)" v-model="article.departmentId" placeholder="请选择部门">
+            <el-option
+              v-for="item in departments"
+              :key="item.id"
+              :label="item.departmentTitle"
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
     </div>
     <div class="myCenter" style="padding-bottom: 22px">
-      <el-button type="danger" v-if="!this.$common.isEmpty(this.id)" style="margin-right: 30px" @click="deleteForm('ruleForm')">删除文章</el-button>
       <el-button type="info"  style="margin-right: 30px" @click="resetForm('ruleForm')">重置所有修改</el-button>
       <el-button type="primary" @click="submitForm('ruleForm')">保存</el-button>
     </div>
+    <el-dialog title="新数据对象" :visible.sync="newDataVisible" center>
+      <div class="data-container">
+        <pre class="formatted-data">{{ formattedNewData }}</pre>
+        <div class="copy-button">
+          <el-button type="primary" icon="el-icon-document-copy" @click="copyFormattedData">
+            复制
+          </el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import {getCorporationTitles} from "@/utils/data/corporation";
+import {getDepartmentsByCorporationId} from "@/utils/data/department";
+import {getArticleById, getNewArticleId} from "@/utils/data/article";
+
+import {getCorporationById} from "@/utils/data/corporation";
+import {getDepartmentById} from "@/utils/data/department";
+import {getFormattedCurrentTime, copyFormattedData} from "@/utils/helper";
 
 export default {
-  components: {
-  },
   data() {
     return {
       id: this.$route.query.id,
       article: {
         articleTitle: '',
         articleContent: '',
-        commentStatus: true,
-        recommendStatus: false,
-        viewStatus: true,
-        password: '',
-        tips: '',
-        articleCover: '',
-        videoUrl: '',
+        date: null,
+        sortId: null,
         corporationId: null,
         departmentId: null,
-        sortId: null
       },
       sorts: [],
       corporations: [],
@@ -102,20 +119,24 @@ export default {
         articleContent: [
           {required: true, message: '请输入内容', trigger: 'change'}
         ],
+        date: [
+          {required: true, message: '请选择日期', trigger: 'change'}
+        ],
+        sortId: [
+          {required: true, message: '分类', trigger: 'change'}
+        ],
         corporationId: [
           {required: true, message: '公司', trigger: 'change'}
         ],
         departmentId: [
           {required: true, message: '部门', trigger: 'blur'}
-        ],
-        sortId: [
-          {required: true, message: '分类', trigger: 'change'}
         ]
-      }
+      },
+      newData: {},
+      newDataVisible: false,
+      formattedNewData: '',
     };
   },
-
-  computed: {},
 
   watch: {
     'article.corporationId'(newVal, oldVal) {
@@ -132,142 +153,33 @@ export default {
     this.getSortAndCorporation();
   },
 
-  mounted() {
-
-  },
-
   methods: {
-    imgAdd(pos, file) {
-      let suffix = '';
-      if (file.name.lastIndexOf('.') !== -1) {
-        suffix = file.name.substring(file.name.lastIndexOf('.'));
-      }
-      let key = 'articlePicture' + '/' + this.$store.state.currentAdmin.username.replace(/[^a-zA-Z]/g, '') + this.$store.state.currentAdmin.id + new Date().getTime() + Math.floor(Math.random() * 1000) + suffix;
-
-      let storeType = localStorage.getItem('defaultStoreType');
-
-      let fd = new FormData();
-      fd.append('file', file);
-      fd.append('originalName', file.name);
-      fd.append('key', key);
-      fd.append('relativePath', key);
-      fd.append('type', 'articlePicture');
-      fd.append('storeType', storeType);
-
-      if (storeType === 'local') {
-        this.saveLocal(pos, fd);
-      } else if (storeType === 'qiniu') {
-        this.saveQiniu(pos, fd);
-      }
-    },
-    saveLocal(pos, fd) {
-      this.$http.upload(this.$constant.baseURL + '/resource/upload', fd, true)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            let url = res.data;
-            this.$refs.md.$img2Url(pos, url);
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-    saveQiniu(pos, fd) {
-      this.$http.get(this.$constant.baseURL + '/qiniu/getUpToken', {key: fd.get('key')}, true)
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            fd.append('token', res.data);
-
-            this.$http.uploadQiniu(this.$store.state.sysConfig.qiniuUrl, fd)
-              .then((res) => {
-                if (!this.$common.isEmpty(res.key)) {
-                  let url = this.$store.state.sysConfig['qiniu.downloadUrl'] + res.key;
-                  let file = fd.get('file');
-                  this.$common.saveResource(this, 'articlePicture', url, file.size, file.type, file.name, 'qiniu', true);
-                  this.$refs.md.$img2Url(pos, url);
-                }
-              })
-              .catch((error) => {
-                this.$message({
-                  message: error.message,
-                  type: 'error'
-                });
-              });
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
-    },
-    addArticleCover(res) {
-      this.article.articleCover = res;
-    },
     getSortAndCorporation() {
-      this.$http.get(this.$constant.baseURL + '/webInfo/listSortAndCorporations')
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.sorts = res.data.sorts;
-            this.corporations = res.data.corporations;
-            console.log(res.data);
-            if (!this.$common.isEmpty(this.id)) {
-              this.getArticle();
-            }
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-        });
+      this.sorts = this.$store.state.sortInfo;
+      this.corporations = getCorporationTitles();
+      if (!this.$common.isEmpty(this.id)) {
+        this.getArticle();
+      }
     },
     getDepartmentByCorporation() {
       if (!this.$common.isEmpty(this.article.corporationId)) {
-        this.$http.get(this.$constant.baseURL + '/department/getDepartmentByCorporationId', {id: this.article.corporationId})
-          .then((res) => {
-            this.departments = res.data;
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: 'error'
-            });
-          });
-      }
-      else {
+        this.departments = getDepartmentsByCorporationId(this.article.corporationId);
+      } else {
         this.departments = [];
       }
     },
     getArticle() {
-      this.$http.get(this.$constant.baseURL + '/article/getArticleByIdForEdit', {id: this.id})
-        .then((res) => {
-          if (!this.$common.isEmpty(res.data)) {
-            this.article = res.data;
-            this.getDepartmentByCorporation();
-          }
-        })
-        .catch((error) => {
-          this.$message({
-            message: error.message,
-            type: 'error'
-          });
-          this.$router.push({path: `/user/${this.$store.state.currentUser.id}`});
-        });
+      this.article = getArticleById(this.id);
+      this.getDepartmentByCorporation();
     },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.$common.isEmpty(this.id)) {
-            this.saveArticle(this.article, '/article/saveArticle');
+            this.saveArticle(this.article);
           } else {
             this.article.id = this.id;
-            this.saveArticle(this.article, '/article/updateArticle');
+            this.saveArticle(this.article);
           }
         } else {
           this.$message({
@@ -294,61 +206,49 @@ export default {
         });
       }).catch(() => {});
     },
-    deleteForm(formName) {
-      this.$confirm('确认删除？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'error',
-        center: true
-      }).then(() => {
-        this.$http.get(this.$constant.baseURL + '/article/deleteArticle', {id: this.id})
-          .then((res) => {
-            let articleId = res.data;
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            });
-            // this.$router.push({path: '/postList'});
-            window.location.replace(`/user/${this.$store.state.currentUser.id}`);
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: 'error'
-            });
-          });
-      }).catch(() => {});
-    },
-    saveArticle(value, url) {
+    saveArticle(value) {
       this.$confirm('确认保存？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'success',
         center: true
       }).then(() => {
-        this.$http.post(this.$constant.baseURL + url, value)
-          .then((res) => {
-            let articleId = res.data;
-            this.$message({
-              message: '保存成功！',
-              type: 'success'
-            });
-            // this.$router.push({path: '/postList'});
-            window.location.replace(`/article/${articleId}`);
-          })
-          .catch((error) => {
-            this.$message({
-              message: error.message,
-              type: 'error'
-            });
-          });
+        if (value.sortId === '3') {
+          value.corporationId = undefined;
+          value.departmentId = undefined;
+        }
+        const newCorporation = getCorporationById(value.corporationId);
+        const newDepartment = getDepartmentById(value.departmentId);
+        const newCorporationSortInfo = this.$store.state.sortCorporationInfo.find(item => item.id === newCorporation?.sortId);
+        const nowTime = getFormattedCurrentTime();
+        this.newData = {
+          id: this.id || getNewArticleId(),
+          sortId: value.sortId,
+          userId: this.$store.state.currentUser.id,
+          username: this.$store.state.currentUser.username,
+          articleTitle: value.articleTitle,
+          articleContent: value.articleContent,
+          corporationId: value.corporationId,
+          corporationTitle: newCorporation?.corporationTitle,
+          departmentId: value.departmentId,
+          departmentTitle: newDepartment?.departmentTitle,
+          sortCorporationId: newCorporation?.sortId,
+          sortCorporationName: newCorporationSortInfo?.sortName,
+          date: value.date,
+          createTime: value.createTime || nowTime,
+          updateTime: nowTime,
+          recommendStatus: false
+        };
+        this.newDataVisible = true;
+        this.formattedNewData = JSON.stringify(this.newData, null, 2);
       }).catch(() => {
         this.$message({
           type: 'success',
           message: '已取消保存!'
         });
       });
-    }
+    },
+    copyFormattedData,
   }
 };
 </script>
@@ -374,6 +274,14 @@ export default {
     margin: 0 auto;
     display: flex;
     padding: 0 20px 0 20px;
+
+    .v-note-wrapper {
+      z-index: 2;
+    }
+
+    .v-note-wrapper.fullscreen {
+      z-index: 9999;
+    }
   }
 
   .table-td-thumb {
@@ -388,5 +296,25 @@ export default {
 
   .el-form-item {
     margin-bottom: 40px;
+  }
+
+  .data-container {
+    position: relative;
+
+    .formatted-data {
+      background-color: #f5f5f5;
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+      max-height: 400px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
   }
 </style>

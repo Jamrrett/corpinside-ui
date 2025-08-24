@@ -15,10 +15,10 @@
           </div>
 
           <div class="recommend-article-info">
-            <div class="recommend-article-info-item">
+            <router-link :to="{ path: `/user/${article.userId}` }" class="recommend-article-info-item">
               <SvgIcon name="user" :size="13" style="margin-top: 1px" />
               <span>{{ article.username }}</span>
-            </div>
+            </router-link>
             <div class="recommend-article-info-item">
               <SvgIcon name="date" :size="13" />
               <span>{{ article.date }}</span>
